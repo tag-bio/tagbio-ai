@@ -1,0 +1,10 @@
+// Tests the Python plugin protocol; the mandatory cohort argument is satisfied with all entities.
+{
+  "protocol_instance": {
+    "name": "python_bp",
+    "arguments": {
+      "background_cohort": { "data_function_type": "categorical-all" }
+    }
+  },
+  "output": "_test_results/test_python_bp.html"
+}

@@ -1,0 +1,28 @@
+// An external (Python plugin) protocol, wired to the cohort builder.
+{
+  "protocol_definition": {
+    "name": "python_bp",
+    "title": "Blood Pressure Report (Python)",
+    "description": "Blood pressure distributions for a chosen cohort, rendered by a Python plugin.",
+    "argument_sets": [
+      "protocols/argument_sets/argument_set_background_cohort.json"
+    ]
+  },
+  "script": {
+    "method": "external",
+    "sdk": "connect_tagbio_py",
+    "plugin": "protocols/plugins/plugin_bp.py",
+    "output_type": "html",
+
+    "background": {
+      "data_function_type": "argument-reference",
+      "argument": "background_cohort"
+    },
+
+    "analysis_variables": [
+      "protocols/data_functions/department_categorical.json",
+      "protocols/data_functions/systolic_bp_numeric.json",
+      "protocols/data_functions/diastolic_bp_numeric.json"
+    ]
+  }
+}

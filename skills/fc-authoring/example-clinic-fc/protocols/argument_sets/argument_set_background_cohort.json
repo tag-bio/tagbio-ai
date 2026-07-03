@@ -1,0 +1,17 @@
+// The cohort builder: a "cohort" argument the user fills interactively (via the built-in
+// default_cohort_protocol) to subset entities. A protocol's script.background references it.
+{
+  "argument_set_definition": {
+    "argument_set_type": "mandatory",
+    "name": "background_cohort_argument_set",
+    "title": "Specify a Background Cohort"
+  },
+  "arguments": [
+    {
+      "argument_type": "cohort",
+      "name": "background_cohort",
+      "title": "Background Cohort",
+      "argument_protocol": "default_cohort_protocol"
+    }
+  ]
+}

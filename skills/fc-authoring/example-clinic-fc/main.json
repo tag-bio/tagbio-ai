@@ -1,0 +1,22 @@
+// The main file: the data product's identity, its registered protocols, and their tests.
+{
+  "data_product_definition": {
+    "name": "fc-clinic",
+    "title": "Clinic FC (example)",
+    "description": "A tiny fictional clinic data product used to teach FC authoring.",
+    "entity_name_singular": "encounter",
+    "entity_name_plural": "encounters"
+  },
+
+  "protocols": [
+    "protocols/protocol_bp_by_department.json",
+    "protocols/protocol_python_bp.json",
+    "protocols/protocol_download.json"
+  ],
+
+  "tests": [
+    "tests/test_bp_by_department.json",
+    "tests/test_python_bp.json",
+    "tests/test_download.json"
+  ]
+}

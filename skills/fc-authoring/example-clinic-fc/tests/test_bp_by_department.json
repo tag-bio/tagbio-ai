@@ -1,0 +1,7 @@
+// Mocks an API call to the protocol and writes its output, so the build can auto-test it.
+{
+  "protocol_instance": {
+    "name": "bp_by_department"
+  },
+  "output": "_test_results/test_bp_by_department.html"
+}

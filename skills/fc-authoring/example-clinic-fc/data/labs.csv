@@ -1,0 +1,9 @@
+lab_id,encounter_id,patient_id,panel,analyte,result_value,result_unit
+L01,E1001,P001,Lipid,LDL,142,mg/dL
+L02,E1001,P001,Lipid,HDL,48,mg/dL
+L03,E1002,P001,Lipid,LDL,118,mg/dL
+L04,E1003,P002,Metabolic,HbA1c,7.8,%
+L05,E1005,P004,Lipid,LDL,155,mg/dL
+L06,E1006,P005,Metabolic,Glucose,92,mg/dL
+L07,E1007,P002,Metabolic,HbA1c,7.1,%
+L08,E1008,P006,Metabolic,Glucose,101,mg/dL

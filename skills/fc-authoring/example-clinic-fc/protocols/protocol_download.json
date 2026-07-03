@@ -1,0 +1,19 @@
+// A download protocol: exports all data for a user-chosen cohort. method "download" is a
+// built-in utility (no plugin). The cohort builder supplies the entity subset via background.
+{
+  "protocol_definition": {
+    "name": "download",
+    "title": "Download",
+    "description": "Download a CSV of all data for the chosen cohort of encounters.",
+    "argument_sets": [
+      "protocols/argument_sets/argument_set_background_cohort.json"
+    ]
+  },
+  "script": {
+    "method": "download",
+    "background": {
+      "data_function_type": "argument-reference",
+      "argument": "background_cohort"
+    }
+  }
+}

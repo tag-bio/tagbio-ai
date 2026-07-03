@@ -1,0 +1,6 @@
+[
+  { "parser_type": "categorical-map", "column": "sex",
+    "map": { "F": "Female", "M": "Male" }, "collection": "Sex" },
+  { "parser_type": "categorical", "column": "region", "collection": "Patient Region" },
+  { "parser_type": "numeric", "column": "age", "collection": "Patient Age", "variable": "Patient Age" }
+]

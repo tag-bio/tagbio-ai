@@ -1,0 +1,6 @@
+[
+  { "parser_type": "categorical", "column": "panel", "collection": "Lab Panel", "collection_set": "Labs" },
+  { "parser_type": "categorical", "column": "analyte", "collection": "Lab Analyte", "collection_set": "Labs" },
+  { "parser_type": "numeric", "column": "result_value",
+    "collection": "Lab Result", "variable": "Lab Result", "collection_set": "Labs" }
+]

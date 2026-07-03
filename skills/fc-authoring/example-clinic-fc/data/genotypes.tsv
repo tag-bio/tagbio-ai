@@ -1,0 +1,4 @@
+marker_id	gene	P001	P002	P003	P004	P005	P006
+rs1001	APOE	Variant	WildType	Variant	Variant	WildType	WildType
+rs1002	BRCA1	WildType	WildType	Variant	WildType	WildType	Variant
+rs1003	TCF7L2	Variant	Variant	WildType	WildType	Variant	WildType

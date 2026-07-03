@@ -1,0 +1,9 @@
+encounter_id,patient_id,encounter_date,department,diagnosis_code,diagnosis,systolic_bp,diastolic_bp
+E1001,P001,2024-01-15,Cardiology,I10,Hypertension,148,92
+E1002,P001,2024-06-02,Cardiology,I10,Hypertension,138,86
+E1003,P002,2024-02-20,Endocrinology,E11,Type 2 diabetes,130,84
+E1004,P003,2024-03-11,Primary Care,J06,Upper respiratory infection,118,76
+E1005,P004,2024-03-30,Cardiology,I25,Coronary artery disease,142,88
+E1006,P005,2024-04-18,Primary Care,Z00,Routine check-up,116,74
+E1007,P002,2024-09-14,Endocrinology,E11,Type 2 diabetes,128,82
+E1008,P006,2024-05-05,Primary Care,J06,Upper respiratory infection,122,78

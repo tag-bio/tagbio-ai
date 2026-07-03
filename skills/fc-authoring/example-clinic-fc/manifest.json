@@ -1,0 +1,22 @@
+// The manifest ties one deployable instance together: the data model to build, and what to serve.
+// Build from the example-clinic-fc/ directory (paths are relative to it).
+{
+  "data_product_definition": {
+    "name": "fc-clinic",
+    "title": "Clinic FC (example)",
+    "entity_name_singular": "encounter",
+    "entity_name_plural": "encounters"
+  },
+
+  "data_model": {
+    "config": "config/config.json",
+    "data_dir": "./",
+    "log": "build.log"
+  },
+
+  "serve": {
+    "main": "main.json"
+  },
+
+  "archive": "archive.ser"
+}

@@ -1,0 +1,41 @@
+// Clinic FC config. Run a build from the example-clinic-fc/ directory (paths are relative to it).
+{
+  "data_dictionary": "data_dictionary.tsv",
+
+  // entity_table defines the grain: one entity per (patient, encounter_date).
+  "entity_table": {
+    "table": "data/encounters.csv",
+    "unique_keys": ["patient_id", "encounter_date"],
+    // encounter_id is not a unique_key; declare it as a foreign_key so labs can join on it.
+    "foreign_keys": ["encounter_id"],
+    // A string where an object/array is expected = a path to the file holding it.
+    "parsers": "config/parsers/encounters.json"
+  },
+
+  "other_tables": [
+    {
+      "table": "data/patients.csv",
+      "table_alias": "patients",
+      "id_columns": { "patient_id": "patient_id" },     // subset of the key -> broadcast
+      "parsers": "config/parsers/patients.json"
+    },
+    {
+      "table": "data/labs.csv",
+      "table_alias": "labs",
+      "id_columns": { "encounter_id": "encounter_id" }, // the foreign_key -> roll-up
+      "parsers": "config/parsers/labs.json"
+    },
+
+    // Transposed table: rows are genetic markers, columns are patient_ids.
+    // Uses "transpose" (a single entity key) instead of "id_columns".
+    {
+      "table": "data/genotypes.tsv",
+      "table_alias": "genotypes",
+      "delimiter": "\t",
+      "transpose": "patient_id",
+      "parsers": "config/parsers/genotypes.json"
+    }
+  ],
+
+  "null_indicators": ["NA", ""]
+}

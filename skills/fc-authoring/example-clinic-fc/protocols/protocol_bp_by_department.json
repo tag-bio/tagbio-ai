@@ -1,0 +1,24 @@
+// An external (R plugin) protocol: box plots of blood pressure by department.
+{
+  "protocol_definition": {
+    "name": "bp_by_department",
+    "title": "Blood Pressure by Department",
+    "description": "Systolic and diastolic blood pressure distributions across departments."
+  },
+  "script": {
+    "method": "external",
+    "sdk": "R",
+    "plugin": "protocols/plugins/plugin_bp.R",
+    "output_type": "html",
+
+    // Run on all entities (no user cohort here; see cohort-builder.md for the interactive form).
+    "background": { "data_function_type": "categorical-all" },
+
+    // The columns the plugin receives.
+    "analysis_variables": [
+      "protocols/data_functions/department_categorical.json",
+      "protocols/data_functions/systolic_bp_numeric.json",
+      "protocols/data_functions/diastolic_bp_numeric.json"
+    ]
+  }
+}

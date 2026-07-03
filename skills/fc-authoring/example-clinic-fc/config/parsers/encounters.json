@@ -1,0 +1,12 @@
+[
+  { "parser_type": "categorical", "column": "patient_id", "collection": "Patient ID" },
+  { "parser_type": "categorical", "column": "encounter_id", "collection": "Encounter ID" },
+  { "parser_type": "datetime", "column": "encounter_date", "pattern": "yyyy-MM-dd",
+    "transform": "timestamp", "collection": "Encounter Date", "variable": "Encounter Date" },
+  { "parser_type": "categorical", "column": "department", "collection": "Department" },
+  { "parser_type": "categorical", "column": "diagnosis", "collection": "Diagnosis" },
+  { "parser_type": "numeric", "column": "systolic_bp",
+    "collection": "Blood Pressure", "variable": "Systolic" },
+  { "parser_type": "numeric", "column": "diastolic_bp",
+    "collection": "Blood Pressure", "variable": "Diastolic" }
+]

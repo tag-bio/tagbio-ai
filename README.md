@@ -18,3 +18,13 @@ read and copy.
 Point a Claude at the skill directory (or hand it the `SKILL.md`). The `SKILL.md` is the
 spine: it states what to read, in what order, and pulls in the topic files under
 `references/` on demand.
+
+## License
+
+Licensed under the Apache License, Version 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Free to use, copy, and adapt, including in commercial products.
+
+**Use at your own risk.** This material is provided "as is", without warranty of any kind. You
+are responsible for what your AI agent does after using this skill — including any data it
+accesses or actions it takes. The skill's own guardrails require obtaining informed consent
+before accessing any data source; follow them.

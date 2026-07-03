@@ -1,8 +1,8 @@
 #!/usr/bin/bash
-# Validate the config + protocols without a full build: it parses config and compiles the
-# protocols, then stops when it would load data. Run this after editing config or parsers to
-# catch JSON/YAML and reference errors fast. (die=true exits after validation.)
+# Validate the config + protocols WITHOUT loading data: parse config, register and compile the
+# protocols, check test coverage, then exit gracefully — fast. Run after editing config, parsers,
+# or protocols to catch JSON/YAML and reference errors without a full build.
 java -Xmx4g \
     -jar ${TAGBIO_JARS}/fc_csv_server.jar \
-    manifest=manifest.json \
-    die=true
+    compile \
+    manifest=manifest.json

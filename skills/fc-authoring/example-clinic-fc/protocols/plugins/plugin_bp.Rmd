@@ -1,0 +1,32 @@
+---
+title: Blood Pressure Report
+output:
+  tagbio::tag_report:
+    theme: default-color
+    highlight: github
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+                      fig.width = 8, fig.height = 6)
+if (!require('ggplot2')) install.packages('ggplot2', repos = "http://cran.us.r-project.org")
+require('ggplot2'); require('dplyr'); require('tidyr')
+```
+
+```{r data}
+# The analysis frame: one row per entity; columns are the protocol's analysis_variables
+# plus the row_name id collection. tag_data is available in the knit environment.
+data <- tagbio::get_results(tag_data, row_name = "Encounter ID")
+```
+
+## Blood pressure by department
+
+```{r plot}
+tall <- data %>% pivot_longer(c(Systolic, Diastolic), names_to = "measure", values_to = "mmHg")
+ggplot(tall, aes(Department, mmHg, fill = measure)) +
+  geom_boxplot() +
+  labs(y = "mmHg", x = NULL) +
+  theme_minimal()
+```

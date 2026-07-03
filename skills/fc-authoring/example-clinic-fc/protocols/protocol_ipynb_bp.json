@@ -1,0 +1,26 @@
+// An external Python plugin that papermill-runs a Jupyter notebook, wired to the cohort builder.
+{
+  "protocol_definition": {
+    "name": "ipynb_bp",
+    "title": "Blood Pressure Report (Notebook)",
+    "description": "Blood pressure distributions for a chosen cohort, rendered from a Jupyter notebook.",
+    "argument_sets": [
+      "protocols/argument_sets/argument_set_background_cohort.json"
+    ]
+  },
+  "script": {
+    "method": "external",
+    "sdk": "connect_tagbio_py",
+    "plugin": "protocols/plugins/plugin_bp_ipynb.py",
+    "output_type": "html",
+    "background": {
+      "data_function_type": "argument-reference",
+      "argument": "background_cohort"
+    },
+    "analysis_variables": [
+      "protocols/data_functions/department_categorical.json",
+      "protocols/data_functions/systolic_bp_numeric.json",
+      "protocols/data_functions/diastolic_bp_numeric.json"
+    ]
+  }
+}

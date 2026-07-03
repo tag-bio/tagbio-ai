@@ -1,0 +1,26 @@
+// An external R-Markdown plugin protocol (an .Rmd rendered to HTML), wired to the cohort builder.
+{
+  "protocol_definition": {
+    "name": "rmd_bp",
+    "title": "Blood Pressure Report (R Markdown)",
+    "description": "Blood pressure distributions for a chosen cohort, rendered as an R Markdown report.",
+    "argument_sets": [
+      "protocols/argument_sets/argument_set_background_cohort.json"
+    ]
+  },
+  "script": {
+    "method": "external",
+    "sdk": "R",
+    "plugin": "protocols/plugins/plugin_bp.Rmd",
+    "output_type": "html",
+    "background": {
+      "data_function_type": "argument-reference",
+      "argument": "background_cohort"
+    },
+    "analysis_variables": [
+      "protocols/data_functions/department_categorical.json",
+      "protocols/data_functions/systolic_bp_numeric.json",
+      "protocols/data_functions/diastolic_bp_numeric.json"
+    ]
+  }
+}

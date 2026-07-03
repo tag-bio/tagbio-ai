@@ -11,12 +11,16 @@
   "protocols": [
     "protocols/protocol_bp_by_department.json",
     "protocols/protocol_python_bp.json",
+    "protocols/protocol_rmd_bp.json",
+    "protocols/protocol_ipynb_bp.json",
     "protocols/protocol_download.json"
   ],
 
   "tests": [
     "tests/test_bp_by_department.json",
     "tests/test_python_bp.json",
+    "tests/test_rmd_bp.json",
+    "tests/test_ipynb_bp.json",
     "tests/test_download.json"
   ]
 }

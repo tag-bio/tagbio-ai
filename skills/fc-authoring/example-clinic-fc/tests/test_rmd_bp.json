@@ -1,0 +1,7 @@
+{
+  "protocol_instance": {
+    "name": "rmd_bp",
+    "arguments": { "background_cohort": { "data_function_type": "categorical-all" } }
+  },
+  "output": "_test_results/test_rmd_bp.html"
+}

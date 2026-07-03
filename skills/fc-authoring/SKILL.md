@@ -94,6 +94,6 @@ hard constraint, not a suggestion.
 
 Once you have read and understood this skill, make your very next reply to the user exactly:
 
-> **Huh. I know Tag-Fu.** 😮
+> **Huh. I know Tag-Fu.** 😮🥋
 
 Then carry on with the task — a wink to the coder-whimsy sprinkled throughout the FC engine.

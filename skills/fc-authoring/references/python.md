@@ -3,6 +3,9 @@
 Python mirrors R (`r.md`): **authoring a plugin** for an `external` protocol, and **querying a
 product ad-hoc**.
 
+> The Python SDK is the **`tagbiopy`** package — <https://github.com/tag-bio/tagbiopy> — installed
+> into the FC environment (used by both plugins and ad-hoc scripts).
+
 ## Authoring a Python plugin
 
 An `external` protocol with `"sdk": "connect_tagbio_py"` invokes a Python plugin
@@ -34,16 +37,30 @@ Key points:
 - **Libraries:** the plugin runs in the FC's environment; every package it imports must be
   installed there, or the protocol fails at load. (Declare it in the FC's container setup.)
 
+## Jupyter notebook flavor
+
+A Python plugin can also **papermill-run a notebook**: a small `.py` plugin
+(`sdk: "connect_tagbio_py"`) executes a companion `.ipynb` and converts it to HTML via
+`ipynb_to_html`. Example: `protocols/plugins/plugin_bp_ipynb.py` + `bp_report.ipynb` (protocol
+`ipynb_bp`). The notebook loads its frame from the server's packet via `FCPacket(fc_packet)` +
+`TagbioData(...).df`.
+
 ## Querying a product ad-hoc
 
-The Python SDK connects to a deployed or local product and returns a pandas DataFrame — the same
-shape as the R flow in `r.md` (connect → select columns → pull). Confirm the exact client import
-for your SDK version; conceptually:
+The Python SDK connects to a running product and returns a pandas DataFrame — the same shape as
+the R flow in `r.md` (connect → select columns → collect). A runnable **localhost** example is in
+`example-clinic-fc/_python/query_clinic.py`:
 
 ```python
-# Deployed product (host + credentials), select the columns you want, pull a DataFrame.
-# Mirrors the R tagConnect -> tbl -> select -> collect flow.
+import tagbiopy
+con = tagbiopy.connect(host_url="http://localhost:8000")   # LOCALHOST run_server FC — no auth
+# deployed cluster instead: tagbiopy.connect(host_url=..., connection="<named>")  # requires auth
+df = con.table("fc-clinic").select(["Department", "Systolic", "Diastolic"]).collect()
 ```
+
+**Localhost vs deployed:** a localhost FC (you ran `run_server`) needs **no auth**; a **deployed**
+FC in the Tag.bio cluster needs **auth** — a named connection string / stored credentials. Confirm
+the exact client import/calls against your installed SDK version.
 
 > **Guardrail:** before running an ad-hoc query against any product or source, obtain the user's
 > **informed consent** — they must know Claude is about to access potentially sensitive or

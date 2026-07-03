@@ -4,6 +4,9 @@ R is used with an FC in two ways: **authoring a plugin** (the code an `external`
 and **querying a product ad-hoc** (pulling data into an R session for exploration). Python is the
 same story in `python.md`.
 
+> The R SDK is the **`tagbio`** package — <https://github.com/tag-bio/tagbio> — installed into the
+> FC environment (used by both plugins and ad-hoc scripts).
+
 ## Authoring an R plugin
 
 An `external` protocol with `"sdk": "R"` invokes an R plugin file (`protocols/plugins/*.R`). A
@@ -39,6 +42,12 @@ Key points:
   available there — declare/install it (the `if (!require(...)) install.packages(...)` idiom, or
   the FC's container setup). A missing package fails the protocol at load time.
 
+## R Markdown flavor
+
+An R plugin can also be an **`.Rmd`** file with a `tagbio::tag_report` output block — the engine
+knits it to HTML. Same `sdk: "R"` and `output_type: "html"`; `tag_data` is available to a chunk
+via `tagbio::get_results()`. Example: `protocols/plugins/plugin_bp.Rmd` (protocol `rmd_bp`).
+
 ## Querying a product ad-hoc
 
 To pull data into an R session — for exploration, QC, or a transformer — connect with the SDK
@@ -62,6 +71,12 @@ df_local <- tbl(local) %>% select(everything()) %>% collect()
   **local** build in progress (`transformers.md`).
 - Always `select(...)` the columns you want **before** `collect()`; a bare `collect()` returns
   nothing.
+
+**Three connection targets:** a **localhost** FC you started with `run_server` —
+`tagConnect(host_url = "http://localhost:8000")`, **no auth**; a **deployed** FC in the Tag.bio
+cluster — `host_url` + **auth** (a named connection / `~/.tagbio.json`); and the **local build in
+progress** inside a transformer — `tagConnect()` with no host and `tbl(con)` with no table name.
+A runnable localhost example is in `example-clinic-fc/_r/query_clinic.R`.
 
 > **Guardrail:** before running an ad-hoc query against any product or source, obtain the user's
 > **informed consent** — they must know Claude is about to access potentially sensitive or

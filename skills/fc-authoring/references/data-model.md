@@ -29,7 +29,7 @@ Clinic examples (`example-clinic-fc/`):
 | `Patient Region` | categorical | `patients.region` (broadcast) | one value, repeated across the patient's encounters |
 | `Patient Age` | numeric | `patients.age` (broadcast) | one value per encounter |
 | `Blood Pressure` | numeric | `encounters.systolic_bp`, `encounters.diastolic_bp` | one collection grouping the `Systolic` and `Diastolic` variables |
-| `LDL Result` | numeric | `labs.result_value` where analyte = LDL (roll-up) | present only on encounters with an LDL drawn |
+| `Lab Result` | numeric | `labs.result_value` (roll-up) | multi-valued — one value per lab drawn; pair with `Lab Analyte` to know which |
 
 **Naming rule:** collection names are **human-readable English** — `Encounter Date`, not
 `enc_dt`. This is non-negotiable; the names are the analyst-facing surface of the product.
@@ -94,11 +94,16 @@ collection is less a clean factor than a tag structure.)
 > variables of a categorical collection back into a single column, so an export looks like the
 > familiar factor column even though internally it is a set of tags.
 
+> **Scale caveat:** parsing a **high-cardinality identifier** (e.g. a unique `Encounter ID`) as
+> `categorical` makes one set per distinct value — fine for a few thousand entities, a real cost at
+> millions. Parse an ID only if you need it for display/output, and don't expose it as an analysis
+> variable.
+
 ## collection_set: a tag for grouping, not a container
 
 A **collection_set** is a **flat tag** attached to collections for search, filtering, and bulk
-exposure — *not* a hierarchical container. Tagging `LDL Result`, `HDL Result`, and
-`HbA1c Result` with a `Labs` set lets a protocol pick up all of them at once (a data_function
+exposure — *not* a hierarchical container. Tagging `Lab Panel`, `Lab Analyte`, and
+`Lab Result` with a `Labs` set lets a protocol pick up all of them at once (a data_function
 can expand over the whole set — see `data-functions.md`). But because it is only a tag:
 
 - it **cannot disambiguate or segregate** collections — it provides no namespace, so it can
@@ -137,7 +142,7 @@ build time, so design names with them in mind.
 | `encounters.diastolic_bp` | `Blood Pressure` | `Diastolic` |
 | `patients.region` | `Patient Region` | distinct values (broadcast) |
 | `patients.age` | `Patient Age` | numeric axis |
-| `labs.result_value` (LDL) | `LDL Result` | numeric axis |
+| `labs.result_value` | `Lab Result` | numeric axis (multi-valued) |
 | `encounters.encounter_id` | `Encounter ID` | none — carried for identity/output, not analysis |
 
 ## Common mistakes

@@ -11,8 +11,6 @@ paired with interactive analytical apps, so that domain experts can ask and answ
 their data without writing code — while analysts and engineers can go deeper programmatically
 against the same product.
 
-> _(Owner note: confirm this framing matches current Tag.bio positioning.)_
-
 ## What is a data product?
 
 A data product is a single dataset, **modeled once and served many ways**:

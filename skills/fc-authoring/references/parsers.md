@@ -16,6 +16,9 @@ Every parser has, at minimum, `parser_type`, `column`, and `collection`. Optiona
 (`variable`, `map`, `pattern`, `transform`, `collection_set`, `null_indicators`) depend on the
 type.
 
+**Not every source column needs a parser.** Model what your questions need; unmodeled columns are
+simply ignored — that's normal, not an oversight.
+
 ## categorical
 
 Maps a column's values into a categorical collection; the **distinct values become the

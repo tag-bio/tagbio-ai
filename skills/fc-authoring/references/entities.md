@@ -35,8 +35,8 @@ hidden inside a patient row. If you make the **lab result** the entity, a single
 counted once per lab drawn — "number of entities in March" over-counts visits.
 
 For this FC we choose the **encounter** as the entity: **one row per clinic visit.** It is
-the grain most questions are about ("encounters by department," "encounters with an abnormal
-LDL"), and the other two grains attach to it cleanly (see below).
+the grain most questions are about ("encounters by department," "encounters with an elevated
+systolic reading"), and the other two grains attach to it cleanly (see below).
 
 **How to choose the grain:** pick the level at which the FC's main questions are counted.
 Everything coarser becomes an *attribute* of the entity; everything finer becomes an
@@ -48,7 +48,7 @@ reach for that until the common case is exhausted.
 
 Often the FC must answer questions at more than one grain — in the clinic, "how many
 encounters were in Cardiology" (encounter grain) alongside "how many patients have ever had
-an abnormal LDL" (patient grain). At Tag.bio this is one of the very first decisions on a new
+an elevated systolic reading" (patient grain). At Tag.bio this is one of the very first decisions on a new
 project. The word to keep straight is **aggregation**, which happens in two different places:
 
 - **Build-time aggregation** collapses finer source rows to reach a coarser entity grain
@@ -115,7 +115,7 @@ The clinic FC:
 |---|---|---|
 | `encounters` | entity_table | the entity itself (Encounter Date, Department, Diagnosis) |
 | `patients` | other_table (coarser) | patient attributes **broadcast** onto every encounter (Sex, Region, Age) |
-| `labs` | other_table (finer) | lab results **aggregated** onto the encounter (LDL value, HbA1c value) |
+| `labs` | other_table (finer) | lab results **rolled up** onto the encounter as the multi-valued `Lab Result` (+ `Lab Analyte`) |
 
 An other_table declares how it maps to entities via its key columns. A coarser table
 (`patients`) maps on a **subset** of the entity's keys (`patient_id` only) — one patient row

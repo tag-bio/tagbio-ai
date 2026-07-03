@@ -60,6 +60,9 @@ A minimal single-file config for the clinic FC (JSON with comments is allowed; Y
 
 Everything else in the skill is a variation on this skeleton.
 
+(`data_dictionary` is an **output**, not an input: the build writes a TSV listing every collection
+and variable it produced. It's a generated artifact — gitignore it.)
+
 ## entity_table: the grain-defining source
 
 - `table` — the source the entities come from (a **CSV/TSV file path** here; a **SQL table or

@@ -11,6 +11,10 @@ Any file, and any value, may be written as **JSON or YAML** — the platform rea
 anywhere. JSON may include comments. Use whichever is clearer for the file at hand; a single
 repo commonly mixes them.
 
+> **Tooling caveat:** JSON-with-comments in a `.json` file breaks many standard linters,
+> formatters, and editor schemas. The platform accepts it; the wider ecosystem may not — name such
+> files `.jsonc`, or expect some tools to complain.
+
 ## 2. Values are resolved flexibly, not by strict type
 
 An attribute does not demand one rigid value shape. The platform **infers** how to resolve a

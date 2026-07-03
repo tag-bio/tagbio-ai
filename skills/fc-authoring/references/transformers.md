@@ -30,9 +30,9 @@ collection** to key rows on; the script writes its rows to that file.
 
 ## Declaring transformers
 
-Transformers are listed in the config's transformer set (`data_model.transformers` in the
-manifest, `configuration-and-sources.md`). Each entry names a script; the engine runs them in
-order after load.
+Transformers are declared via `data_model.transformers` in the **manifest** (`manifest.md`),
+pointing at a transformer-set file. Each entry names a script; the engine runs them in order
+after load.
 
 ## Example (clinic)
 

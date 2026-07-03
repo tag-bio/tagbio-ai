@@ -13,5 +13,5 @@ def blood_pressure_report(tag_data: TagbioData, tag_result: TagbioResult):
         value_name="mmHg",
     )
     fig = px.box(tall, x="Department", y="mmHg", color="measure")
-    fig.write_html(tag_result.output_path)
+    fig.write_html(tag_result.path)
     return tag_result

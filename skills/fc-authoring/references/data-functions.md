@@ -38,6 +38,10 @@ protocol can expose an entire family of collections in one reference:
 **bundle** — groups several data_functions into one reference, so a protocol consumes them
 together.
 
+**categorical-all** — a built-in reference meaning *all entities* (no filter). Common as a
+`background` (run the protocol on everything) or to satisfy a mandatory cohort in a test
+(`cohort-builder.md`).
+
 The clinic example includes `systolic_bp_numeric.json`, `department_categorical.json`, and
 `labs_numeric_collection_set.json` under `protocols/data_functions/` (the last references the
 `Labs` collection_set the lab parsers tag).

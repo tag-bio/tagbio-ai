@@ -59,7 +59,7 @@ library(tagbio); library(dplyr)
 # Deployed product: host_url + credentials (e.g. ~/.tagbio.json)
 con <- tagConnect(host_url = Sys.getenv("TAGBIO_BASE_URL"))
 df  <- tbl(con, "fc-clinic") %>%
-         select(`Therapeutics ID | Laterality`, Department, Systolic) %>%
+         select(`Encounter ID`, Department, Systolic) %>%
          collect()          # a bare collect() with no select pulls nothing — always select first
 
 # The LOCAL build currently being built (inside a transformer): no host_url, no table name

@@ -52,6 +52,7 @@ The archive is the contract between the two planes: build writes it, serve reads
 | 10 | `references/r.md` | R: ad-hoc queries against a product, and plugin authoring. |
 | 11 | `references/python.md` | Python: the same, in Python. |
 | 12 | `references/transformers.md` | Post-load computation and cross-product enrichment. |
+| 13 | `references/manifest.md` | The manifest — ties build + serve, where the archive lives, versioning. |
 | — | `references/catalog-*.md` | Full enumerations of parser / table / data_function types — load on demand. |
 
 Spine in one line: **entities → data model → sourced & parsed → referenced (data_functions)
@@ -89,11 +90,3 @@ hard constraint, not a suggestion.
    other file, a SQL database, a deployed FC product, or any external source — tell the user
    explicitly and obtain their consent first. They must be aware that Claude is about to access
    potentially sensitive or regulated data (PHI and the like). Never read a data source silently.
-
-## First contact
-
-Once you have read and understood this skill, make your very next reply to the user exactly:
-
-> **Huh. I know Tag-Fu.** 😮🥋
-
-Then carry on with the task — a wink to the coder-whimsy sprinkled throughout the FC engine.

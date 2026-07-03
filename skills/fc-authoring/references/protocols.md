@@ -7,36 +7,38 @@ download).
 
 This skill focuses on **`method: external`** — custom R/Python plugins — because that is what you
 author. Native methods exist (embedded algorithms and visualizations) but are best understood by
-using them in the front-end; they are out of scope here.
+using them in the front-end; they are out of scope here. A few built-in **utility** methods also
+exist — notably `method: "download"`, which exports the cohort's data (the example's `download`
+protocol uses it).
 
 ## The two parts of a protocol
 
 ```jsonc
 {
   "protocol_definition": {
-    "name": "bp_by_department",              // unique id
-    "title": "Blood Pressure by Department",
-    "description": "Systolic/diastolic distribution across departments.",
-    "asset": "assets/chart.png",
+    "name": "python_bp",                      // unique id
+    "title": "Blood Pressure Report (Python)",
+    "description": "Blood pressure distributions for a chosen cohort, rendered by a Python plugin.",
     "argument_sets": [                        // user-customizable parameters (cohort-builder.md)
-      "protocols/argument_sets/argument_set_department.json"
+      "protocols/argument_sets/argument_set_background_cohort.json"
     ]
   },
 
   "script": {
     "method": "external",                     // native | external
-    "sdk": "R",                               // R | Python
-    "plugin": "protocols/plugins/plugin_bp.R",
+    "sdk": "connect_tagbio_py",               // "R" or "connect_tagbio_py"
+    "plugin": "protocols/plugins/plugin_bp.py",
     "output_type": "html",
 
     "background": {                           // WHICH entities (rows) — the cohort
-      "data_function_type": "argument-set-reference",
-      "argument_set": "department"
+      "data_function_type": "argument-reference",
+      "argument": "background_cohort"
     },
 
     "analysis_variables": [                   // WHICH collections/variables (columns)
+      "protocols/data_functions/department_categorical.json",
       "protocols/data_functions/systolic_bp_numeric.json",
-      "protocols/data_functions/department_categorical.json"
+      "protocols/data_functions/diastolic_bp_numeric.json"
     ]
   }
 }
@@ -47,8 +49,9 @@ using them in the front-end; they are out of scope here.
   - `method` / `sdk` / `plugin` — run this R or Python plugin file.
   - `output_type` — what it returns (`html`, a download, etc.).
   - **`background`** — the **subset of entities** the analysis runs on: the *rows*, i.e. the
-    **cohort**. Usually an `argument-set-reference` so the user chooses it — this is where the
-    cohort builder plugs in (`cohort-builder.md`). Omit it and the protocol runs on all entities.
+    **cohort**. Usually an `argument-reference` to a cohort argument so the user chooses it — this
+    is where the cohort builder plugs in (`cohort-builder.md`). Omit it and the protocol runs on
+    all entities.
   - **`analysis_variables`** — the **collections/variables** the analysis uses: the *columns*.
     A list of **data_functions** (`data-functions.md`) — fixed ones referenced by path, or
     user-selectable ones via an `argument-set-reference`.
@@ -74,16 +77,15 @@ the data product's identity and its tests:
 {
   "data_product_definition": { "name": "fc-clinic", "title": "…",
                                "entity_name_singular": "encounter", "entity_name_plural": "encounters" },
-  "overview_protocol": "protocols/protocol_overview.json",
   "protocols": [ "protocols/protocol_bp_by_department.json" ],
   "tests":     [ "tests/test_bp_by_department.json" ]
 }
 ```
 
-The **`overview_protocol`** is the product's default **data-overview** view — the landing
-protocol shown when the product is opened. It is declared separately from `protocols` so it can
-serve as the entry point; a good overview summarizes the entities and headline variables at a
-glance.
+An **optional** `overview_protocol` field designates a default **data-overview** view — the
+landing protocol shown when the product opens, declared separately from `protocols`. The clinic
+example omits it; when present, a good overview summarizes the entities and headline variables at
+a glance.
 
 Every registered protocol should have at least one test; the build auto-registers and auto-tests
 internal protocols too (`data-functions.md` on the compile-time validation).

@@ -24,7 +24,7 @@ def blood_pressure_report(tag_data: TagbioData, tag_result: TagbioResult):
                             value_vars=["Systolic", "Diastolic"],
                             var_name="measure", value_name="mmHg")
     fig = px.box(tall, x="Department", y="mmHg", color="measure")
-    fig.write_html(tag_result.output_path)   # write output for output_type: html
+    fig.write_html(tag_result.path)   # write output for output_type: html
     return tag_result
 ```
 
@@ -32,7 +32,7 @@ Key points:
 
 - **Input:** `tag_data.df` is a **pandas DataFrame** — one row per entity, columns named by the
   protocol's `analysis_variables`.
-- **Output:** write to `tag_result.output_path` (or set `tag_result.df` for a tabular result)
+- **Output:** write to `tag_result.path` (or set `tag_result.df` for a tabular result)
   and `return tag_result`.
 - **Libraries:** the plugin runs in the FC's environment; every package it imports must be
   installed there, or the protocol fails at load. (Declare it in the FC's container setup.)
@@ -71,7 +71,7 @@ the exact client import/calls against your installed SDK version.
 1. Create `protocols/plugins/plugin_<name>.py` with a `def fn(tag_data: TagbioData, tag_result:
    TagbioResult): …`.
 2. Read the frame from `tag_data.df` (pandas).
-3. Produce output, write to `tag_result.output_path` (or set `tag_result.df`); `return
+3. Produce output, write to `tag_result.path` (or set `tag_result.df`); `return
    tag_result`.
 4. Ensure every imported package is installed in the environment.
 5. Reference the plugin from an `external` / `"sdk": "connect_tagbio_py"` protocol
@@ -82,7 +82,7 @@ the exact client import/calls against your installed SDK version.
 - **Importing a package not in the environment** — the protocol fails to load.
 - **Expecting columns that aren't in `analysis_variables`** — `tag_data.df` only has what the
   protocol requested.
-- **Not writing to `tag_result.output_path`** (or setting `tag_result.df`) before returning.
+- **Not writing to `tag_result.path`** (or setting `tag_result.df`) before returning.
 
 Next: `transformers.md` — computing new collections after load, and enriching from other
 products.

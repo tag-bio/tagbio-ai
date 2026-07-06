@@ -12,7 +12,7 @@
   "script": {
     "method": "download",
     "background": {
-      "data_function_type": "argument-reference",
+      "data_function_type": "argument-value",
       "argument": "background_cohort"
     }
   }

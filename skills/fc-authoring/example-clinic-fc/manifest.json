@@ -11,11 +11,15 @@
   "data_model": {
     "config": "config/config.json",
     "data_dir": "./",
+    // Post-load transformers that add computed collections (see references/transformers.md).
+    "transformers": "config/transformers.json",
     "log": "build.log"
   },
 
   "serve": {
-    "main": "main.json"
+    "main": "main.json",
+    // Run the registered/auto tests on startup (they execute asynchronously — wait for them).
+    "run_tests": "true"
   },
 
   "archive": "archive.ser"

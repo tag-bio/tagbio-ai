@@ -6,10 +6,12 @@ entities, using chosen collections/variables, and returns output (a chart, table
 download).
 
 This skill focuses on **`method: external`** — custom R/Python plugins — because that is what you
-author. Native methods exist (embedded algorithms and visualizations) but are best understood by
-using them in the front-end; they are out of scope here. A few built-in **utility** methods also
-exist — notably `method: "download"`, which exports the cohort's data (the example's `download`
-protocol uses it).
+author. **Native methods** (embedded algorithms and visualizations) exist and are common in real
+FCs, but they're driven by the front end and can't be usefully described from the FC codebase
+alone — **a dedicated treatment is TBD** (a future addition). For now, if you're extending an FC
+that already uses native-method protocols, lean on the front end and existing examples. A few
+built-in **utility** methods also exist — notably `method: "download"`, which exports the cohort's
+data (the example's `download` protocol uses it).
 
 ## The two parts of a protocol
 
@@ -31,34 +33,42 @@ protocol uses it).
     "output_type": "html",
 
     "background": {                           // WHICH entities (rows) — the cohort
-      "data_function_type": "argument-reference",
+      "data_function_type": "argument-value",  // a cohort is passed by value (cohort-builder.md)
       "argument": "background_cohort"
     },
 
     "analysis_variables": [                   // WHICH collections/variables (columns)
-      "protocols/data_functions/department_categorical.json",
-      "protocols/data_functions/systolic_bp_numeric.json",
-      "protocols/data_functions/diastolic_bp_numeric.json"
+      "protocols/data_functions/categorical_collection_department.json",
+      "protocols/data_functions/numeric_collection_blood_pressure_systolic.json",
+      "protocols/data_functions/numeric_collection_blood_pressure_diastolic.json"
     ]
   }
 }
 ```
 
-- **`protocol_definition`** — metadata plus `argument_sets`: the parameters exposed to the user.
-- **`script`** — what runs:
-  - `method` / `sdk` / `plugin` — run this R or Python plugin file.
-  - `output_type` — what it returns (`html`, a download, etc.).
+- **`protocol_definition`** — metadata plus `argument_sets`: the parameters exposed to the user. It
+  can also carry **access attributes**: **`groups`** (restrict who may run this protocol) and
+  **`download_groups`** (restrict who may convert its result into a raw **download** — an export
+  gate, so everyone can see a summary but only some can export rows). See `governance.md`.
+- **`script`** — what runs. Three fields carry the weight — **`method`**, **`background`**,
+  **`analysis_variables`**:
+  - **`method`** — **always required.** `external` (an R/Python plugin) or `native` (embedded);
+    plus utility methods like `download`. With `external`, add `sdk` (`"R"` or
+    `"connect_tagbio_py"`), `plugin` (the plugin file), and `output_type` (`html`, a download, …).
   - **`background`** — the **subset of entities** the analysis runs on: the *rows*, i.e. the
-    **cohort**. Usually an `argument-reference` to a cohort argument so the user chooses it — this
-    is where the cohort builder plugs in (`cohort-builder.md`). Omit it and the protocol runs on
-    all entities.
+    **cohort**. Usually an `argument-value` referencing a cohort argument so the user chooses it —
+    this is where the cohort builder plugs in (`cohort-builder.md`; a cohort is passed by value, not
+    via a handler). **Defaults to all entities** if omitted.
   - **`analysis_variables`** — the **collections/variables** the analysis uses: the *columns*.
     A list of **data_functions** (`data-functions.md`) — fixed ones referenced by path, or
-    user-selectable ones via an `argument-set-reference`.
+    user-selectable ones via an `argument-set-reference`. **Defaults to all collections** if
+    omitted (rarely what you want — name the columns you need).
 
-So a protocol wires three things together: a **plugin** (the code), a **background** (which
-entities), and **analysis_variables** (which columns). The plugin receives that
-entities × variables slice and returns output — authoring the plugin itself is `r.md` / `python.md`.
+So the three define a **dataframe**: `background` picks the **rows**, `analysis_variables` the
+**columns**. For `method: external`, **the R/Python SDK extracts that dataframe into memory
+*before* the plugin runs**, and the plugin reads it from its input parameter (`tag_data` — via
+`get_results()` in R, `tag_data.df` in Python) rather than querying anything itself. Authoring the
+plugin is `r.md` / `python.md`.
 
 ## Arguments and argument_sets
 
@@ -70,8 +80,8 @@ most important protocol to get right.
 
 ## Registering protocols: main.json
 
-Protocols do nothing until registered in the FC's **main file** (`main.json`), which also carries
-the data product's identity and its tests:
+A **top-level** protocol — an app the user launches directly — must be listed in the FC's **main
+file** (`main.json`), which also carries the product's identity and its tests:
 
 ```jsonc
 {
@@ -82,13 +92,22 @@ the data product's identity and its tests:
 }
 ```
 
+**Helper protocols don't go here.** A protocol referenced by **file path** from another protocol —
+an **`argument_protocol`** (a cohort builder, a filter's value-fetcher), a handler protocol, etc. —
+is **discovered and registered automatically** as the compiler traverses the protocols that
+reference it. So `protocol_cohort.json` is *not* in `main.json`, yet it works: the cohort argument
+points at it by path and the compiler picks it up. (Historically protocols were referenced by a
+name **string**, which the compiler couldn't follow, so everything had to be registered in
+`main.json`; **file-path** references made helper protocols self-discovering. List only the
+user-launched apps in `protocols[]`.)
+
 An **optional** `overview_protocol` field designates a default **data-overview** view — the
 landing protocol shown when the product opens, declared separately from `protocols`. The clinic
 example omits it; when present, a good overview summarizes the entities and headline variables at
 a glance.
 
-Every registered protocol should have at least one test; the build auto-registers and auto-tests
-internal protocols too (`data-functions.md` on the compile-time validation).
+Every top-level protocol should have at least one test; the build auto-registers and auto-tests the
+file-referenced helper protocols too (`data-functions.md`, `testing.md`).
 
 ## Recipe: add an external (plugin) protocol
 

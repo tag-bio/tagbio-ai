@@ -26,13 +26,47 @@ You can **read and learn** this skill with nothing installed. To actually **buil
 - **Java** — the FC engine runs on the JVM (developed against Java 21).
 - **The FC server jars** (`fc_csv_server`, `fc_sql_server`, …) — distributed under authorization,
   not public; see the server-jar table in `skills/fc-authoring/references/configuration-and-sources.md`.
+  Authorized users obtain them by syncing the internal jar bucket with the AWS CLI (`aws s3 sync`),
+  which requires an AWS profile with access (`AWS_PROFILE`).
 - **The SDKs**, installed into the environment, for plugins and ad-hoc queries:
   R `tagbio` (<https://github.com/tag-bio/tagbio>) and Python `tagbiopy`
-  (<https://github.com/tag-bio/tagbiopy>).
+  (<https://github.com/tag-bio/tagbiopy>). Install these (e.g. `R CMD INSTALL` the R SDK; `pip
+  install` the Python SDK), and ensure the Python SDK's **console scripts** (e.g.
+  `connect_tagbio_py`) are on your **`PATH`** — the engine execs them by name.
+- **Plugin libraries** beyond the SDKs go in each FC's `deploy/build-container.sh`. The example's
+  plugins need R `plotly` and Python `plotly`, `papermill`, `nbconvert`.
 - **Environment variables** used by the example `_shell_scripts/`: `TAGBIO_JARS` (jar directory),
   `TAGBIO_R_UTILS`, `TAGBIO_PY` (SDK locations).
 
-These docs were written against FC engine **2.98.x**; other versions may drift.
+The FC engine ships continuously (CI/CD) — there is no pinned version to target; you are always on
+the **latest**. These docs describe stable concepts and syntax, but specific attributes or messages
+can change under you. When something doesn't match, treat the **running engine as the source of
+truth**: check its `help` output and validate with the fast `compile` loop
+(`skills/fc-authoring/references/dev-loop.md`).
+
+## Quick start — prove your setup
+
+After learning the skill, verify the toolchain end-to-end against the shipped example. From
+`skills/fc-authoring/example-clinic-fc/`, with the env vars above set (and the Python SDK's console
+scripts on `PATH`), each command should exit cleanly and every protocol test should pass. Both the
+**CSV** and **SQL** variants build the same data model and pass all 5 protocol tests:
+
+```bash
+# CSV variant
+bash _shell_scripts/compile_local.sh          # validate config + protocols (no data)
+bash _shell_scripts/build_archive.sh          # build the archive (8 encounters)
+bash _shell_scripts/run_server.sh             # serve; run_tests in the manifest runs the 5 tests
+
+# SQL variant (same model, sourced from a generated SQLite DB)
+bash _shell_scripts/make_sqlite.sh            # build data/clinic.db from the CSV/TSV
+bash _shell_scripts/compile_local_sql.sh
+bash _shell_scripts/build_archive_sql.sh
+bash _shell_scripts/run_server_sql.sh
+```
+
+`run_server` runs the tests **on startup, asynchronously** — wait for them; each writes a result
+file under `_test_results/` (gitignored). Green means the whole loop works on your machine. This is
+the recommended first thing to do after installing the prerequisites.
 
 ## License
 

@@ -12,9 +12,11 @@ table's parsers in its own file — `config/parsers/encounters.json`, `patients.
 This file covers the **four common parser types** that build almost any FC. The extended set is
 enumerated in `catalog-parser-types.md`; reach for it only when these four do not fit.
 
-Every parser has, at minimum, `parser_type`, `column`, and `collection`. Optional attributes
-(`variable`, `map`, `pattern`, `transform`, `collection_set`, `null_indicators`) depend on the
-type.
+The **four common (column) parsers** here have, at minimum, `parser_type`, `column`, and
+`collection`. Optional attributes (`variable`, `map`, `pattern`, `transform`, `collection_set`,
+`null_indicators`) depend on the type. (Not *every* parser reads a `column`: the transposed
+**`-row`** parsers use `start` instead, and **`categorical-static`** writes a constant with no
+source column — see `catalog-parser-types.md`.)
 
 **Not every source column needs a parser.** Model what your questions need; unmodeled columns are
 simply ignored — that's normal, not an oversight.
@@ -60,6 +62,17 @@ It is common to parse the **same date column twice** — once as `timestamp` (fo
 once as `year-month-day` into a separate `… Calendar Date` collection (for display). They are
 distinct collections, so the names must differ.
 
+**Timezones and partial dates** (endemic in clinical data). The `pattern` must **match what the
+source actually contains** — if it carries a time and zone, include them
+(`yyyy-MM-dd'T'HH:mm:ssXXX`); if it is a bare date, a plain `yyyy-MM-dd` stores it at day
+resolution (do not invent a time/zone the data doesn't have — it plants a false precision).
+For **partial dates** (`2024`, `2024-06` — common when only a month or year is recorded), a
+`timestamp` transform needs a full date, so either normalize upstream, or model the partial value
+as a **categorical** string (a `Year` / `Year-Month` collection) rather than a timestamp. Mixing
+several formats in one column is the usual cause of a datetime parser silently dropping values —
+verify the raw format first, and if two formats genuinely coexist, split them (`where`, or two
+table definitions over the same source — `catalog-table-types.md`).
+
 ## categorical-map
 
 Like `categorical`, but first **remaps raw values to readable labels** via `map`. Use it when
@@ -77,12 +90,16 @@ Values not present in `map` pass through unchanged unless you map them explicitl
 | Attribute | Used by | Meaning |
 |---|---|---|
 | `parser_type` | all | which parser |
-| `column` | all | source column to read |
+| `column` | most column parsers | source column to read (**not** `-row` parsers, which use `start`; **not** `categorical-static`, which has no source column) |
 | `collection` | all | the collection to populate (human-readable English) |
 | `variable` | numeric, datetime-`timestamp` | the named axis; **omit for categorical / categorical-map** (values become the variables) |
 | `map` | categorical-map | `{ raw: label }` remapping |
 | `pattern` / `transform` | datetime | input format / what to emit (`timestamp`, `year-month-day`) |
 | `collection_set` | any | a tag grouping this collection with others (`data-model.md`) |
+| `groups` | any | restrict this collection to those auth groups; cascades from parser → table → config (`governance.md`) |
+| `where` | any | a **row predicate** — the parser only fires on matching rows; lets you split one source into differently-filtered parsers (`catalog-table-types.md`) |
+| `null_value` | any | the value to **emit** when the cell is empty or matches a null indicator — e.g. `"Missing"` to make missingness an explicit level instead of dropping the entity |
+| `null_indicators` | any | per-parser list of tokens that count as missing (overrides the table/config-level list for this parser) |
 
 Naming obeys the uniqueness rules in `data-model.md` (collection names unique per type;
 variable names unique within a collection).

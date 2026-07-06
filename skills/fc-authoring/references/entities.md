@@ -41,8 +41,8 @@ systolic reading"), and the other two grains attach to it cleanly (see below).
 **How to choose the grain:** pick the level at which the FC's main questions are counted.
 Everything coarser becomes an *attribute* of the entity; everything finer becomes an
 *aggregate* onto the entity. If two candidate grains both seem essential and neither is an
-aggregate of the other, that is a signal you may need a second entity table — but do not
-reach for that until the common case is exhausted.
+aggregate of the other, that is a signal you may need **two FCs** — one at each grain — because
+**one FC has exactly one entity grain**. Do not reach for that until the common case is exhausted.
 
 ## When the questions span multiple grains
 
@@ -78,8 +78,10 @@ The framing question to ask at the very start of a project:
 > keep every row) or multiple FCs at different levels of grain (each aggregating at build time
 > so analyses count once)?**
 
-(There is also a within-one-FC middle path — a second entity table for a finer grain whose
-tuples must stay aligned — noted below; it keeps one product but adds a grain inside it.)
+These two architectures are the whole menu — **an FC has exactly one grain**. There is no
+middle path that mixes two grains inside a single product; when you truly need both, you build
+two FCs (option 2). (What a single FC *can* have is more than one entity *source* at the **same**
+grain — see below.)
 
 ## unique_keys: what makes one entity one entity
 
@@ -147,6 +149,39 @@ Just enough to connect the idea to the file — full schema in `configuration-an
 }
 ```
 
+## Multiple entity *sources* at the same grain (`entity_tables`)
+
+A single FC still has **one grain**, but that grain's entities may arrive **split across several
+sources**. For that, the config takes a plural **`entity_tables`** — the tables are **unioned**
+into one entity set, and they must therefore **share the same `unique_keys`**:
+
+```jsonc
+{
+  "entity_tables": [
+    { "table": "encounters_2023", "unique_keys": ["patient_id", "encounter_date"] },
+    { "table": "encounters_2024", "unique_keys": ["patient_id", "encounter_date"] }
+  ]
+}
+```
+
+This is **not** a way to mix grains — every entity_table here is the *same* encounter grain, just
+sourced from more than one file/table. (Different grains → different FCs, above.)
+
+### When a finer grain has tuples that must stay aligned
+
+Roll-up (a finer child table onto the entity) loses **tuple alignment**: if a parent owns several
+child records whose fields must stay together (a lab result *with its* unit *and* date, a mutation
+*with its* allele frequency), flattening each field into its own parallel list breaks the pairing —
+value #3 of one list no longer reliably matches value #3 of another. Two correct fixes, in order:
+
+1. **Prefix/combine the paired fields into a single value** on the coarse grain — e.g. one
+   "Result with Unit" collection whose every value carries the whole tuple. Usually enough.
+2. **Build a separate FC at the finer grain** (option 2 above), where that child *is* the entity
+   and its fields are plain per-entity collections. Reach here when the finer grain is important
+   enough to analyze in its own right.
+
+There is no in-between that keeps two grains in one product — resist inventing one.
+
 ## Common mistakes
 
 - **Choosing the grain to match the data you have, not the questions you'll ask.** Start
@@ -155,9 +190,10 @@ Just enough to connect the idea to the file — full schema in `configuration-an
 - **Modeling a finer grain as the entity "to keep all the detail."** You keep the detail as
   aggregates/collections on the coarser grain; you do not need a row per lab to serve
   lab values on an encounter.
-- **Forcing two grains into one entity.** If a parent owns several child tuples whose fields
-  must stay aligned, that finer grain may deserve its own entity table — but confirm the
-  coarse grain genuinely cannot express it first.
+- **Trying to put two grains in one FC.** An FC has exactly one grain. If a parent owns several
+  child tuples whose fields must stay aligned, first combine them into single tuple-carrying
+  values on the coarse grain; if the finer grain truly must be analyzed on its own, that is a
+  **separate FC**, not a second entity table.
 
 ## Recipe: define the entity grain of a new FC
 
@@ -168,8 +204,9 @@ Just enough to connect the idea to the file — full schema in `configuration-an
    uniqueness in the source.
 4. Classify every other source table as **coarser** (broadcast) or **finer** (roll-up)
    relative to the entity, and note which entity keys each maps on.
-5. Only if a finer grain carries aligned tuples the entity cannot flatten, consider a second
-   entity table.
+5. If a finer grain carries aligned tuples the entity cannot flatten, combine them into single
+   values first; if it must be analyzed in its own right, plan a **separate FC** at that grain
+   (an FC has exactly one grain — `entity_tables` unions *same-grain* sources only).
 
 Next: `data-model.md` — how the values you just attached (collections and variables) are
 actually defined.

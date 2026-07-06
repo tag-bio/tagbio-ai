@@ -36,6 +36,10 @@ An FC has a **build plane** and a **serve plane**, connected by the archive.
 
 The archive is the contract between the two planes: build writes it, serve reads it.
 
+> **Read `references/dev-loop.md` early and keep it open.** FC config is schema-less and
+> typo-tolerant, so mistakes surface late. The `compile → build → run_server → test` loop — the
+> fast `compile` check most of all — is how you catch them. Validate as you go.
+
 ## Reading order
 
 | # | Read | Topic |
@@ -48,11 +52,16 @@ The archive is the contract between the two planes: build writes it, serve reads
 | 6 | `references/parsers.md` | How parsers turn source columns into collections and variables. |
 | 7 | `references/data-functions.md` | How protocols reference the data model. |
 | 8 | `references/protocols.md` | Protocols and their arguments (focus: R/Python plugins). |
-| 9 | `references/cohort-builder.md` | The cohort builder — the key protocol to get right. |
-| 10 | `references/r.md` | R: ad-hoc queries against a product, and plugin authoring. |
-| 11 | `references/python.md` | Python: the same, in Python. |
-| 12 | `references/transformers.md` | Post-load computation and cross-product enrichment. |
-| 13 | `references/manifest.md` | The manifest — ties build + serve, where the archive lives, versioning. |
+| 9 | `references/arguments.md` | The interactive argument types, argument_sets, expanders, handlers. |
+| 10 | `references/cohort-builder.md` | The cohort builder — the key protocol to get right. |
+| 11 | `references/r.md` | R: ad-hoc queries against a product, and plugin authoring. |
+| 12 | `references/python.md` | Python: the same, in Python. |
+| 13 | `references/transformers.md` | Post-load computation and cross-product enrichment. |
+| 14 | `references/manifest.md` | The manifest — ties build + serve, where the archive lives, versioning. |
+| — | `references/dev-loop.md` | **Practical, read early.** The edit→compile→build→serve→test loop. |
+| — | `references/testing.md` | The test JSON, when tests run, how failures surface. |
+| — | `references/governance.md` | Deployment, `run_server` auth, `auth_groups`, versioned deploys. |
+| — | `references/troubleshooting.md` | Reading `build.log`; "my collection didn't appear" checklists. |
 | — | `references/catalog-*.md` | Full enumerations of parser / table / data_function types — load on demand. |
 
 Spine in one line: **entities → data model → sourced & parsed → referenced (data_functions)
@@ -90,3 +99,26 @@ hard constraint, not a suggestion.
    other file, a SQL database, a deployed FC product, or any external source — tell the user
    explicitly and obtain their consent first. They must be aware that Claude is about to access
    potentially sensitive or regulated data (PHI and the like). Never read a data source silently.
+
+2. **Never echo data values.** Do not print, quote, log, or paste **data values** into your
+   responses. Report on data at the level of counts, column names, and structure — not rows.
+   Reading a patient CSV to "help debug" and then quoting a row puts PHI into the transcript.
+
+3. **Treat build/serve artifacts as sensitive.** `_test_results/*` (rendered protocol output),
+   `build.log` (can contain raw source values from a failing parser), and `data_dictionary.tsv`
+   (the built collections/variables) can all carry real data. Don't open and paste their contents;
+   don't share them outside the environment.
+
+4. **Never commit data or its byproducts.** No source data files, archives (`*.ser`), logs
+   (`build.log`), `data_dictionary.tsv`, or diagnostic output go into git — for a real FC these are
+   PHI or leak it. Keep them gitignored. (The example FC ships tiny **synthetic, fictional** clinic
+   data purely to be runnable and to teach; a real FC's data is **never** committed. Treat the toy
+   as the exception that states the rule.)
+
+5. **Never hardcode or commit credentials.** API keys, tokens, **SQL connection details**
+   (host/user/password in a `sql_connection` file), and **cloud storage auth** (S3/GCS/Azure keys
+   and secrets) come from environment variables or an out-of-repo source (`~/.tagbio.json`, a
+   secret store / `secretRef`) — **never** written into a config, a connection file, a protocol, a
+   script, or otherwise committed to the repo (`governance.md`). A connection file that carries real
+   credentials stays out of git; the toy's `connection_sql.json` is committable only because it
+   points at a local SQLite path with no secret.

@@ -1,0 +1,20 @@
+// The clinic's OWN cohort filters. argument_expanders AUTOGENERATES one filter control per
+// referenced data_function (a categorical collection -> a checkbox filter; a numeric variable ->
+// a range filter) — no hand-written argument objects. This is the curated part: YOU choose which
+// collections become filters by listing their data_functions here.
+//
+// Uses the wrapped `argument_set_definition` form (best practice). `method` is a set-level
+// override applied to every generated filter, so it stays a top-level sibling of the definition.
+{
+  "argument_set_definition": {
+    "argument_set_type": "optional",
+    "name": "cohort_clinic",
+    "title": "Clinic Filters"
+  },
+  "method": "summary",
+  "argument_expanders": [
+    "protocols/data_functions/categorical_collection_department.json",
+    "protocols/data_functions/categorical_collection_diagnosis.json",
+    "protocols/data_functions/numeric_collection_blood_pressure_systolic.json"
+  ]
+}

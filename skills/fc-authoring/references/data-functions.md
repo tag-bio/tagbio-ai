@@ -42,8 +42,8 @@ together.
 `background` (run the protocol on everything) or to satisfy a mandatory cohort in a test
 (`cohort-builder.md`).
 
-The clinic example includes `systolic_bp_numeric.json`, `department_categorical.json`, and
-`labs_numeric_collection_set.json` under `protocols/data_functions/` (the last references the
+The clinic example includes `numeric_collection_blood_pressure_systolic.json`, `categorical_collection_department.json`, and
+`collection_set_labs.json` under `protocols/data_functions/` (the last references the
 `Labs` collection_set the lab parsers tag).
 
 ## The argument family (bridge to the interactive layer)
@@ -52,6 +52,11 @@ A second family — `argument-reference`, `argument-set-reference`, `argument-va
 data_functions to the **interactive argument layer**: what a user selects at run time (a cohort
 filter, a chosen variable). These only make sense alongside arguments, so they are covered with
 `protocols.md` and `cohort-builder.md`.
+
+Beyond these there is a **set-algebra** family (`set-intersection`, `set-union`,
+`categorical-opposite`, `filter`, …) for composing cohorts from other cohorts. The full
+enumeration — data-model types, the argument bridge, set algebra, and the `argument_type` /
+`output_type` lists — is in **`catalog-data-function-types.md`** (load on demand).
 
 ## Recipe: expose a variable to protocols
 

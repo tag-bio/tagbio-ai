@@ -18,28 +18,58 @@ build so a transformer can query it, then runs each transformer, then writes the
   already-deployed FC.
 
 A transformer **emits a CSV in the FC-ingestion format** — one row per (collection, entity,
-value) — which the engine loads back as new collections:
+value) — which the engine loads back as new collections. The columns are fixed:
 
 ```
 data_type,collection_set_name,collection_name,variable_name,auth_groups,entity,value
-numeric,,Hypertension Risk,Hypertension Risk,,P001-2024-01-15,0.82
+numeric,,Hypertension Risk,Hypertension Risk,,E1001,0.82
+categorical,,Hypertension Stage,Stage 2,,E1001,Stage 2
 ```
 
-The engine invokes each transformer with an **output file path** and the **entity key
-collection** to key rows on; the script writes its rows to that file.
+- **`entity`** is the value that keys the row to an entity — a value of the transformer's
+  declared **`entity_collection`** (below), not the internal unique key.
+- For a **numeric** row, `variable_name` is the variable and `value` is the number.
+- For a **categorical** row, `variable_name` is the **tag/level** the entity gets. `value` is used
+  only as a **presence guard** — the engine tags the entity when it is non-empty and **skips the row
+  when it is empty** (that is the mechanism for "this entity has no value here", not a convention).
+  It is not stored, so just repeat the level in it.
+- A blank `collection_set_name` / `auth_groups` means "none" / "visible to all".
+
+The engine invokes each transformer with two arguments appended to its `command` — an **output
+file path** and the **entity_collection** name — and the script writes its rows to that path. A
+transformer may **add** collections but **cannot override an existing** one (the build errors).
 
 ## Declaring transformers
 
 Transformers are declared via `data_model.transformers` in the **manifest** (`manifest.md`),
-pointing at a transformer-set file. Each entry names a script; the engine runs them in order
-after load.
+pointing at a transformer-set file — a JSON array of entries:
 
-## Example (clinic)
+```json
+[
+  {
+    "name": "hypertension_stage",
+    "command": "Rscript config/transformers/hypertension_stage.R",
+    "entity_collection": "Encounter ID",
+    "allow_null": true
+  }
+]
+```
 
-A transformer could add a **`Hypertension Stage`** collection computed from `Blood Pressure`:
-self-query the local build for `Systolic`/`Diastolic` per encounter, classify each into a stage,
-and emit `categorical` rows keyed by the encounter id — a new collection with no new source
-column.
+- **`command`** is run as `command <output_file> "<entity_collection>"`.
+- **`entity_collection`** names the collection whose values the `entity` column holds (here
+  `Encounter ID`, one value per encounter).
+- **`allow_null: true`** tolerates output rows whose entity key isn't in the build instead of
+  aborting. The engine runs the entries **in order** after load.
+
+## Example (clinic — shipped and runnable)
+
+The example FC ships a working transformer. `config/transformers/hypertension_stage.R`
+self-queries the local build for each encounter's `Blood Pressure = Systolic` /
+`Blood Pressure = Diastolic` (a numeric variable is exposed as `Collection = Variable`, `r.md`),
+classifies each into an ACC/AHA stage, and emits `categorical` rows keyed by `Encounter ID`. It
+is registered in `config/transformers.json` and wired via `data_model.transformers` in
+`manifest.json`. After a build, the new **`Hypertension Stage`** collection (Normal / Elevated /
+Stage 1 / Stage 2) appears in `data_dictionary.tsv` — a collection with no new source column.
 
 ## Build order and cross-product pulls
 
@@ -60,6 +90,43 @@ consuming FC's archive — transformers run at build time, not serve time.
 > Guardrails).
 
 ## Recipe: add a transformer
+
+A transformer can be **R, Python, or bash** — the language is irrelevant to the engine, which only
+cares about the two arguments in and the ingestion CSV out. The **shipped worked example is R**
+(`config/transformers/hypertension_stage.R`). A **Python** transformer is the same shape — self-query
+the local build with `tagbiopy` (the no-`fc_name` localhost form, `python.md`) and write the same CSV:
+
+```python
+import sys, csv
+import tagbiopy.fc
+from tagbiopy.fundamentals import Numeric
+
+output_file = sys.argv[1]            # arg 1: output CSV path   (arg 2 = entity_collection name)
+fc = tagbiopy.fc.FC(host="http://localhost:8000")               # the local build server; no fc_name
+df = fc.df.select("Encounter ID", Numeric("Blood Pressure", "Systolic")).run()
+sys_col = next(c for c in df.columns if c.endswith("Systolic"))  # "Blood Pressure: Systolic"
+
+# Use csv.writer (never hand-format with f-strings) so a comma/newline in an entity value or label
+# is quoted, not injected into the ingestion CSV.
+with open(output_file, "w", newline="") as f:
+    w = csv.writer(f)
+    w.writerow(["data_type", "collection_set_name", "collection_name",
+                "variable_name", "auth_groups", "entity", "value"])
+    for _, row in df.iterrows():
+        s = row[sys_col]
+        if s != s:               # skip NaN
+            continue
+        level = "High" if s >= 140 else "Not High"
+        w.writerow(["categorical", "", "BP Flag", level, "", row["Encounter ID"], level])
+```
+
+Register it like the R one (`"command": "python3 config/transformers/<name>.py"`). A **bash**
+transformer just shells out to whatever produces those rows.
+
+> **The port isn't magic.** The local build server runs on the **default port 8000**. R's
+> `tagConnect()` isn't dynamically discovering it — it simply **defaults to `http://localhost:8000`**
+> too; Python just names that URL explicitly. Both hit the same fixed port. If you build the server
+> on a **non-default `port=`**, match it in the Python `host=` (R picks it up from `TAGBIO_HOST_URL`).
 
 1. Write the script (R/Python/bash) taking an output-file path and the entity key collection.
 2. Read inputs by self-querying the local build (or pulling a deployed product).

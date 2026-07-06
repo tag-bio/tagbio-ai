@@ -97,7 +97,17 @@ collection is less a clean factor than a tag structure.)
 > **Scale caveat:** parsing a **high-cardinality identifier** (e.g. a unique `Encounter ID`) as
 > `categorical` makes one set per distinct value — fine for a few thousand entities, a real cost at
 > millions. Parse an ID only if you need it for display/output, and don't expose it as an analysis
-> variable.
+> variable. (Overall memory is tuned at serve time with `-Xmx` — see `governance.md`; the model
+> above is the bigger lever than the heap.)
+
+> **Missing values at query time.** A missing value is an **absence**, not a level. An entity with
+> no value for a numeric collection is simply **not in** that collection's vector; an entity with
+> no categorical value is **in none** of that collection's tag-sets — it is not a "missing" tag.
+> So a numeric summary or a categorical count is computed **only over entities that have a value**,
+> and the right denominator is "entities with a value here," not all entities. When "was this even
+> measured?" matters (a test run on only a subset), model it **explicitly** — a constant "Has X"
+> flag on every tested entity (`catalog-parser-types.md` → `categorical-static`) — rather than
+> inferring it from the presence or absence of a result.
 
 ## collection_set: a tag for grouping, not a container
 

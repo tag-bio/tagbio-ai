@@ -54,7 +54,7 @@ A minimal single-file config for the clinic FC (JSON with comments is allowed; Y
     }
   ],
 
-  "null_indicators": ["NA", ""]
+  "null_indicators": ["NA", ""]   // "" makes any blank cell null — deliberate; drop it if blank is meaningful
 }
 ```
 
@@ -141,11 +141,11 @@ available to parse but do not want a separate entity mapping.
 - **`columns`** lists exactly which join-table columns to expose (keep it minimal).
 - The pulled columns are then available to the host table's parsers as if they were native.
 
-> **Constraint:** a join must be **one-to-one** (one join row per host row) or **one-to-many**
-> (one join row serving many host rows — a lookup/dimension). It must **not** be
-> **many-to-one**: if several join rows match a single host row, only one is taken and *which* is
-> undefined. Ensure the join table is **unique on its `id_columns` key**. When you need
-> many values per host row, use an `other_table` (which maps a source onto entities), not a join.
+> **Constraint (stated plainly):** the **join table must be unique on its `id_columns` key** — **at
+> most one join row per host row**. One join row may serve **many** host rows (that's a normal
+> lookup/dimension — fine); but if **several join rows match one host row**, only one is taken and
+> *which* is undefined. When you genuinely need **many values per host row**, use an `other_table`
+> (which maps a source onto entities), not a join.
 
 Distinct from `other_tables`: a **join adds columns to a table**; an **other_table maps a whole
 source onto entities**. Reach for a join for a lookup/dimension, an other_table for an adjunct
@@ -196,14 +196,48 @@ names its source differs:
 - **CSV / TSV:** `table` is a **file path** (relative to the data directory). The delimiter is
   inferred from the extension, or set it explicitly with a **`delimiter`** attribute on the table
   — `"\t"` for **TSV** (very common) or `"|"` for **pipe-delimited** files (occasionally seen).
-  `null_indicators` (e.g. `"NA"`, `""`) mark missing values.
-- **SQL:** the table draws from a **database query** over a named connection instead of a
-  file — the table points at a query (often a `.sql` file) and a connection supplies
-  credentials/host. The entity_table and other_tables, unique_keys, foreign_keys, id_columns,
-  and parsers all work exactly the same on top of it.
+  `null_indicators` (e.g. `"NA"`, `""`) mark missing values. **Note the empty string `""`:** it
+  makes **every blank cell** count as missing — the right default for most sources, but a
+  **deliberate** choice. If a blank is *meaningful* in your data (e.g. empty = "not yet assigned",
+  distinct from a true unknown), **drop `""`** from `null_indicators` so blanks aren't silently
+  discarded.
+- **SQL:** each `table` names a **database table** (or a query result) reached over a **SQL
+  connection**, instead of a file path. The entity_table and other_tables, unique_keys,
+  foreign_keys, id_columns, transpose, and parsers all work **exactly the same** on top of it.
 
 Start with CSV/TSV — it is how most first FCs are built. Moving to SQL later changes only the
 source declaration, not the model.
+
+### A concrete SQL variant (shipped and runnable)
+
+The example FC ships a **complete SQL mirror** of the CSV toy — same entities, same collections —
+so you can see every moving part:
+
+1. **A database.** `_shell_scripts/make_sqlite.sh` loads the same `data/*.csv` / `.tsv` into a
+   SQLite DB (`data/clinic.db`) with tables `patients`, `encounters`, `labs`, `genotypes`.
+2. **A connection** — `config/connection_sql.json`, a flat object naming the driver + database:
+
+   ```json
+   { "jdbc": "jdbc:sqlite:", "url": "data/clinic.db", "fetch_size": 10000 }
+   ```
+
+3. **A config** — `config/config_sql.json`, identical to `config.json` except each `table` now
+   names a **database table** rather than a file (`"table": "encounters"` instead of
+   `"table": "data/encounters.csv"`), and there is no `delimiter`. The `unique_keys`,
+   `foreign_keys`, `id_columns`, `transpose`, and the **same parser files** are reused unchanged.
+4. **A manifest** — `manifest_sql.json`, which points `data_model.config` at `config_sql.json` and
+   adds **`sql_connection: "config/connection_sql.json"`**. Everything served (main, protocols,
+   tests, transformers) is unchanged.
+5. **Build it with the SQL jar:** `_shell_scripts/build_archive_sql.sh` runs `make_sqlite.sh` then
+   `fc_sql_server.jar build_archive manifest=manifest_sql.json`. The result is byte-for-byte the
+   same data model as the CSV build — 8 encounters, the transposed genotypes, the transformer's
+   `Hypertension Stage` — proving the model is source-agnostic.
+
+> For a **server database** (Postgres, MySQL, …) only `connection_sql.json` changes — the `jdbc`
+> prefix and a `url` carrying the host, with credentials kept **outside the repo**. A table can
+> also draw from a `.sql` **query** file (`"query": "config/sql_queries/foo.sql"`) and a
+> **named** connection when you need to shape or join in the database first (see
+> `catalog-table-types.md`).
 
 **Server jars.** The engine ships as one jar per source/deployment backend; pick the one that
 matches:

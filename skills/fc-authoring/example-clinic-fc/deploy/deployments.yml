@@ -1,0 +1,43 @@
+# Deployment metadata for the clinic FC in a production cluster. One top-level key per deployed
+# INSTANCE (see references/manifest.md → "One repo, many instances"). Everything here is generic
+# and illustrative — replace names, sizes, and coordinates for a real deploy.
+
+# Instance 1: build + serve the CSV variant in-cluster from the repo config.
+fc-clinic:
+  fcCommand:
+    fcArgs:
+      config: config/config.json      # build the data model from source in-cluster
+      main: main.json                 # protocols + tests to serve
+      r_sdk: "$TAGBIO_R_UTILS"
+      python_sdk: "$TAGBIO_PY"
+      groups: "lax"                   # in-FC group filtering; NOT the access boundary (SSO/gateway is — governance.md)
+    jar: fc_csv_server.jar            # CSV/TSV source → the CSV server jar
+    javaArgs:
+      Xss: 5M
+      Xmx: 1G                         # tune to the data (governance.md)
+  livenessProbe:
+    initialDelaySeconds: 60
+    path: '/s'
+    periodSeconds: 60
+    port: 8000
+  reservation:
+    cpu: 100m
+    memory: 1G
+
+# Instance 2 (illustrative): the SAME main + config, served from the SQL build instead — a second
+# instance differing only here. Uncomment and point at a real connection to use it.
+# fc-clinic-sql:
+#   fcCommand:
+#     fcArgs:
+#       config: config/config_sql.json
+#       sql_connection: config/connection_sql.json
+#       main: main.json
+#       r_sdk: "$TAGBIO_R_UTILS"
+#       python_sdk: "$TAGBIO_PY"
+#     jar: fc_sql_server.jar
+#     javaArgs:
+#       Xss: 5M
+#       Xmx: 1G
+#   reservation:
+#     cpu: 100m
+#     memory: 1G

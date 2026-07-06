@@ -60,7 +60,9 @@ The parser is strict in one direction and lenient in the other:
 
 The failure mode is subtle: the build *succeeds*, but a collection is missing, a parser does
 nothing, or a setting appears ignored — because a misspelled attribute was skipped. When
-something you configured "isn't taking," **check the spelling of the attribute name first.**
+something you configured "isn't taking," **check the spelling of the attribute name first.** The
+full "my collection didn't appear" checklist and how to read `build.log` are in
+`troubleshooting.md`.
 
 ## 4. Inline vs modular — both work; modular is best practice
 

@@ -1,17 +1,19 @@
-// The cohort builder: a "cohort" argument the user fills interactively (via the built-in
-// default_cohort_protocol) to subset entities. A protocol's script.background references it.
+// The cohort argument a protocol exposes: a "cohort" argument the user fills interactively to
+// subset entities, driven by the clinic's OWN cohort builder (protocol_cohort.json). A protocol's
+// script.background references this argument by name (background_cohort).
+//
+// argument_expanders (object form) autogenerates the single cohort argument. Swap argument_protocol
+// to "default_cohort_protocol" to fall back to the built-in generic builder (quick-start only).
 {
   "argument_set_definition": {
     "argument_set_type": "mandatory",
     "name": "background_cohort_argument_set",
     "title": "Specify a Background Cohort"
   },
-  "arguments": [
-    {
-      "argument_type": "cohort",
-      "name": "background_cohort",
-      "title": "Background Cohort",
-      "argument_protocol": "default_cohort_protocol"
-    }
-  ]
+  "argument_expanders": {
+    "argument_type": "cohort",
+    "name": "background_cohort",
+    "title": "Background Cohort",
+    "argument_protocol": "protocols/protocol_cohort.json"
+  }
 }

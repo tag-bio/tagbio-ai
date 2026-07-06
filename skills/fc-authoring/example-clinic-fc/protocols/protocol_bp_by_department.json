@@ -14,11 +14,13 @@
     // Run on all entities (no user cohort here; see cohort-builder.md for the interactive form).
     "background": { "data_function_type": "categorical-all" },
 
-    // The columns the plugin receives.
+    // The columns the plugin receives. Encounter ID is included because the plugin uses it as the
+    // get_results row_name — the row_name collection must be among the analysis_variables.
     "analysis_variables": [
-      "protocols/data_functions/department_categorical.json",
-      "protocols/data_functions/systolic_bp_numeric.json",
-      "protocols/data_functions/diastolic_bp_numeric.json"
+      "protocols/data_functions/categorical_collection_encounter_id.json",
+      "protocols/data_functions/categorical_collection_department.json",
+      "protocols/data_functions/numeric_collection_blood_pressure_systolic.json",
+      "protocols/data_functions/numeric_collection_blood_pressure_diastolic.json"
     ]
   }
 }

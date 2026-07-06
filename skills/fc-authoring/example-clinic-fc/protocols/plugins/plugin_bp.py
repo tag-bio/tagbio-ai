@@ -6,7 +6,11 @@ import plotly.express as px
 
 
 def blood_pressure_report(tag_data: TagbioData, tag_result: TagbioResult):
-    tall = tag_data.df.melt(
+    # A numeric variable arrives named "<Collection>: <Variable>" (e.g. "Blood Pressure:
+    # Systolic" — the Python SDK uses ": "; the R SDK uses " = "). Drop the collection prefix so
+    # the columns read as plain Systolic / Diastolic.
+    df = tag_data.df.rename(columns=lambda c: c.replace("Blood Pressure: ", ""))
+    tall = df.melt(
         id_vars=["Department"],
         value_vars=["Systolic", "Diastolic"],
         var_name="measure",

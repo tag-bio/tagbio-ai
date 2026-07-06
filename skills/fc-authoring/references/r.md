@@ -18,9 +18,13 @@ if (!require('plotly')) install.packages('plotly', repos = "http://cran.us.r-pro
 require('plotly'); require('dplyr'); require('tidyr')
 
 function(tag_data, tag_result) {
-  # The analysis frame: one row per entity; columns are the protocol's analysis_variables
-  # plus the row_name id collection.
+  # The analysis frame: one row per entity; columns are the protocol's analysis_variables,
+  # with the row_name collection used as the row names.
   data <- tagbio::get_results(tag_data, row_name = "Encounter ID")
+
+  # A numeric variable arrives named "<Collection> = <Variable>" (e.g. "Blood Pressure =
+  # Systolic"); drop the collection prefix so columns read as plain Systolic / Diastolic.
+  names(data) <- sub("^Blood Pressure = ", "", names(data))
 
   tall <- data %>% tidyr::pivot_longer(c(Systolic, Diastolic),
                                        names_to = "measure", values_to = "mmHg")
@@ -35,12 +39,19 @@ Key points:
 
 - **Input:** `tagbio::get_results(tag_data, row_name = "<id collection>")` returns the analysis
   frame — a data.frame with one row per entity, columns named by the protocol's
-  `analysis_variables`, keyed by the id collection you name.
-- **Output:** write to `tag_result$output_path` (for `output_type: "html"`, a download, etc.)
-  and `return(tag_result)`.
-- **Libraries:** a plugin runs in the FC's build/serve environment. Any package it uses must be
-  available there — declare/install it (the `if (!require(...)) install.packages(...)` idiom, or
-  the FC's container setup). A missing package fails the protocol at load time.
+  `analysis_variables`. **The `row_name` collection must itself be one of the `analysis_variables`**
+  (it is consumed as the row names) — include an id data_function in the protocol, or `get_results`
+  errors with "Can't find column".
+- **Column naming:** a categorical collection is its own name (`Department`); a **numeric variable**
+  is `"<Collection> = <Variable>"` — the R SDK's `" = "` separator (the **Python SDK uses `": "`**;
+  `python.md`). Rename if you want plain columns.
+- **Output:** write to **`tag_result$output_path`** (for `output_type: "html"`, a download, etc.)
+  and `return(tag_result)`. (The **Python** SDK spells this attribute **`tag_result.path`** — the two
+  SDKs differ here as well as on the column separator; watch it when porting between languages.)
+- **Libraries:** a plugin runs in the FC's environment; any package it uses (here `plotly`) must be
+  in the FC's **container image** via `deploy/build-container.sh` (`governance.md`), or the protocol
+  fails at load with "no package called '<X>'". Locally, `if (!require(x)) install.packages(x)`
+  works as a convenience.
 
 ## R Markdown flavor
 
@@ -56,21 +67,48 @@ and use a dplyr-style `tbl` → `select` → `collect`:
 ```r
 library(tagbio); library(dplyr)
 
-# Deployed product: host_url + credentials (e.g. ~/.tagbio.json)
-con <- tagConnect(host_url = Sys.getenv("TAGBIO_BASE_URL"))
-df  <- tbl(con, "fc-clinic") %>%
-         select(`Encounter ID`, Department, Systolic) %>%
+# LOCALHOST run_server FC (you started it): host_url is localhost, NO auth. A localhost server
+# serves ONE product, so tbl(con) takes NO name.
+con <- tagConnect(host_url = "http://localhost:8000")
+df  <- tbl(con) %>%
+         select(Department, `Blood Pressure = Systolic`) %>%
          collect()          # a bare collect() with no select pulls nothing — always select first
 
-# The LOCAL build currently being built (inside a transformer): no host_url, no table name
+# Deployed product (Tag.bio cluster): host_url + credentials, and NAME the product.
+con2 <- tagConnect(host_url = Sys.getenv("TAGBIO_BASE_URL"))   # auth via ~/.tagbio.json
+df2  <- tbl(con2, "fc-clinic") %>% select(`Encounter ID`, Department) %>% collect()
+
+# The LOCAL build currently being built (inside a transformer): no host_url, no name.
 local <- tagConnect()
 df_local <- tbl(local) %>% select(everything()) %>% collect()
 ```
 
-- `tbl(con, "name")` targets a **deployed** named product; `tbl(con)` (no name) self-queries the
-  **local** build in progress (`transformers.md`).
+- **`tbl(con)` with NO name** targets the **single product a localhost `run_server` serves** — and,
+  with no host_url at all, the **local build in progress** in a transformer (`transformers.md`).
+  **`tbl(con, "name")`** is only for a **deployed** cluster that hosts many named products. (Passing
+  a name to a localhost server errors.)
+- **Cross-SDK difference:** this no-name rule is **R-specific**. The **Python** SDK's `FC()` accepts
+  an `fc_name` on localhost too (or omits it) — so don't assume the R form when porting (`python.md`).
+  It's the same class of asymmetry as `= ` vs `: ` and `output_path` vs `.path`.
+- **Credentials for a deployed FC** come from the env vars **`TAGBIO_HOST_URL`** and
+  **`TAGBIO_API_KEY`**, or a **`~/.tagbio.json`** file in your home directory with the same two keys:
+
+  ```json
+  { "TAGBIO_HOST_URL": "https://your-cluster-host", "TAGBIO_API_KEY": "<your-api-key>" }
+  ```
+
+  Then `tagConnect()` picks them up with no arguments. **Lock the file down — `chmod 600
+  ~/.tagbio.json`** (it holds a live key any process could otherwise read), keep it **out of the
+  repo**, and rotate/revoke the key if it leaks. Never commit or hardcode the key; localhost needs
+  none. (The Python SDK reads the same file — `python.md`.)
 - Always `select(...)` the columns you want **before** `collect()`; a bare `collect()` returns
-  nothing.
+  nothing. To pull **everything**, use `select(everything())`. (On a **deployed** product you can
+  also enumerate with `colnames(fc)`; on the **local build-in-progress** self-query `colnames()`
+  comes back empty, so use `everything()` there.)
+- **Column naming:** a **categorical** collection is selected by its own name (`` `Department` ``);
+  a **numeric variable** is exposed as **`` `Collection = Variable` ``** — e.g.
+  `` `Blood Pressure = Systolic` `` — using the SDK's `qdelim` (` = ` by default). Selecting the
+  bare variable name (`` `Systolic` ``) will not resolve.
 
 **Three connection targets:** a **localhost** FC you started with `run_server` —
 `tagConnect(host_url = "http://localhost:8000")`, **no auth**; a **deployed** FC in the Tag.bio
@@ -94,6 +132,10 @@ A runnable localhost example is in `example-clinic-fc/_r/query_clinic.R`.
 
 - **A bare `collect()`** with no `select` — pulls no columns.
 - **Using a library not in the environment** — the protocol fails to load.
-- **Wrong `row_name`** — name an id collection that exists in the analysis frame.
+- **Omitting the `row_name` id collection from `analysis_variables`.** The single most common plugin
+  error: `get_results(row_name = "Encounter ID")` needs "Encounter ID" among the protocol's
+  `analysis_variables`, or it fails with "Can't find column". (The Python `.df` doesn't use a
+  `row_name`, so the two languages' `analysis_variables` legitimately differ here.)
+- **Wrong `row_name`** — name an id collection that actually exists in the analysis frame.
 
 Next: `python.md` — the same in Python.

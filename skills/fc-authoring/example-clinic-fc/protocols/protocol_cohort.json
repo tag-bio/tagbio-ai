@@ -1,0 +1,19 @@
+// The clinic's OWN cohort builder — the interactive UI a "cohort" argument uses to let a user
+// assemble a subset of entities. method "entity" means it RETURNS a set of entities (the cohort).
+// Its background intersects (set-intersection) the criteria — the filter selections. This replaces
+// the built-in default_cohort_protocol so we control exactly which collections are exposed.
+{
+  "protocol_definition": {
+    "name": "cohort",
+    "title": "Clinic Cohort",
+    "argument_sets": "protocols/argument_sets/argument_set_cohort.json",
+    "dependencies": "all"
+  },
+  "script": {
+    "method": "entity",
+    "background": {
+      "data_function_type": "set-intersection",
+      "criteria": "protocols/argument_reference_sets/argument_reference_set_cohort.json"
+    }
+  }
+}

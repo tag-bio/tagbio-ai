@@ -4,6 +4,13 @@ The **manifest** (`manifest.json`) ties a data product together: what to **build
 model) and what to **serve** (the protocols), plus where the **archive** lives. A build
 (`build_archive`), a serve (`run_server`), or a `compile` is pointed at a manifest.
 
+> **manifest.json vs `deploy/deployments.yml`.** The manifest is what you use **locally** — it
+> drives `compile` / `build_archive` / `run_server` on your machine. **`deployments.yml`** is the
+> **cluster** deployment descriptor (`governance.md`): one entry per served instance, carrying the
+> archive location, the cloud jar, JVM sizing, and secrets. They overlap in spirit (both point at a
+> config/main and an archive) but serve different stages — think "manifest = dev, deployments.yml =
+> production." You author and test with the manifest; you deploy with `deployments.yml`.
+
 ## Shape
 
 ```jsonc
@@ -40,9 +47,39 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
   `data_model` and skips `serve`; `run_server` loads the `archive` and skips `data_model`;
   `compile` validates both without loading data.
 - **`archive`** — the versioned, immutable output (`overview.md`).
+- **`data_product_definition`** — the product's **identity**: `name` (the id used in URLs/API and to
+  address it, e.g. `tbl(con, "fc-clinic")`) and `title` plus the **`entity_name_singular` /
+  `entity_name_plural`** — the noun the **UI** uses when it labels and counts entities ("8
+  **encounters**", "this **encounter**"). Set them to your grain's real-world noun; they are
+  cosmetic but user-facing.
+- **Why identity can live in both `main.json` and the manifest:** `main.json` carries the product's
+  *own* identity (used when you serve it directly), while the manifest can **override** it
+  **per deployed instance** — so two instances built from the same `main` can present different
+  names/titles. When both set it, **the manifest wins**. Put it in `main.json` for the single-instance
+  case; override in the manifest only when an instance needs to differ.
 - **Cloud-served products** add storage coordinates at the **top level** (bucket + auth) so the
   archive can be fetched from S3 / GCS / Azure; pick the matching server jar
   (`configuration-and-sources.md`).
+
+## One repo, many instances
+
+A single repo can define **several deployable instances**, each its own **manifest** (and its own
+deployment entry, `governance.md`). What varies between instances lives in the **manifest**, not
+necessarily in the config — and this is deliberately flexible:
+
+- **Same config + same main, different source.** For an FC built around a common **schema**, one
+  instance can source from a **public** dataset and another from a **private** one — identical
+  `config` and `main.json`, different manifests (different source/connection, archive, deployment).
+  The data model and the apps are the same; only where the data comes from differs.
+- **Different config, same grain.** A **fixed-date snapshot** vs a live build, or a differently
+  filtered source, is a second manifest pointing at a **different config** at the *same* grain.
+- **Different config, different grain = a genuinely different FC.** A different entity grain means
+  different `unique_keys`, hence a different config (`entities.md`: one FC has one grain). It is
+  still just another manifest in the same repo.
+
+So "another FC" is really "another manifest/deployment"; whether it reuses the config and main or
+swaps them is up to you. (When several instances share one `main`, every collection that `main`'s
+protocols reference must exist in **every** instance's build.)
 
 ## Versioning
 

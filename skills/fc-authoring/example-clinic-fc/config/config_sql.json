@@ -1,0 +1,40 @@
+// SQL variant of config.json: the SAME data model, sourced from a SQLite database
+// (data/clinic.db, built by _shell_scripts/make_sqlite.sh) instead of the CSV/TSV files.
+// Only the source declaration changes -- each `table` now names a DATABASE TABLE, not a file
+// path. The unique_keys, foreign_keys, id_columns, transpose, and parsers are identical, and the
+// parser files are reused as-is. The connection is supplied by the manifest (sql_connection).
+{
+  "data_dictionary": "data_dictionary.tsv",
+
+  "entity_table": {
+    "table": "encounters",                          // a table in clinic.db (was data/encounters.csv)
+    "unique_keys": ["patient_id", "encounter_date"],
+    "foreign_keys": ["encounter_id"],
+    "parsers": "config/parsers/encounters.json"
+  },
+
+  "other_tables": [
+    {
+      "table": "patients",
+      "table_alias": "patients",
+      "id_columns": { "patient_id": "patient_id" },
+      "parsers": "config/parsers/patients.json"
+    },
+    {
+      "table": "labs",
+      "table_alias": "labs",
+      "id_columns": { "encounter_id": "encounter_id" },
+      "parsers": "config/parsers/labs.json"
+    },
+    {
+      // A transposed DB table works exactly like a transposed file: the entity ids are the
+      // column headers (P001, P002, ...). No `delimiter` -- the source is a table, not a file.
+      "table": "genotypes",
+      "table_alias": "genotypes",
+      "transpose": "patient_id",
+      "parsers": "config/parsers/genotypes.json"
+    }
+  ],
+
+  "null_indicators": ["NA", ""]
+}

@@ -1,0 +1,13 @@
+// Transformer set: scripts the build runs after the data model is loaded, each adding new
+// collections. Referenced from the manifest as data_model.transformers.
+[
+  {
+    "name": "hypertension_stage",
+    // Invoked as: Rscript config/transformers/hypertension_stage.R <output_file> "<entity_collection>"
+    "command": "Rscript config/transformers/hypertension_stage.R",
+    // The collection whose values key each output row's `entity` column (one value per entity).
+    "entity_collection": "Encounter ID",
+    // Tolerate output rows whose entity key isn't in the build (instead of aborting).
+    "allow_null": true
+  }
+]

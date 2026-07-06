@@ -1,6 +1,13 @@
 # Build + test artifacts — generated, not source. Keep the example source-only.
 archive.ser
+archive_sql.ser
 data_dictionary.tsv
 build.log
+build_sql.log
 _test_results/
 _bp_report_out.ipynb
+**/__pycache__/
+protocols/plugins/_tmp_*.Rmd
+
+# SQL variant: the SQLite DB is generated from the CSV/TSV sources by make_sqlite.sh.
+data/clinic.db

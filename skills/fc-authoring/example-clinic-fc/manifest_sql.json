@@ -1,0 +1,28 @@
+// SQL variant of manifest.json: same product, built from the SQLite DB instead of CSV/TSV.
+// Two differences from manifest.json: the config points at config_sql.json, and a
+// sql_connection is supplied. Everything served (main.json, protocols, tests) is unchanged --
+// the data model is identical regardless of source. Build with the SQL server jar.
+{
+  "data_product_definition": {
+    "name": "fc-clinic",
+    "title": "Clinic FC (example, SQL source)",
+    "entity_name_singular": "encounter",
+    "entity_name_plural": "encounters"
+  },
+
+  "data_model": {
+    "config": "config/config_sql.json",
+    "sql_connection": "config/connection_sql.json",
+    "data_dir": "./",
+    "transformers": "config/transformers.json",
+    "log": "build_sql.log"
+  },
+
+  "serve": {
+    "main": "main.json",
+    // Run the registered/auto tests on startup (they execute asynchronously — wait for them).
+    "run_tests": "true"
+  },
+
+  "archive": "archive_sql.ser"
+}

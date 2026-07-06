@@ -1,0 +1,9 @@
+// SQL connection for the SQL variant. Wired via data_model.sql_connection in manifest_sql.json.
+// A single flat connection object (jdbc prefix + url) is the simplest form; the url is relative
+// to the build working directory (example-clinic-fc/). For a server database, the url carries the
+// host and the credentials live outside the repo -- never commit real credentials.
+{
+  "jdbc": "jdbc:sqlite:",
+  "url": "data/clinic.db",
+  "fetch_size": 10000
+}

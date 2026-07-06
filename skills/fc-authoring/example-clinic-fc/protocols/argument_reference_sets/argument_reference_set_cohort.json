@@ -1,0 +1,6 @@
+// The cohort's selection logic: intersect (AND) the entities that satisfy each filter set. With
+// one filter set, this is just its argument-set-reference; add more sections here and they AND
+// together. An unset filter contributes all entities, so an empty cohort = everyone.
+[
+  { "data_function_type": "argument-set-reference", "argument_set": "cohort_clinic" }
+]

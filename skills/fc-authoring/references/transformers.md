@@ -16,6 +16,14 @@ build so a transformer can query it, then runs each transformer, then writes the
 - **Pull from another deployed product** (cross-product enrichment): `tagConnect(host_url = …)`
   and `tbl(con, "other-product")`. This is how one FC broadcasts values derived from a related,
   already-deployed FC.
+- **Pull from a *locally-served* dependency** (deploy outage, or building both together): serve the
+  dependency on a **non-default port** (`run_server … port=7999`) and point the transformer at it —
+  `tagConnect(host_url = "http://localhost:7999")`, **bare `tbl(con)`** (single-FC serve, `r.md`).
+  Use a port ≠ 8000 so it doesn't collide with the build's own transformer-callback server. When
+  the two builds run **near-concurrently**, the dependency's server may not be up when this
+  transformer starts — so **poll until it can serve a pull** (retry `tbl(con) %>% select(<a
+  column>) %>% collect()` with a `Sys.sleep`/deadline loop) instead of failing on a not-yet-ready
+  server. A long-running earlier transformer (e.g. a PRS step) also naturally covers the startup gap.
 
 A transformer **emits a CSV in the FC-ingestion format** — one row per (collection, entity,
 value) — which the engine loads back as new collections. The columns are fixed:

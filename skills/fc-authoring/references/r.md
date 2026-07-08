@@ -102,9 +102,14 @@ df_local <- tbl(local) %>% select(everything()) %>% collect()
   repo**, and rotate/revoke the key if it leaks. Never commit or hardcode the key; localhost needs
   none. (The Python SDK reads the same file — `python.md`.)
 - Always `select(...)` the columns you want **before** `collect()`; a bare `collect()` returns
-  nothing. To pull **everything**, use `select(everything())`. (On a **deployed** product you can
-  also enumerate with `colnames(fc)`; on the **local build-in-progress** self-query `colnames()`
-  comes back empty, so use `everything()` there.)
+  nothing. To pull **everything**, use `select(everything())`.
+- **The SDK's dplyr/dbplyr layer is a PARTIAL shim** (it grew around specific use cases), so don't
+  assume the full framework is wired. In particular, on **any localhost FC** — both a `run_server`
+  dev serve *and* the build-in-progress self-query — **`colnames(fc)` comes back empty**, so
+  `all_of(colnames(fc))`, tidy-eval injection (`!!sym(x)`), and broader verbs are **not** reliable.
+  **Select columns by literal name** (backticks for spaces/pipes, e.g.
+  `` select(`Encounter ID`) ``) or `everything()`. Enumerating with `colnames(fc)`
+  works **only on a deployed product**. Keep to `tbl()` → `select(<literal names>)` → `collect()`.
 - **Column naming:** a **categorical** collection is selected by its own name (`` `Department` ``);
   a **numeric variable** is exposed as **`` `Collection = Variable` ``** — e.g.
   `` `Blood Pressure = Systolic` `` — using the SDK's `qdelim` (` = ` by default). Selecting the
@@ -115,6 +120,13 @@ df_local <- tbl(local) %>% select(everything()) %>% collect()
 cluster — `host_url` + **auth** (a named connection / `~/.tagbio.json`); and the **local build in
 progress** inside a transformer — `tagConnect()` with no host and `tbl(con)` with no table name.
 A runnable localhost example is in `example-clinic-fc/_r/query_clinic.R`.
+
+**Localhost ports aren't limited to 8000.** `run_server … port=7999` serves on any port, and
+`tagConnect(host_url = "http://localhost:7999")` connects to it **no-auth** — so you can serve and
+query **several localhost FCs at once**: a second FC as a *dependency* (a transformer pulling
+another product served locally, `transformers.md`), or two FCs side-by-side for plugin
+development. **This is R-only: the Python SDK hardcodes `:8000` for the localhost no-auth path
+(confirmed — any other host requires auth and is forced to https), see `python.md`.**
 
 > **Guardrail:** before running an ad-hoc query against any product or source, obtain the user's
 > **informed consent** — they must know Claude is about to access potentially sensitive or

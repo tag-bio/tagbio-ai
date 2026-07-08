@@ -89,6 +89,13 @@ df = fc.df.select(
   **R's `tbl(con, "name")` errors on localhost** — it takes no name there. Don't carry the R rule
   over to Python (or vice versa); it's the same class of asymmetry as `: ` vs `= ` and
   `.path` vs `$output_path`.
+- **Localhost port (cross-SDK, CONFIRMED — alternate ports are R-only):** R connects to a localhost
+  `run_server` on **any** port (`tagConnect(host_url="http://localhost:7999")`, `r.md`). **Python
+  does not.** `tagbiopy` skips auth **only** when `host == DEFAULT_HOST` (*exactly*
+  `http://localhost:8000`); any other host requires an API key **and** is force-rewritten to
+  `https://` (`request.py` `_set_host`/`auth`) — so `http://localhost:7999` becomes
+  `https://localhost:7999` and fails no-auth. `:8000` is effectively hardcoded for the localhost
+  path. A prime candidate for the SDK-harmonization work.
 - **Deployed credentials** work the same as R (`r.md`): the SDK reads **`TAGBIO_HOST_URL`** and
   **`TAGBIO_API_KEY`** from the environment, or from a **`~/.tagbio.json`** (or `~/.tagbio.yaml`)
   with those keys. So you usually don't pass `api_key` at all — `FC(fc_name="…")` picks it up. The

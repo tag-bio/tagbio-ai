@@ -47,9 +47,11 @@ data (the example's `download` protocol uses it).
 ```
 
 - **`protocol_definition`** — metadata plus `argument_sets`: the parameters exposed to the user. It
-  can also carry **access attributes**: **`groups`** (restrict who may run this protocol) and
-  **`download_groups`** (restrict who may convert its result into a raw **download** — an export
-  gate, so everyone can see a summary but only some can export rows). See `governance.md`.
+  can also carry an **`asset`** — a thumbnail image (a file in the FC's `assets/` directory) shown on
+  the app's tile in the UI; an **argument_set** can carry an `asset` too (`arguments.md`). And
+  **access attributes**: **`groups`** (restrict who may run this protocol) and **`download_groups`**
+  (restrict who may convert its result into a raw **download** — an export gate, so everyone can see a
+  summary but only some can export rows). See `governance.md`.
 - **`script`** — what runs. Three fields carry the weight — **`method`**, **`background`**,
   **`analysis_variables`**:
   - **`method`** — **always required.** `external` (an R/Python plugin) or `native` (embedded);
@@ -69,6 +71,27 @@ So the three define a **dataframe**: `background` picks the **rows**, `analysis_
 *before* the plugin runs**, and the plugin reads it from its input parameter (`tag_data` — via
 `get_results()` in R, `tag_data.df` in Python) rather than querying anything itself. Authoring the
 plugin is `r.md` / `python.md`.
+
+## Method types
+
+`method` names **which kind of query** the protocol runs over the data model. A handful matter:
+
+- **`external`** — an R/Python **plugin**. The flagship; what you author (`r.md` / `python.md`).
+- **`entity`** — returns a **set of entities**, i.e. a **cohort**. This is the method the **cohort
+  builder** uses (`protocol_cohort.json` → `cohort-builder.md`). Reach for it whenever a protocol's
+  job is to *define a subset* rather than analyze one.
+- **`download`** — a built-in utility that **exports** the cohort's data (the toy's `download`
+  protocol). A "download everything" app is always worth shipping.
+- **`summary`** — a built-in visualization/summary; also the method many **argument_protocols** run
+  under.
+- **`collection`** / **`variable`** — used almost exclusively by the **argument layer**: the
+  auto-generated `argument_protocol` behind a filter fetches its options or values with one of these.
+- **`native`** — other embedded methods (front-end-driven; TBD, above).
+
+The nuance worth internalizing: **`argument_expanders` autogenerate an `argument_protocol` for each
+filter, and that helper protocol has a `method` too** — usually `summary` / `collection` / `variable`.
+So those methods surface not because you write them directly, but because the argument machinery
+generates them (`arguments.md`). You mostly hand-write `external`, `entity`, and `download`.
 
 ## Arguments and argument_sets
 
@@ -127,4 +150,5 @@ file-referenced helper protocols too (`data-functions.md`, `testing.md`).
   fails to compile.
 - **Reaching for a native method** to teach a Claude — author external plugins instead.
 
-Next: `cohort-builder.md` — the argument layer and the key protocol every FC needs.
+Next: `arguments.md` — the interactive argument types, argument_sets, expanders, and handlers
+that protocols expose (and that the cohort builder is built from).

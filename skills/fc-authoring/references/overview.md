@@ -51,6 +51,23 @@ Once served, users interact with it without ever touching the data model:
 Every one of these ultimately **counts, filters, and groups entities** — which is exactly why
 the entity grain (the next topic) is the most important modeling decision.
 
+### How a protocol answers a question
+
+The whole runtime, at author altitude, is one loop over the modeled entities:
+
+1. **Which entities?** The user's **cohort** (a protocol's `background`) selects a subset — the
+   rows. An empty cohort is all entities.
+2. **Which values?** The protocol's **`analysis_variables`** name the collections/variables — the
+   columns. Together, rows × columns define a **dataframe**.
+3. **Do what?** The protocol's **`method`** runs over that dataframe — an R/Python **plugin**, a
+   built-in query (a cohort, a download), or a native visualization — and returns a result.
+4. **Arguments** the user set (filters, a chosen variable, a toggle) simply **constrain steps 1–2**
+   before the method runs; the client polls until the result is ready.
+
+That is the entire serve-plane model. Everything in this skill — parsers, data_functions, methods,
+arguments — is a detail of building the pieces this loop consumes. (The engine's internal request
+machinery is out of scope here; you author at this altitude.)
+
 ## How do you *build* a data product?
 
 Building has two connected planes, joined by the archive:

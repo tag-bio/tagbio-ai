@@ -114,7 +114,36 @@ Two capabilities, so you never assume a false limit:
   parser object** (the flexible value resolution of `files-and-value-resolution.md`), so a
   single parser produces a *tree* of collections — even a plain `categorical` parser can.
 
-The four common types cover the vast majority of columns; keep these two options in mind for the
+### Dynamic naming: name a collection/variable from the data
+
+Both `collection` **and** `variable` accept either a **literal string** or a **nested parser** that
+derives the name *from a column, per row*. This turns a **long / attribute-value** table into
+properly-named collections and variables without hand-listing them. The toy's labs are the worked
+example — one `labs` row is `(panel, analyte, result_value)`:
+
+```jsonc
+// numeric labs: panel names the collection, analyte names the variable
+{ "parser_type": "numeric", "column": "result_value",
+  "where":      { "parser_type": "categorical-match", "column": "panel", "operator": "!=", "value": "Urinalysis" },
+  "collection": { "parser_type": "categorical", "column": "panel" },     // -> "Lipid", "Metabolic"
+  "variable":   { "parser_type": "categorical", "column": "analyte" } }  // -> "LDL", "HDL", ...
+
+// qualitative labs: a compound Panel|Analyte names the collection, the result is the level
+{ "parser_type": "categorical", "column": "result_value",
+  "where":      { "parser_type": "categorical-match", "column": "panel", "operator": "=", "value": "Urinalysis" },
+  "collection": { "parser_type": "categorical-compound", "operator": " | ", "columns": ["panel", "analyte"] } }
+```
+
+This produces numeric `Lipid → LDL = 142` (paired, still numeric) and categorical
+`Urinalysis | Leukocytes → Positive` — the fix `entities.md` recommends for aligned child tuples. It
+is **not** values-as-schema: the names come from the data, so a new analyte appears automatically; the
+anti-pattern is *hand-writing one static parser per value*. The two `where` clauses **route** the
+shared `result_value` column — numeric rows to the numeric parser, qualitative to the categorical one
+(`where` = a `categorical-match` predicate; `catalog-parser-types.md`). This is parsers as a
+first-class, composable layer — a nested parser inside a parser — the same composition idea that runs
+through data_functions.
+
+The four common types cover the vast majority of columns; keep these options in mind for the
 cases that need them.
 
 ## Transposed tables use `-row` parsers

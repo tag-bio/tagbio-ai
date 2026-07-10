@@ -74,4 +74,5 @@ enumeration — data-model types, the argument bridge, set algebra, and the `arg
 - **Wrong `data_type` on a collection-set** — filters to the wrong or an empty subset.
 - **Reinventing a reference** instead of reusing an existing data_function.
 
-Next: `protocols.md` — the apps that consume these data_functions (focus: R/Python plugins).
+Next: `composition.md` — the unifying idea that both parsers and data_functions **nest and compose**,
+before we expose them as apps in `protocols.md`.

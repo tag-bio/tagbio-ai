@@ -49,7 +49,9 @@ A minimal single-file config for the clinic FC (JSON with comments is allowed; Y
       "table_alias": "labs",
       "id_columns": { "encounter_id": "encounter_id" },    // roll-up (via the foreign_key)
       "parsers": [
-        { "parser_type": "numeric", "column": "result_value", "collection": "Lab Result" }
+        { "parser_type": "numeric", "column": "result_value",
+          "collection": { "parser_type": "categorical", "column": "panel" },     // name from data
+          "variable":   { "parser_type": "categorical", "column": "analyte" } }   // see parsers.md
       ]
     }
   ],
@@ -78,10 +80,6 @@ and variable it produced. It's a generated artifact — gitignore it.)
 **Parsers sit inside the table object they read.** A parser reads a column of *its* table, so
 nesting makes ownership obvious and the config directly traversable — and the parser needs no
 `table_alias`, because its table is simply the one it is nested in.
-
-> You may encounter an **older layout** in legacy repos: all parsers hoisted to a top-level
-> `parsers` array, each tagged with a `table_alias` naming the table it belongs to. Recognize
-> it, but author the **nested** form.
 
 Note the distinction: a **table object itself carries a `table_alias`** (`other_tables` require
 one), but the **parsers nested inside it do not** — they inherit their table's identity. It is

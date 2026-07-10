@@ -93,3 +93,5 @@ version you want to serve or roll back to.
 - `_shell_scripts/build_archive.sh` → `build_archive manifest=manifest.json`
 - `_shell_scripts/run_server.sh` → `run_server manifest=manifest.json`
 - `_shell_scripts/compile_local.sh` → `compile manifest=manifest.json` (fast, no data load)
+
+That completes the build path. Return to `SKILL.md` for the reading order and golden rules.

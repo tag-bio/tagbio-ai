@@ -1,9 +1,11 @@
-// Tests the download protocol; the mandatory cohort argument is satisfied with all entities.
+// Tests the download protocol; the mandatory cohort is all entities, and the optional DNA-variants
+// toggle is submitted as false (the UI always submits an argument's default) — genotypes excluded.
 {
   "protocol_instance": {
     "name": "download",
     "arguments": {
-      "background_cohort": { "data_function_type": "categorical-all" }
+      "background_cohort": { "data_function_type": "categorical-all" },
+      "include_all_dna_variants": false
     }
   },
   "output": "_test_results/test_download.csv"

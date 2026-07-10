@@ -6,6 +6,28 @@ antidote is a **tight edit→check loop** with the fastest check that can catch 
 Learn this early and run it constantly; it is the single biggest force-multiplier when authoring
 in this format.
 
+## The loop is how you *know* you're right
+
+More than a build procedure, the loop is your **source of truth**. This matters especially for an AI
+assistant, whose priors may not match the current engine:
+
+- **The running engine is the oracle.** When your memory, an old FC, and a fresh `compile` disagree,
+  **the compile wins.** Don't reason about whether an attribute exists or a reference resolves —
+  *run it and read the output.* The engine names the exact offending JSON.
+- **Verifying is cheaper than being wrong.** Running a check *feels* expensive, so there's a pull to
+  reason instead. Resist it: a wrong guess costs far more to unwind than the seconds a `compile`
+  takes. When unsure, run the loop.
+- **Green ≠ correct.** A passing test only means the protocol **didn't crash** — not that it did what
+  you intended (`testing.md`). Before you run, **state an observable expectation**, then check the
+  output against it. *(Worked example: a "download all variants" toggle should* add *columns —
+  verified by diffing the export headers, 0 genotype columns off vs 3 on. The green alone proved
+  nothing.)*
+- **Isolate one change.** When something breaks, change **one** thing and re-run, so the next result
+  is attributable. Read the exact exception, not the general vicinity.
+- **Let the engine confirm the current form.** Run `compile … verbosity=3d` periodically — the `d`
+  flag reveals deprecation warns the default hides, so if any attribute has a newer replacement the
+  engine **names it for you**. Treat any such warn as a to-fix.
+
 ## The loop, fastest check first
 
 ```
@@ -86,6 +108,19 @@ exit (handy in CI). Full detail and the test JSON schema are in `testing.md`.
 > directory of config elements. It's a scaffolding shortcut to avoid hand-writing the first draft;
 > treat the output as a **starting point to edit**, not a finished config (it can't know your entity
 > grain, human-readable collection names, joins, or which columns to skip).
+
+## Housekeeping: detecting cruft
+
+As an FC grows, parsers, data_functions, and protocols get orphaned — referenced by nothing. Run the
+engine with **`cruft=true`** to get a **report** of unused collateral without changing anything:
+
+```bash
+java -Xmx4g -jar ${TAGBIO_JARS}/fc_csv_server.jar manifest=manifest.json cruft=true
+```
+
+The example ships this as `_shell_scripts/cruft_detector.sh`. `cruft=purge` will **delete** what it
+finds — useful for cleanup, but review the `cruft=true` report first and commit beforehand, since it
+removes files. Good to run before a release so the repo carries only what it uses.
 
 ## Recipe: after any change
 

@@ -117,7 +117,7 @@ The clinic FC:
 |---|---|---|
 | `encounters` | entity_table | the entity itself (Encounter Date, Department, Diagnosis) |
 | `patients` | other_table (coarser) | patient attributes **broadcast** onto every encounter (Sex, Region, Age) |
-| `labs` | other_table (finer) | lab results **rolled up** onto the encounter as the multi-valued `Lab Result` (+ `Lab Analyte`) |
+| `labs` | other_table (finer) | lab results **rolled up** onto the encounter — each panel a numeric collection, each analyte its variable (`Lipid → LDL`); see the tuple-alignment note below |
 
 An other_table declares how it maps to entities via its key columns. A coarser table
 (`patients`) maps on a **subset** of the entity's keys (`patient_id` only) — one patient row
@@ -169,16 +169,25 @@ sourced from more than one file/table. (Different grains → different FCs, abov
 
 ### When a finer grain has tuples that must stay aligned
 
-Roll-up (a finer child table onto the entity) loses **tuple alignment**: if a parent owns several
-child records whose fields must stay together (a lab result *with its* unit *and* date, a mutation
-*with its* allele frequency), flattening each field into its own parallel list breaks the pairing —
-value #3 of one list no longer reliably matches value #3 of another. Two correct fixes, in order:
+Roll-up (a finer child table onto the entity) can lose **tuple alignment**: if a parent owns several
+child records whose fields must stay together (a lab result *with its* analyte, a mutation *with its*
+allele frequency), flattening each field into its own parallel list breaks the pairing — value #3 of
+one list no longer reliably matches value #3 of another. Three fixes, in order of preference:
 
-1. **Prefix/combine the paired fields into a single value** on the coarse grain — e.g. one
-   "Result with Unit" collection whose every value carries the whole tuple. Usually enough.
-2. **Build a separate FC at the finer grain** (option 2 above), where that child *is* the entity
-   and its fields are plain per-entity collections. Reach here when the finer grain is important
-   enough to analyze in its own right.
+1. **Let each child name its own collection/variable from the data.** When the child rows are an
+   `(attribute, value)` pair, a nested parser can derive the collection and variable *names* from the
+   attribute column, so each value lands in its own variable and pairing is automatic — *and the value
+   keeps its type*. The toy's labs do exactly this: `labs.panel` → the numeric collection (`Lipid`),
+   `labs.analyte` → the variable (`LDL`), so `Lipid → LDL = 142` is unambiguous and still numeric
+   (`parsers.md`, dynamic naming). This is *not* values-as-schema — the names come from the data, so a
+   new analyte just appears. **Prefer this whenever the child is attribute-keyed.**
+2. **Combine the paired fields into a single tuple-carrying value** on the coarse grain — one
+   "Result with Unit" collection whose every value carries the whole tuple (`"LDL 142 mg/dL"`). The
+   fallback when the tuple has several fields that don't reduce to one attribute→variable mapping; note
+   the value becomes categorical, so you lose numeric analysis on it.
+3. **Build a separate FC at the finer grain** (option 2 above), where that child *is* the entity and
+   its fields are plain per-entity collections. Reach here when the finer grain is important enough to
+   analyze in its own right — the case where you need it kept numeric *and* paired at that grain.
 
 There is no in-between that keeps two grains in one product — resist inventing one.
 
@@ -191,9 +200,10 @@ There is no in-between that keeps two grains in one product — resist inventing
   aggregates/collections on the coarser grain; you do not need a row per lab to serve
   lab values on an encounter.
 - **Trying to put two grains in one FC.** An FC has exactly one grain. If a parent owns several
-  child tuples whose fields must stay aligned, first combine them into single tuple-carrying
-  values on the coarse grain; if the finer grain truly must be analyzed on its own, that is a
-  **separate FC**, not a second entity table.
+  child tuples whose fields must stay aligned, first give each its own dynamically-named
+  collection/variable (or combine them into single tuple-carrying values) on the coarse grain; if
+  the finer grain truly must be analyzed on its own, that is a **separate FC**, not a second entity
+  table.
 
 ## Recipe: define the entity grain of a new FC
 
@@ -204,9 +214,10 @@ There is no in-between that keeps two grains in one product — resist inventing
    uniqueness in the source.
 4. Classify every other source table as **coarser** (broadcast) or **finer** (roll-up)
    relative to the entity, and note which entity keys each maps on.
-5. If a finer grain carries aligned tuples the entity cannot flatten, combine them into single
-   values first; if it must be analyzed in its own right, plan a **separate FC** at that grain
-   (an FC has exactly one grain — `entity_tables` unions *same-grain* sources only).
+5. If a finer grain carries aligned tuples the entity cannot flatten, name each from the data
+   (dynamic collection/variable) or combine them into single values first; if it must be analyzed
+   in its own right, plan a **separate FC** at that grain (an FC has exactly one grain —
+   `entity_tables` unions *same-grain* sources only).
 
 Next: `data-model.md` — how the values you just attached (collections and variables) are
 actually defined.

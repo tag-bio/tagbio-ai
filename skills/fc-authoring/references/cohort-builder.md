@@ -96,8 +96,9 @@ set:
 demographics section, a labs section) and list each as another `argument-set-reference` to AND
 them. An unset filter matches everyone, so an empty cohort = all entities.
 
-This is verified end-to-end: selecting `Department = Cardiology` returns exactly the 3 Cardiology
-encounters of 8.
+This is verified end-to-end by a shipped test: `tests/test_cohort_cardiology.json` selects
+`Department = Cardiology` and the cohort's `meta.background_size` comes back as exactly **3** (of 8
+encounters).
 
 ## `default_cohort_protocol` — the quick-start fallback (prefer your own)
 
@@ -145,7 +146,8 @@ A `mandatory` cohort must be satisfied in the protocol's test — use all entiti
 ```
 
 To test an actual **subset**, pass a filter selection keyed `"<argument_set>__<column>"`, e.g.
-`{ "cohort_clinic__Department": "Cardiology" }`. (See `tests/test_download.json` and
+`{ "cohort_clinic__Department": "Cardiology" }` — this is exactly what `tests/test_cohort_cardiology.json`
+does (its output's `meta.background_size` is 3). (See `tests/test_download.json` and
 `tests/test_python_bp.json` for the all-entities form.)
 
 ## Recipe: give a protocol a user-built cohort

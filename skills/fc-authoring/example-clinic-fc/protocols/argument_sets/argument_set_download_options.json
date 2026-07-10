@@ -1,0 +1,35 @@
+// A BOOLEAN toggle argument (the one thing argument_expanders over a data_function can't generate —
+// there are no values to expand, just on/off). "Include all DNA variants" adds every genotype to the
+// download when checked. The handler is a `boolean` data_function whose `true_variable` is a `bundle`
+// of the genotype collections (composition: boolean wrapping a bundle wrapping data_functions).
+// `asset` shows a thumbnail on the argument_set in the UI (assets work on argument_sets too).
+{
+  "argument_set_definition": {
+    "argument_set_type": "optional",
+    "name": "download_options",
+    "title": "Download Options",
+    "asset": "dna-mutate-line-mixed.png"
+  },
+  "argument_expanders": {
+    "argument_type": "boolean-null",
+    "name": "include_all_dna_variants",
+    "title": "Include all DNA variants",
+    "description": "If checked, every genotype (APOE, BRCA1, TCF7L2) is added to the export.",
+    "suggested_value": "false",
+    "handlers": {
+      "handler": "include_all_dna_variants",
+      "handler_function": {
+        "data_function_type": "boolean",
+        "true_function": {
+          "data_function_type": "bundle",
+          "criteria": [
+            "protocols/data_functions/categorical_collection_apoe.json",
+            "protocols/data_functions/categorical_collection_brca1.json",
+            "protocols/data_functions/categorical_collection_tcf7l2.json"
+          ]
+        },
+        "false_function": "protocols/data_functions/categorical_collection_encounter_id.json"
+      }
+    }
+  }
+}

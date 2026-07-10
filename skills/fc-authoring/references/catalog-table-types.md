@@ -44,6 +44,7 @@ against a working FC** — some attributes are rare and their options vary.
 | `transpose` | for transposed sources: the single entity key the **column headers** map to (replaces `id_columns`) |
 | `joins` | inner-join another table and pull specific `columns` in as implicit columns for this table's parsers (one-to-one or one-to-many only) |
 | `include` | restrict which **columns** the table loads |
+| `data_dictionary` | a `From,To` CSV that **renames source columns to canonical names before parsing**; **many→one is allowed** — map several files' differently-named columns onto one name so a *single* parser targets it (e.g. `visit_dt` / `enc_date` / `admit_date` all → `encounter_date`). The workhorse for unioning many same-grain files whose columns are named inconsistently |
 | `where` | a **row predicate** — load only rows matching it (e.g. one type of record); lets you define **two tables over the same source** with different filters (`files-and-value-resolution.md`) |
 | `parsers` | the column→collection mappings, nested in the table (`parsers.md`) |
 

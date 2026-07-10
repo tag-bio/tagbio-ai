@@ -1,0 +1,8 @@
+{
+  "data_function_type": "bundle",
+  "criteria": [
+    "protocols/data_functions/categorical_collection_encounter_id.json",
+    "protocols/data_functions/categorical_collection_department.json",
+    "protocols/data_functions/collection_set_labs.json"
+  ]
+}

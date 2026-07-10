@@ -150,4 +150,5 @@ transformer just shells out to whatever produces those rows.
   deployed first.
 - **Expecting a transformer to run at serve time** — it runs only during `build_archive`.
 
-That completes the build path. Return to `SKILL.md` for the reading order and golden rules.
+Next: `manifest.md` — how one deployable instance ties the build and serve planes together and
+declares where the archive lives.

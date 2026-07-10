@@ -7,3 +7,7 @@ L05,E1005,P004,Lipid,LDL,155,mg/dL
 L06,E1006,P005,Metabolic,Glucose,92,mg/dL
 L07,E1007,P002,Metabolic,HbA1c,7.1,%
 L08,E1008,P006,Metabolic,Glucose,101,mg/dL
+L09,E1002,P001,Urinalysis,Leukocytes,Negative,
+L10,E1003,P002,Urinalysis,Leukocytes,Positive,
+L11,E1006,P005,Urinalysis,Protein,Negative,
+L12,E1008,P006,Urinalysis,Protein,Positive,

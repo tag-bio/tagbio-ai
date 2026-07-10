@@ -21,8 +21,8 @@ The build writes a log (path set by `data_model.log`, or `log=` on the CLI); rai
 - **The generated `data_dictionary.tsv`** — the ground truth of what got built: every collection,
   its variables, and entity counts. If a collection isn't here, it wasn't produced.
 - **`WARN` / `DETAIL` lines** — some are benign (e.g. a `DETAIL: 'parsers' not found in config`
-  when you use nested/referenced parsers is the engine checking for the legacy top-level array —
-  harmless). Read them, but not every one is a problem.
+  when your parsers are nested in the tables is just the engine checking for an optional top-level
+  `parsers` array you're not using — harmless). Read them, but not every one is a problem.
 
 ## "My collection didn't appear" — checklist
 

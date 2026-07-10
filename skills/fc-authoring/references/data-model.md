@@ -29,17 +29,24 @@ Clinic examples (`example-clinic-fc/`):
 | `Patient Region` | categorical | `patients.region` (broadcast) | one value, repeated across the patient's encounters |
 | `Patient Age` | numeric | `patients.age` (broadcast) | one value per encounter |
 | `Blood Pressure` | numeric | `encounters.systolic_bp`, `encounters.diastolic_bp` | one collection grouping the `Systolic` and `Diastolic` variables |
-| `Lab Result` | numeric | `labs.result_value` (roll-up) | multi-valued — one value per lab drawn; pair with `Lab Analyte` to know which |
+| `Lipid`, `Metabolic` | numeric | `labs.result_value` (roll-up) | one collection **per lab panel**, its analyte the **variable** (`Lipid` → `LDL`/`HDL`) — both names generated **dynamically from the data**, see `parsers.md` |
+| `Urinalysis \| …` | categorical | `labs.result_value` (roll-up) | qualitative labs — a `Panel \| Analyte` compound collection whose levels are `Positive`/`Negative` |
+| `Lab Panel`, `Lab Analyte` | categorical | `labs.panel`, `labs.analyte` | which panels/analytes an encounter had (presence dimensions) |
 
 **Naming rule:** collection names are **human-readable English** — `Encounter Date`, not
 `enc_dt`. This is non-negotiable; the names are the analyst-facing surface of the product.
 
-**Multi-valued collections** are normal. An encounter with both an LDL and an HDL lab has two
-values in a single `Lab Result` collection; whether you model that as one multi-valued
-`Lab Result` or as separate `LDL Result` / `HDL Result` collections is a design choice
-(`parsers.md`). Multi-valued collections interact with grain — a value repeated by broadcast
-(`Patient Region`) counts once per entity, but a genuinely multi-valued collection can
-multi-count if analyzed carelessly (`entities.md`).
+**Multi-valued collections** are normal. An encounter can carry several lab values at once. The
+naive model — one flat `Lab Result` collection alongside a parallel `Lab Analyte` — *loses the
+pairing* (which value was the LDL?), the anti-pattern `entities.md` warns against. The toy instead
+lets each lab **name its own collection and variable from the data**: the `panel` column becomes the
+numeric collection (`Lipid`), the `analyte` column becomes the variable (`LDL`), so `Lipid → LDL =
+142` is unambiguous and stays numeric — the same shape as `Blood Pressure → Systolic`, but with the
+names derived by nested parsers rather than written by hand (`parsers.md`). Crucially this is *not*
+values-as-schema: the names come from the data dynamically, so a new analyte just appears. Multi-valued
+collections also interact with grain — a value repeated by broadcast (`Patient Region`) counts once
+per entity, but a genuinely multi-valued collection can multi-count if analyzed carelessly
+(`entities.md`).
 
 ## Variables: the dimensions you analyze by
 
@@ -112,9 +119,10 @@ collection is less a clean factor than a tag structure.)
 ## collection_set: a tag for grouping, not a container
 
 A **collection_set** is a **flat tag** attached to collections for search, filtering, and bulk
-exposure — *not* a hierarchical container. Tagging `Lab Panel`, `Lab Analyte`, and
-`Lab Result` with a `Labs` set lets a protocol pick up all of them at once (a data_function
-can expand over the whole set — see `data-functions.md`). But because it is only a tag:
+exposure — *not* a hierarchical container. Tagging the lab collections (`Lab Panel`, `Lab Analyte`,
+the numeric `Lipid` / `Metabolic`, and the qualitative `Urinalysis | …`) with a `Labs` set lets a
+protocol pick up all of them at once (a data_function can expand over the whole set — see
+`data-functions.md`). But because it is only a tag:
 
 - it **cannot disambiguate or segregate** collections — it provides no namespace, so it can
   never make two otherwise-colliding names coexist;
@@ -152,7 +160,8 @@ build time, so design names with them in mind.
 | `encounters.diastolic_bp` | `Blood Pressure` | `Diastolic` |
 | `patients.region` | `Patient Region` | distinct values (broadcast) |
 | `patients.age` | `Patient Age` | numeric axis |
-| `labs.result_value` | `Lab Result` | numeric axis (multi-valued) |
+| `labs.result_value` (numeric) | `Lipid`, `Metabolic` (from `labs.panel`) | `LDL`/`HDL`, `HbA1c`/`Glucose` (from `labs.analyte`) |
+| `labs.result_value` (qualitative) | `Urinalysis \| …` (`Panel \| Analyte`) | `Positive` / `Negative` |
 | `encounters.encounter_id` | `Encounter ID` | none — carried for identity/output, not analysis |
 
 ## Common mistakes
@@ -166,5 +175,5 @@ build time, so design names with them in mind.
   search and exposure but gives no namespace and no hierarchy, and cannot separate two
   collections that collide by name and type.
 
-Next: `configuration-and-sources.md` — the config file that declares the entity_table, the
-source tables (CSV/TSV and SQL), and how adjunct tables join.
+Next: `files-and-value-resolution.md` — the file and value-resolution conventions that apply
+everywhere in the config and protocols, before we open the config itself.

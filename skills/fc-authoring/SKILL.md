@@ -51,13 +51,14 @@ The archive is the contract between the two planes: build writes it, serve reads
 | 5 | `references/configuration-and-sources.md` | The config; loading from CSV/TSV and SQL; joining adjunct tables. |
 | 6 | `references/parsers.md` | How parsers turn source columns into collections and variables. |
 | 7 | `references/data-functions.md` | How protocols reference the data model. |
-| 8 | `references/protocols.md` | Protocols and their arguments (focus: R/Python plugins). |
-| 9 | `references/arguments.md` | The interactive argument types, argument_sets, expanders, handlers. |
-| 10 | `references/cohort-builder.md` | The cohort builder — the key protocol to get right. |
-| 11 | `references/r.md` | R: ad-hoc queries against a product, and plugin authoring. |
-| 12 | `references/python.md` | Python: the same, in Python. |
-| 13 | `references/transformers.md` | Post-load computation and cross-product enrichment. |
-| 14 | `references/manifest.md` | The manifest — ties build + serve, where the archive lives, versioning. |
+| 8 | `references/composition.md` | **The unifying idea** — parsers and data_functions nest and compose. |
+| 9 | `references/protocols.md` | Protocols and their arguments (focus: R/Python plugins). |
+| 10 | `references/arguments.md` | The interactive argument types, argument_sets, expanders, handlers. |
+| 11 | `references/cohort-builder.md` | The cohort builder — the key protocol to get right. |
+| 12 | `references/r.md` | R: ad-hoc queries against a product, and plugin authoring. |
+| 13 | `references/python.md` | Python: the same, in Python. |
+| 14 | `references/transformers.md` | Post-load computation and cross-product enrichment. |
+| 15 | `references/manifest.md` | The manifest — ties build + serve, where the archive lives, versioning. |
 | — | `references/dev-loop.md` | **Practical, read early.** The edit→compile→build→serve→test loop. |
 | — | `references/testing.md` | The test JSON, when tests run, how failures surface. |
 | — | `references/governance.md` | Deployment, `run_server` auth, `auth_groups`, versioned deploys. |
@@ -89,6 +90,9 @@ It is deliberately generic. When you build a real FC, copy its shape, not its do
 6. **JSON and YAML are interchangeable, and values resolve flexibly** — a string can be a file
    path to the value, an object can stand in for a one-element array. Don't expect strict-schema
    validation. See `files-and-value-resolution.md`.
+7. **Prefer verification over recall.** The running engine is the source of truth: when your memory
+   and a fresh `compile` disagree, **the compile wins**. Run the loop, read the output, and treat a
+   passing test as "didn't crash," not "correct." See `dev-loop.md`.
 
 ## Guardrails
 

@@ -1,0 +1,12 @@
+// Exercises the boolean toggle: with include_all_dna_variants = true, the export adds the genotype
+// collections (via the boolean handler's bundle). Compare against test_download.json (toggle unset).
+{
+  "protocol_instance": {
+    "name": "download",
+    "arguments": {
+      "background_cohort": { "data_function_type": "categorical-all" },
+      "include_all_dna_variants": true
+    }
+  },
+  "output": "_test_results/test_download_all_genotypes.csv"
+}

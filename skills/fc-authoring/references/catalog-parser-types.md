@@ -17,14 +17,11 @@ working FC** — these appear less often and their options vary.
 
 Notes:
 
-- **This is a curated subset.** The engine registers **~40** parser types; the ones here (plus the
+- **This is a curated subset.** The engine registers roughly **50** parser types; the ones here (plus the
   four common ones in `parsers.md`) cover the vast majority of FCs. The rest are specialized —
   e.g. `numeric-units`, `categorical-replace`, `numeric-range`/`categorical-range`, `json-attribute`
   / `json-array`, `key-value`, and text cleaners — reach for them from a working FC when a common
   type genuinely can't express what you need, and confirm attributes against that FC.
-- **Deprecated aliases you may see in older repos:** `tag-match` (now `categorical-match`),
-  `categorical-transpose` / `numeric-transpose` (now `categorical-row` / `numeric-row`). Recognize
-  them; author the current names.
 
 - **Multi-valued output** (`categorical-delimited`, and any parser on a finer roll-up table)
   interacts with grain — a multi-valued collection can multi-count if analyzed carelessly

@@ -81,3 +81,6 @@ several places. The monolithic form is allowed for comfort, not recommended at s
 
 The rest of this skill shows the **modular** form — but remember that any referenced file could
 equally be written inline, and vice versa. To the platform they are the same.
+
+Next: `configuration-and-sources.md` — the config file that declares the entity_table, the
+source tables (CSV/TSV and SQL), and how adjunct tables join.

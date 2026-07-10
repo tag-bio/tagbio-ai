@@ -1,0 +1,12 @@
+// Exercises an actual cohort FILTER (not categorical-all): selecting Department = Cardiology on
+// the clinic cohort builder. Backs the "3 of 8 encounters" claim in cohort-builder.md — the filter
+// key is "<argument_set>__<column>" (cohort_clinic__Department).
+{
+  "protocol_instance": {
+    "name": "cohort",
+    "arguments": {
+      "cohort_clinic__Department": "Cardiology"
+    }
+  },
+  "output": "_test_results/test_cohort_cardiology.json"
+}

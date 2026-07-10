@@ -6,7 +6,8 @@
     "title": "Download",
     "description": "Download a CSV of all data for the chosen cohort of encounters.",
     "argument_sets": [
-      "protocols/argument_sets/argument_set_background_cohort.json"
+      "protocols/argument_sets/argument_set_background_cohort.json",
+      "protocols/argument_sets/argument_set_download_options.json"
     ]
   },
   "script": {
@@ -14,6 +15,10 @@
     "background": {
       "data_function_type": "argument-value",
       "argument": "background_cohort"
-    }
+    },
+    "analysis_variables": [
+      "protocols/data_functions/bundle_download_core.json",
+      { "data_function_type": "argument-reference", "argument": "include_all_dna_variants" }
+    ]
   }
 }

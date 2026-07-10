@@ -1,0 +1,25 @@
+// An external (R plugin) protocol that consumes a whole collection_set at once: the numeric
+// Labs family (Lipid, Metabolic, ...) via one collection-set data_function.
+{
+  "protocol_definition": {
+    "name": "lab_results",
+    "title": "Lab Results by Panel",
+    "description": "Distributions of numeric lab results, grouped by panel and analyte.",
+    "asset": "chart-axes-box-plot-ver-line-mixed.png"
+  },
+  "script": {
+    "method": "external",
+    "sdk": "R",
+    "plugin": "protocols/plugins/plugin_lab_results.R",
+    "output_type": "html",
+
+    "background": { "data_function_type": "categorical-all" },
+
+    // Encounter ID is the get_results row_name (so it must be listed); the collection-set expands
+    // to every numeric collection tagged `Labs`, exposing the whole lab family in one reference.
+    "analysis_variables": [
+      "protocols/data_functions/categorical_collection_encounter_id.json",
+      "protocols/data_functions/collection_set_labs.json"
+    ]
+  }
+}

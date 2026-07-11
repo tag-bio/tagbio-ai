@@ -67,9 +67,11 @@ data (the example's `download` protocol uses it).
     omitted (rarely what you want — name the columns you need).
 
 So the three define a **dataframe**: `background` picks the **rows**, `analysis_variables` the
-**columns**. For `method: external`, **the R/Python SDK extracts that dataframe into memory
-*before* the plugin runs**, and the plugin reads it from its input parameter (`tag_data` — via
-`get_results()` in R, `tag_data.df` in Python) rather than querying anything itself. Authoring the
+**columns** — plus a **`Unique ID`** column the engine always adds automatically (the entity's
+unique-key combination, the one guaranteed-unique value per row), even if you don't list it. For
+`method: external`, **the R/Python SDK extracts that dataframe into memory *before* the plugin
+runs**, and the plugin reads it from its input parameter (`tag_data` — via `get_results()` in R,
+`tag_data.df` in Python) rather than querying anything itself. Authoring the
 plugin is `r.md` / `python.md`.
 
 ## Method types

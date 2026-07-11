@@ -172,8 +172,10 @@ values from multiple columns, constant flags, and operator-based matching, see
 
 ## Common mistakes
 
-- **Putting a `variable` on a categorical parser.** Categorical collections derive variables
-  from their values; a `variable` attribute is rejected.
+- **Putting a `variable` on a categorical parser.** Categorical collections derive variables from
+  their values, so a `variable` here is **rejected at build** with a clear error. (This is a *known*
+  attribute placed where it's invalid — different from an unknown/misspelled attribute, which is
+  silently ignored, `files-and-value-resolution.md`.)
 - **Naming a collection after the database column** (`sys_bp` instead of `Blood Pressure`).
 - **Wrong collection type** — a code stored as digits that you will *group by*, not average, is
   `categorical`, not `numeric`.

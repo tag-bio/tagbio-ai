@@ -15,7 +15,7 @@ data model or the argument layer (`data-functions.md`). They live under
 |---|---|---|
 | `numeric` | a numeric collection + one variable | `collection`, `variable` |
 | `categorical` | a categorical collection (all its levels) | `collection` |
-| `boolean` | a two-state categorical treated as true/false | `collection` (+ which level is true) |
+| `boolean` | resolves to one data_function when a boolean argument is **true**, another when **false** | `true_function` / `false_function` (branch data_functions — `arguments.md`) |
 | `collection-set` | a whole tagged family of collections at once | `collection_set`, optional `data_type` |
 | `categorical-all` | **all entities** (no filter) — a universal background/cohort | none |
 | `categorical-enum` | an explicit enumerated set of levels from a collection | `collection`, the levels |

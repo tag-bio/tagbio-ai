@@ -2,7 +2,13 @@
   "data_function_type": "bundle",
   "criteria": [
     "protocols/data_functions/categorical_collection_encounter_id.json",
+    "protocols/data_functions/numeric_collection_encounter_date.json",
     "protocols/data_functions/categorical_collection_department.json",
+    "protocols/data_functions/categorical_collection_diagnosis.json",
+    "protocols/data_functions/categorical_collection_hypertension_stage.json",
+    "protocols/data_functions/categorical_collection_sex.json",
+    "protocols/data_functions/categorical_collection_patient_region.json",
+    "protocols/data_functions/numeric_collection_patient_age.json",
     "protocols/data_functions/collection_set_labs.json"
   ]
 }

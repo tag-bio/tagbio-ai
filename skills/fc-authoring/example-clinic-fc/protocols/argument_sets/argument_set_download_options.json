@@ -1,6 +1,6 @@
 // A BOOLEAN toggle argument (the one thing argument_expanders over a data_function can't generate —
 // there are no values to expand, just on/off). "Include all DNA variants" adds every genotype to the
-// download when checked. The handler is a `boolean` data_function whose `true_variable` is a `bundle`
+// download when checked. The handler is a `boolean` data_function whose `true_function` is a `bundle`
 // of the genotype collections (composition: boolean wrapping a bundle wrapping data_functions).
 // `asset` shows a thumbnail on the argument_set in the UI (assets work on argument_sets too).
 {

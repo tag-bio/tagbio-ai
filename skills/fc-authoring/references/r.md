@@ -42,6 +42,10 @@ Key points:
   `analysis_variables`. **The `row_name` collection must itself be one of the `analysis_variables`**
   (it is consumed as the row names) — include an id data_function in the protocol, or `get_results`
   errors with "Can't find column".
+- **`Unique ID` is always there.** The engine **automatically adds a `Unique ID` column** (the
+  entity's unique-key combination) to every extract — ad-hoc queries and plugin frames alike — even
+  when it isn't in `analysis_variables`. It's the **one guaranteed-unique value per entity**, so
+  every row is always identifiable.
 - **Column naming:** a categorical collection is its own name (`Department`); a **numeric variable**
   is `"<Collection> = <Variable>"` — the R SDK's `" = "` separator (the **Python SDK uses `": "`**;
   `python.md`). Rename if you want plain columns.

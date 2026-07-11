@@ -62,8 +62,11 @@ A minimal single-file config for the clinic FC (JSON with comments is allowed; Y
 
 Everything else in the skill is a variation on this skeleton.
 
-(`data_dictionary` is an **output**, not an input: the build writes a TSV listing every collection
-and variable it produced. It's a generated artifact — gitignore it.)
+(`data_dictionary` here — at the **config top level** — is an **output**, not an input: the build
+writes a TSV listing every collection and variable it produced. It's a generated artifact — gitignore
+it. **Watch the scope collision:** a `data_dictionary` on an individual **table** means something
+different — an *input* `From,To` header-rename file (`catalog-table-types.md`). Same key name,
+opposite roles; the level it sits at tells you which.)
 
 ## entity_table: the grain-defining source
 

@@ -106,6 +106,10 @@ collection is less a clean factor than a tag structure.)
 > millions. Parse an ID only if you need it for display/output, and don't expose it as an analysis
 > variable. (Overall memory is tuned at serve time with `-Xmx` — see `governance.md`; the model
 > above is the bigger lever than the heap.)
+>
+> The toy's plugins *do* list `Encounter ID` in their `analysis_variables` — but only as the plugin's
+> **`get_results` row name** (an identity/output use, `r.md`), not as something you filter or group by.
+> That's the sanctioned exception this caveat allows, not a contradiction of it.
 
 > **Missing values at query time.** A missing value is an **absence**, not a level. An entity with
 > no value for a numeric collection is simply **not in** that collection's vector; an entity with

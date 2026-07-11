@@ -38,6 +38,10 @@ Key points:
   **numeric variable** arrives as **`"<Collection>: <Variable>"`** — e.g. `"Blood Pressure:
   Systolic"`. (The Python SDK uses a `": "` separator here; the **R SDK uses `" = "`** for the same
   thing — a known inconsistency between the two SDKs. Rename the columns if you want plain names.)
+- **`Unique ID` is always there.** The engine **automatically adds a `Unique ID` column** (the
+  entity's unique-key combination) to every extract — ad-hoc queries and plugin frames alike — even
+  when it isn't in `analysis_variables`. It's the **one guaranteed-unique value per entity**, so
+  every row is always identifiable.
 - **Output:** write to **`tag_result.path`** (or set `tag_result.df` for a tabular result) and
   `return tag_result`. (The **R** SDK spells this attribute **`tag_result$output_path`** — the two
   SDKs differ here as well as on the column separator; watch it when porting between languages.)

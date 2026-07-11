@@ -76,11 +76,14 @@ a set-level override applied to every generated filter so each reports the count
 
 ```jsonc
 { "argument_set_definition": { "argument_set_type": "optional", "name": "cohort_clinic",
-                               "title": "Clinic Filters" },
+                               "title": "Clinic Filters", "asset": "persons-3-line-mono.png" },
   "method": "summary",                            // set-level override — a sibling of the definition
   "argument_expanders": [ "protocols/data_functions/categorical_collection_department.json",
                           "protocols/data_functions/categorical_collection_diagnosis.json",
-                          "protocols/data_functions/numeric_collection_blood_pressure_systolic.json" ] }
+                          "protocols/data_functions/numeric_collection_blood_pressure_systolic.json",
+                          "protocols/data_functions/categorical_collection_apoe.json",
+                          "protocols/data_functions/categorical_collection_brca1.json",
+                          "protocols/data_functions/categorical_collection_tcf7l2.json" ] }
 ```
 
 **4. The selection logic** (`argument_reference_sets/argument_reference_set_cohort.json`) — the

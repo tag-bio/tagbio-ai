@@ -12,6 +12,13 @@ An `external` protocol with `"sdk": "connect_tagbio_py"` invokes a Python plugin
 (`protocols/plugins/*.py`). A plugin is a **function of `(tag_data, tag_result)`**, typed with
 the SDK's `TagbioData` / `TagbioResult`:
 
+> **How the entry function is found — by *signature*, not name.** The protocol names the *file*
+> (`"plugin": "…/plugin_bp.py"`), not a function. The SDK loads the module and calls the function
+> whose arguments are **exactly `(tag_data, tag_result)`** — so the name (`blood_pressure_report`
+> here) is yours to choose. **Keep exactly one such function per file**; helper functions are fine as
+> long as they don't share that signature. (The R plugin differs: the whole file evaluates to a
+> single anonymous `function(tag_data, tag_result)`.)
+
 ```python
 # protocols/plugins/plugin_bp.py
 from tagbiopy.protocol import TagbioData, TagbioResult

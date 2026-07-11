@@ -4,6 +4,9 @@
   { "parser_type": "datetime", "column": "encounter_date", "pattern": "yyyy-MM-dd",
     "transform": "timestamp", "collection": "Encounter Date", "variable": "Encounter Date" },
   { "parser_type": "categorical", "column": "department", "collection": "Department" },
+  // "floor" is pulled in by the entity_table's join on departments.csv; reference a joined column
+  // as "<join table_alias>.<column>" — here "dept_lookup.floor", not bare "floor".
+  { "parser_type": "categorical", "column": "dept_lookup.floor", "collection": "Clinic Floor" },
   { "parser_type": "categorical", "column": "diagnosis", "collection": "Diagnosis" },
   { "parser_type": "numeric", "column": "systolic_bp",
     "collection": "Blood Pressure", "variable": "Systolic" },

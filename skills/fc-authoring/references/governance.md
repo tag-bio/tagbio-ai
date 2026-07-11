@@ -92,6 +92,27 @@ A protocol definition may also declare **`download_groups`** — the groups allo
 result into a raw **download** (export gate), so you can let everyone see a summary but restrict
 row-level export.
 
+## How `method: external` plugin apps are governed
+
+An ordinary R/Python **plugin protocol** is governed by exactly those two layers — `groups=true` does
+**not** silently lock analysts out of it. The sequence makes it concrete:
+
+1. **Protocol-level check first, at request time.** When the FC API receives a request to run the
+   protocol, it checks the caller's groups against the protocol's `groups`. If they don't qualify the
+   protocol doesn't run — and it isn't even **exposed to the client** (its existence is hidden). So a
+   plugin app is gated the same as any other protocol.
+2. **The plugin then runs in "override" mode.** The R/Python code runs *inside the container* and
+   reaches the FC over **localhost**, so its own callback isn't re-authenticated as an outside caller
+   — but the caller's **user token is still carried through**.
+3. **Collection-level check on the callback.** When the plugin (via the SDK) pulls the dataframe
+   defined by the protocol's `background` + `analysis_variables`, that pull is enforced against the
+   caller's groups at the **collection level**. So a plugin can only ever return data the caller is
+   allowed to see.
+
+Net: plugin apps obey the same protocol-level gate (who may run/see it) and collection-level gate
+(what data comes back) as everything else. `groups=true` specifically blocks **caller-supplied
+`callback_script`s** (untrusted code arriving in the request) — not your FC-authored plugins.
+
 ## Plugin libraries: `deploy/build-container.sh`
 
 A deployed FC runs in a **container image**. The base image ships the tidyverse (ggplot2, dplyr,

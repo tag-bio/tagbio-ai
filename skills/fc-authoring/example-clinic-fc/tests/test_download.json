@@ -1,11 +1,13 @@
-// Tests the download protocol; the mandatory cohort is all entities, and the optional DNA-variants
-// toggle is submitted as false (the UI always submits an argument's default) — genotypes excluded.
+// Tests the download protocol on all entities. The optional "Include all DNA variants" toggle is a
+// boolean-null, so omitting it = OFF (null) — genotypes excluded. (test_download_all_genotypes.json
+// passes it as `true` to exercise the ON branch.)
 {
   "protocol_instance": {
     "name": "download",
     "arguments": {
-      "background_cohort": { "data_function_type": "categorical-all" },
-      "include_all_dna_variants": false
+      "background_cohort": {
+        "data_function_type": "categorical-all"
+      }
     }
   },
   "output": "_test_results/test_download.csv"

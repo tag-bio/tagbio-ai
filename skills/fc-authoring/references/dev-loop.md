@@ -6,6 +6,50 @@ antidote is a **tight edit→check loop** with the fastest check that can catch 
 Learn this early and run it constantly; it is the single biggest force-multiplier when authoring
 in this format.
 
+## Prerequisites for the loop (local dev)
+
+The commands below and the example `_shell_scripts/*.sh` reference a few things you must have set up
+locally. **In a deployed cluster the container provides all of this** (out of scope here); this is
+just for running the loop on your own machine:
+
+- **Java 21** on `PATH`.
+- **`TAGBIO_JARS`** — a directory holding the FC engine jars (`fc_csv_server.jar` for CSV/TSV,
+  `fc_sql_server.jar` for SQL). The scripts invoke `${TAGBIO_JARS}/fc_csv_server.jar`.
+- **`TAGBIO_R_UTILS`** and **`TAGBIO_PY`** — the local checkouts of the R (`tagbio`) and Python
+  (`tagbiopy`) SDKs, passed as `r_sdk=` / `python_sdk=` to `run_server` so plugins can run.
+- For **Python plugins**, the SDK console scripts (`connect_tagbio_py`) must be on `PATH`.
+
+The jars and SDKs are distributed under authorization (`configuration-and-sources.md`); point these
+variables at wherever you installed them. `compile` and `build_archive` need only the jar;
+`run_server` with plugin tests also needs the SDK vars and `PATH`.
+
+## Bootstrapping a new FC from scratch
+
+The minimal skeleton — the smallest thing that builds and serves:
+
+```
+my-fc/
+  data/              # source CSV/TSV (or a SQL connection)
+  config/
+    config.json      # entity_table (the grain) + other_tables + parsers
+    parsers/*.json
+  protocols/         # one protocol + its data_functions (add as you go)
+  main.json          # identity + registered protocols[] + tests[]
+  manifest.json      # data_model (config, data_dir) + serve (main) + archive path
+```
+
+1. **Author the config directly — this skill is how.** Choose the **entity grain** (`entities.md`)
+   first, then model outward: point tables at your sources, give collections human-readable English
+   names, write real parsers (and joins), and skip columns you don't need. Copy the shapes from
+   `example-clinic-fc/` — it *is* the reference skeleton — and start tiny, growing it under the loop.
+2. Write a **`main.json`** (identity + an empty `protocols`/`tests` to start) and a **`manifest.json`**
+   pointing `data_model.config` at your config and `serve.main` at main (`manifest.md`).
+3. Run the loop: **`compile` → `build_archive`** until the data model is right, then add a protocol
+   and a test and `run_server`.
+
+Everything after this is filling in that skeleton; the reading order (`SKILL.md`) walks it in the
+right sequence, entity grain first.
+
 ## The loop is how you *know* you're right
 
 More than a build procedure, the loop is your **source of truth**. This matters especially for an AI
@@ -101,13 +145,6 @@ exit (handy in CI). Full detail and the test JSON schema are in `testing.md`.
 | `die=true` | run all processes, then stop the server (one-shot builds/tests) |
 | `run_tests=true` | run the registered tests (or set `run_tests: "true"` in the manifest `serve` block) |
 | `log=build.log` | send output to a file instead of the console |
-| `auto_config=<path>` | scaffold a starter config from the sources (see note) |
-
-> **`auto_config`** points the engine at your sources and writes out an **inferred config** — a
-> starter with a table object and a naive parser per column — either as a single JSON file or as a
-> directory of config elements. It's a scaffolding shortcut to avoid hand-writing the first draft;
-> treat the output as a **starting point to edit**, not a finished config (it can't know your entity
-> grain, human-readable collection names, joins, or which columns to skip).
 
 ## Housekeeping: detecting cruft
 

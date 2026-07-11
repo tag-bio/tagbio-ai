@@ -119,28 +119,32 @@ attribute, exposing them as **implicit columns** to that table's own parsers. Us
 — mapping a code to a label, attaching a reference value — when you want the joined columns
 available to parse but do not want a separate entity mapping.
 
+The toy's entity_table does this (`config/config.json`): each encounter's `department` is looked up
+in `departments.csv` to pull a `floor`, which becomes the `Clinic Floor` collection.
+
 ```jsonc
 {
   "table": "data/encounters.csv",
-  "table_alias": "encounters",
   "joins": [
     {
-      "table": "data/department_names.csv",
-      "table_alias": "dept_names",
-      "id_columns": { "dept_code": "department" },   // join_table_column : host_table_column
-      "columns": ["department_full_name"]            // which join columns to pull in
+      "table": "data/departments.csv",
+      "table_alias": "dept_lookup",
+      "id_columns": { "dept": "department" },   // join_table_column : host_table_column (differently NAMED)
+      "columns": ["floor"]                       // which join columns to pull in
     }
   ],
   "parsers": [
-    { "parser_type": "categorical", "column": "department_full_name", "collection": "Department" }
+    // reference a joined column as "<join table_alias>.<column>" — NOT the bare name:
+    { "parser_type": "categorical", "column": "dept_lookup.floor", "collection": "Clinic Floor" }
   ]
 }
 ```
 
 - **Inner join** on `id_columns` (`{ join_column: host_column }`) — host rows without a match are
-  dropped.
+  dropped. The two columns can be **differently named** (here `dept` ↔ `department`).
 - **`columns`** lists exactly which join-table columns to expose (keep it minimal).
-- The pulled columns are then available to the host table's parsers as if they were native.
+- **Reference a pulled column as `"<join table_alias>.<column>"`** in the host's parsers
+  (`"dept_lookup.floor"`), not the bare column name.
 
 > **Constraint (stated plainly):** the **join table must be unique on its `id_columns` key** — **at
 > most one join row per host row**. One join row may serve **many** host rows (that's a normal

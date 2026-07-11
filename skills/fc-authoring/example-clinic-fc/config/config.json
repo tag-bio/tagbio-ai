@@ -8,6 +8,17 @@
     "unique_keys": ["patient_id", "encounter_date"],
     // encounter_id is not a unique_key; declare it as a foreign_key so labs can join on it.
     "foreign_keys": ["encounter_id"],
+    // Inner-join a lookup table to pull extra columns in for this table's parsers. id_columns maps
+    // the JOIN table's column to the HOST column — here differently NAMED ("dept" -> "department").
+    // The join table must be unique on its key (one dept row) → one-to-many onto encounters.
+    "joins": [
+      {
+        "table": "data/departments.csv",
+        "table_alias": "dept_lookup",
+        "id_columns": { "dept": "department" },   // join_table_column : host_table_column
+        "columns": ["floor"]                       // pulled in as an implicit column for parsers
+      }
+    ],
     // A string where an object/array is expected = a path to the file holding it.
     "parsers": "config/parsers/encounters.json"
   },

@@ -16,7 +16,8 @@
         "table": "data/departments.csv",
         "table_alias": "dept_lookup",
         "id_columns": { "dept": "department" },   // join_table_column : host_table_column
-        "columns": ["floor"]                       // pulled in as an implicit column for parsers
+        "columns": ["dept", "floor"]               // include the join KEY (dept) too — a SQL source
+                                                   // only fetches listed columns; CSV loads all
       }
     ],
     // A string where an object/array is expected = a path to the file holding it.

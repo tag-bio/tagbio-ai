@@ -10,7 +10,16 @@
     "table": "encounters",                          // a table in clinic.db (was data/encounters.csv)
     "unique_keys": ["patient_id", "encounter_date"],
     "foreign_keys": ["encounter_id"],
-    "parsers": "config/parsers/encounters.json"
+    // Same join as the CSV config, but the join `table` is a DB table name (not a file path).
+    "joins": [
+      {
+        "table": "departments",                     // a table in clinic.db (was data/departments.csv)
+        "table_alias": "dept_lookup",
+        "id_columns": { "dept": "department" },
+        "columns": ["dept", "floor"]
+      }
+    ],
+    "parsers": "config/parsers/encounters.json"     // shared with the CSV config; references dept_lookup.floor
   },
 
   "other_tables": [

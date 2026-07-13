@@ -14,6 +14,7 @@ sqlite3 "$db" <<'SQL'
 .import data/patients.csv patients
 .import data/encounters.csv encounters
 .import data/labs.csv labs
+.import data/departments.csv departments
 .mode tabs
 .import data/genotypes.tsv genotypes
 SQL

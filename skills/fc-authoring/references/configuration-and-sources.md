@@ -130,7 +130,7 @@ in `departments.csv` to pull a `floor`, which becomes the `Clinic Floor` collect
       "table": "data/departments.csv",
       "table_alias": "dept_lookup",
       "id_columns": { "dept": "department" },   // join_table_column : host_table_column (differently NAMED)
-      "columns": ["floor"]                       // which join columns to pull in
+      "columns": ["dept", "floor"]               // pull these in — include the join KEY (dept) too
     }
   ],
   "parsers": [
@@ -142,7 +142,10 @@ in `departments.csv` to pull a `floor`, which becomes the `Clinic Floor` collect
 
 - **Inner join** on `id_columns` (`{ join_column: host_column }`) — host rows without a match are
   dropped. The two columns can be **differently named** (here `dept` ↔ `department`).
-- **`columns`** lists exactly which join-table columns to expose (keep it minimal).
+- **`columns`** lists which join-table columns to expose — **include the join key itself** (`dept`)
+  alongside what you need (`floor`). A **SQL source only fetches the columns you list**, so omitting
+  the key breaks the match; a CSV source loads every column so it's forgiving, but list the key
+  anyway to stay portable across both.
 - **Reference a pulled column as `"<join table_alias>.<column>"`** in the host's parsers
   (`"dept_lookup.floor"`), not the bare column name.
 
@@ -234,9 +237,11 @@ so you can see every moving part:
    adds **`sql_connection: "config/connection_sql.json"`**. Everything served (main, protocols,
    tests, transformers) is unchanged.
 5. **Build it with the SQL jar:** `_shell_scripts/build_archive_sql.sh` runs `make_sqlite.sh` then
-   `fc_sql_server.jar build_archive manifest=manifest_sql.json`. The result is byte-for-byte the
-   same data model as the CSV build — 8 encounters, the transposed genotypes, the transformer's
-   `Hypertension Stage` — proving the model is source-agnostic.
+   `fc_sql_server.jar build_archive manifest=manifest_sql.json`. The result is the **same data model**
+   as the CSV build — the identical set of collections, variables, and entity counts (8 encounters,
+   the transposed genotypes, the transformer's `Hypertension Stage`), proving the model is
+   source-agnostic. (The `data_dictionary.tsv` rows may be in a different *order* — the source
+   determines discovery order — but the model is the same.)
 
 > For a **server database** (Postgres, MySQL, …) only `connection_sql.json` changes — the `jdbc`
 > prefix and a `url` carrying the host, with credentials kept **outside the repo**. A table can

@@ -49,13 +49,13 @@ truth**: check its `help` output and validate with the fast `compile` loop
 After learning the skill, verify the toolchain end-to-end against the shipped example. From
 `skills/fc-authoring/example-clinic-fc/`, with the env vars above set (and the Python SDK's console
 scripts on `PATH`), each command should exit cleanly and every protocol test should pass. Both the
-**CSV** and **SQL** variants build the same data model and pass all 5 protocol tests:
+**CSV** and **SQL** variants build the same data model and pass all 8 protocol tests:
 
 ```bash
 # CSV variant
 bash _shell_scripts/compile_local.sh          # validate config + protocols (no data)
 bash _shell_scripts/build_archive.sh          # build the archive (8 encounters)
-bash _shell_scripts/run_server.sh             # serve; run_tests in the manifest runs the 5 tests
+bash _shell_scripts/run_server.sh             # serve; run_tests in the manifest runs the 8 tests
 
 # SQL variant (same model, sourced from a generated SQLite DB)
 bash _shell_scripts/make_sqlite.sh            # build data/clinic.db from the CSV/TSV

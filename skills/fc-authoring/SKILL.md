@@ -40,6 +40,22 @@ The archive is the contract between the two planes: build writes it, serve reads
 > typo-tolerant, so mistakes surface late. The `compile → build → run_server → test` loop — the
 > fast `compile` check most of all — is how you catch them. Validate as you go.
 
+> **Where are the engine jars? Match the work to the environment — a missing *local* jar is not a
+> blocker.** The build/serve dev loop (`compile` / `compile_local`, `build_archive`, `run_server`,
+> tests) runs the Flux **engine jars** (`${TAGBIO_JARS}`), which are not yet publicly distributable.
+> An environment (e.g. an external dev's own machine) may therefore not have them locally. That splits
+> the work three ways:
+> - **Ad-hoc query** (`r.md` / `python.md` → a deployed production FC over the SDK) needs **no jars**
+>   and works anywhere. Self-contained; the primary path for a consumer/analyst.
+> - **Authoring** config and R/Python plugins is just editing files — **no jars needed** either.
+> - **Running** the jar steps (`compile_local`, `build_archive`, `run_server`, tests) **requires the
+>   jars.** If they're not present locally, **do NOT try to run them locally — they'll fail.**
+>   Instead, **produce the scripts/commands and guide the developer to run those steps in the
+>   Tag.bio-provided remote Notebook environment, which has the jars.**
+>
+> So never treat "no local jars" as broken: **query and author locally, and hand jar-execution to the
+> Notebook.** (A jar-distribution mechanism will be documented here in the future.)
+
 ## Reading order
 
 | # | Read | Topic |

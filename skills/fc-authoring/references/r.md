@@ -7,6 +7,19 @@ same story in `python.md`.
 > The R SDK is the **`tagbio`** package — <https://github.com/tag-bio/tagbio> — installed into the
 > FC environment (used by both plugins and ad-hoc scripts).
 
+## Installing the R SDK into your own environment
+
+For local / ad-hoc use (outside an FC container), clone the public repo and install from source — or
+let **`setup.sh --r`** at the tagbio-ai repo root clone + install it for you:
+
+```sh
+git clone https://github.com/tag-bio/tagbio.git
+Rscript -e 'if (!requireNamespace("remotes", quietly=TRUE)) install.packages("remotes"); remotes::install_local("tagbio/tagbio", dependencies=TRUE)'
+```
+
+The package lives at `tagbio/tagbio` inside the repo; `dependencies=TRUE` pulls its imports (httr,
+dplyr, tidyverse, …).
+
 ## Authoring an R plugin
 
 An `external` protocol with `"sdk": "R"` invokes an R plugin file (`protocols/plugins/*.R`). A

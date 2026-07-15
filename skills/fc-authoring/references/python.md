@@ -6,6 +6,16 @@ product ad-hoc**.
 > The Python SDK is the **`tagbiopy`** package — <https://github.com/tag-bio/tagbiopy> — installed
 > into the FC environment (used by both plugins and ad-hoc scripts).
 
+## Installing the Python SDK into your own environment
+
+For local / ad-hoc use (outside an FC container), clone the public repo and `pip install` it — or let
+**`setup.sh --python`** at the tagbio-ai repo root clone + install it for you:
+
+```sh
+git clone https://github.com/tag-bio/tagbiopy.git
+pip install ./tagbiopy
+```
+
 ## Authoring a Python plugin
 
 An `external` protocol with `"sdk": "connect_tagbio_py"` invokes a Python plugin

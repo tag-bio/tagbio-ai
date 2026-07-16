@@ -126,7 +126,8 @@ df_local <- tbl(local) %>% select(everything()) %>% collect()
   `all_of(colnames(fc))`, tidy-eval injection (`!!sym(x)`), and broader verbs are **not** reliable.
   **Select columns by literal name** (backticks for spaces/pipes, e.g.
   `` select(`Encounter ID`) ``) or `everything()`. Enumerating with `colnames(fc)`
-  works **only on a deployed product**. Keep to `tbl()` → `select(<literal names>)` → `collect()`.
+  works **only on a deployed product** (on localhost it comes back empty). Keep to `tbl()` →
+  `select(<literal names>)` → `collect()`.
 - **Column naming:** a **categorical** collection is selected by its own name (`` `Department` ``);
   a **numeric variable** is exposed as **`` `Collection = Variable` ``** — e.g.
   `` `Blood Pressure = Systolic` `` — using the SDK's `qdelim` (` = ` by default). Selecting the

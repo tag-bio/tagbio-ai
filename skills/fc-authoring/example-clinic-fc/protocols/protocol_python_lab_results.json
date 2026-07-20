@@ -1,0 +1,24 @@
+// An external (Python plugin) protocol -- the Python twin of lab_results: consumes the whole
+// numeric Labs collection_set at once via one collection-set data_function.
+{
+  "protocol_definition": {
+    "name": "python_lab_results",
+    "title": "Lab Results by Panel (Python)",
+    "description": "Distributions of numeric lab results, grouped by panel and analyte, rendered by a Python plugin.",
+    "asset": "chart-axes-box-plot-ver-line-mixed.png"
+  },
+  "script": {
+    "method": "external",
+    "sdk": "connect_tagbio_py",
+    "plugin": "protocols/plugins/plugin_lab_results.py",
+    "output_type": "html",
+
+    "background": { "data_function_type": "categorical-all" },
+
+    // The Python plugin reads tag_data.df directly (no get_results row_name), so unlike the R
+    // version it needs only the collection-set -- no Encounter ID id-collection (r.md, python.md).
+    "analysis_variables": [
+      "protocols/data_functions/collection_set_labs.json"
+    ]
+  }
+}

@@ -21,13 +21,19 @@ just for running the loop on your own machine:
   > the jars into `_jars/`; only the public download URL is being finalized. Until it lands, drop
   > `fc_csv_server.jar` + `fc_sql_server.jar` into `example-clinic-fc/_jars/` (or set `TAGBIO_JARS`)
   > by hand. This is a deliberate, tracked placeholder — not a missing or broken feature.
-- **The R / Python SDK checkouts** — `run_server`'s **`r_sdk=`** / **`python_sdk=`** take the path to
-  the SDK **repo** (`…/tagbio`, `…/tagbiopy`; `setup.sh` clones them as siblings of tagbio-ai). `r_sdk=`
-  defaults to a sister `../tagbio/` as a convenience, but the **explicit path is the reliable form and
-  the one to know** — pass `r_sdk=/path/to/tagbio` whenever the default doesn't line up (as in this
-  nested example, where the SDKs sit at the workspace root). `TAGBIO_R_UTILS` / `TAGBIO_PY` are just
-  the env-var names we use for these on the deployed container / Notebook — a convention, optional here.
-- For **Python plugins**, the SDK console scripts (`connect_tagbio_py`) must be on `PATH`.
+- **The R SDK is located by path (`r_sdk=`).** `run_server`'s **`r_sdk=`** points at the R SDK **repo**
+  (`…/tagbio`; `setup.sh` clones it as a sibling of tagbio-ai) — the engine runs the R plugin from it.
+  It defaults to a sister `../tagbio/`, but the **explicit path is the reliable form and the one to
+  know** — pass `r_sdk=/path/to/tagbio` whenever the default doesn't line up (as in this nested example,
+  where the SDKs sit at the workspace root). `TAGBIO_R_UTILS` is just the env-var name we use for this on
+  the container / Notebook — a convention, optional here.
+- **Python is different — plugins launch via the `connect_tagbio_py` console script, which must be on
+  `PATH`.** Install the Python SDK (`setup.sh --python`, i.e. `pip install …/tagbiopy`) and make sure its
+  console-script bin is on `PATH` (find it with `python -m site --user-base`, then `/bin`); a Python
+  plugin fails with `Cannot run program "connect_tagbio_py"` otherwise. `run_server` also takes a
+  `python_sdk=` argument (by convention, and mirrored in deployed commands), but it is the
+  console-script-on-PATH that actually resolves a Python plugin. `TAGBIO_PY` is the container/Notebook
+  env-var name — optional here.
 
 `setup.sh` provisions the jars and SDKs (see above and `r.md` / `python.md`). `compile` and
 `build_archive` need only the jar; `run_server` with plugin tests also needs the R/Python SDK paths

@@ -1,0 +1,7 @@
+// Mocks an API call to the python_lab_results protocol and writes its output, so the build can auto-test it.
+{
+  "protocol_instance": {
+    "name": "python_lab_results"
+  },
+  "output": "_test_results/test_python_lab_results.html"
+}

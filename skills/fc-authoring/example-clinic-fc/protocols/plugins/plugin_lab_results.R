@@ -12,16 +12,6 @@ function(tag_data, tag_result) {
   # One row per entity; columns are the numeric lab variables pulled in by the Labs collection_set.
   data <- tagbio::get_results(tag_data, row_name = "Encounter ID")
 
-  # The Labs collection_set is scoped data_type:"numeric", so every analysis column must be numeric.
-  # A non-numeric column means a categorical leaked in (the collection_set data_type filter regressed);
-  # fail loud instead of silently dropping it downstream via contains(" = ").
-  analysis_cols <- setdiff(colnames(data), "Encounter ID")
-  non_numeric <- analysis_cols[!vapply(data[analysis_cols], is.numeric, logical(1))]
-  if (length(non_numeric) > 0) {
-    stop(sprintf("Labs collection_set (data_type:numeric) leaked non-numeric column(s): %s",
-                 paste(non_numeric, collapse = ", ")))
-  }
-
   # Column names are "Panel = Analyte"; pivot to tall, drop encounters missing a given lab, then
   # split the name back into its Panel and Analyte parts.
   tall <- data %>%

@@ -18,7 +18,10 @@ Rscript -e 'if (!requireNamespace("remotes", quietly=TRUE)) install.packages("re
 ```
 
 The package lives at `tagbio/tagbio` inside the repo; `dependencies=TRUE` pulls its imports (httr,
-dplyr, tidyverse, …).
+dplyr, tidyverse, …). Note that `tagbio/tagbio` subdir is **only** the `install_local` target
+(installing the package into your R library) — it is **not** what `run_server`'s `r_sdk=` expects.
+`r_sdk=` takes the path to the **SDK repo checkout** (the `tagbio` folder itself); it defaults to a
+sister `../tagbio/`, and you can always pass it explicitly (`r_sdk=/path/to/tagbio`).
 
 ## Authoring an R plugin
 

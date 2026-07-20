@@ -28,8 +28,18 @@ protocols and arguments.
 { "data_function_type": "categorical", "collection": "Department" }
 ```
 
-**collection-set** — a whole `collection_set` at once, optionally filtered by `data_type`, so a
-protocol can expose an entire family of collections in one reference:
+**collection-set** — a whole `collection_set` at once, so a protocol can expose an entire tagged
+family of collections in one reference. By default it yields **all** collections in the set, of
+**every** data type:
+
+```json
+{ "data_function_type": "collection-set", "collection_set": "Labs" }
+```
+
+`data_type` (`numeric` / `categorical` / `numeric-matrix` / `categorical-matrix`) is an **optional**
+field, not required — you mainly need it when a collection-set feeds an **auto-generated argument**,
+which can bind only one type at a time. When present it *also* restricts the members here to that one
+type; a collection-set is not fundamentally a type filter. A misspelled `data_type` errors at compile:
 
 ```json
 { "data_function_type": "collection-set", "collection_set": "Labs", "data_type": "numeric" }
@@ -44,7 +54,9 @@ together.
 
 The clinic example includes `numeric_collection_blood_pressure_systolic.json`, `categorical_collection_department.json`, and
 `collection_set_labs.json` under `protocols/data_functions/` (the last references the
-`Labs` collection_set the lab parsers tag).
+`Labs` collection_set the lab parsers tag). `protocol_lab_results.json` + `plugin_lab_results.R` are
+the worked example that **consumes** that collection-set — the clearest demo of feeding a whole
+tagged family into a plugin.
 
 ## The argument family (bridge to the interactive layer)
 
@@ -71,7 +83,9 @@ enumeration — data-model types, the argument bridge, set algebra, and the `arg
 
 - **Naming a collection/variable that doesn't exist** (or a typo) — the build fails to compile
   the reference. Names must match the data model exactly.
-- **Wrong `data_type` on a collection-set** — filters to the wrong or an empty subset.
+- **Adding `data_type` to a collection-set when you meant "all types"** — it's optional; omit it to
+  get every collection in the set. A misspelled value errors at compile; a valid but mismatched one
+  yields an empty subset.
 - **Reinventing a reference** instead of reusing an existing data_function.
 
 Next: `composition.md` — the unifying idea that both parsers and data_functions **nest and compose**,

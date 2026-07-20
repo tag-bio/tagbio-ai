@@ -88,3 +88,5 @@ Building has two connected planes, joined by the archive:
 
 The rest of this skill walks that build path in order — starting with the single most important
 decision, the **entity grain** (`entities.md`).
+
+Next: `entities.md` — the entity grain, the decision everything else hangs off of.

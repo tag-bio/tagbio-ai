@@ -16,6 +16,11 @@ git clone https://github.com/tag-bio/tagbiopy.git
 pip install ./tagbiopy
 ```
 
+`pip install` puts the SDK's **console script** (`connect_tagbio_py`, which `external` Python
+protocols invoke) in your Python install's `bin`/`Scripts` dir — that dir isn't always on `PATH`
+(common with `--user` or some venvs). If a Python plugin fails with "command not found," add it to
+`PATH` (`python -m site --user-base` → `/bin`) or run inside the environment where it's installed.
+
 ## Authoring a Python plugin
 
 An `external` protocol with `"sdk": "connect_tagbio_py"` invokes a Python plugin

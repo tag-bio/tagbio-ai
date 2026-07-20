@@ -42,8 +42,10 @@ The archive is the contract between the two planes: build writes it, serve reads
 
 > **Where are the engine jars? Match the work to the environment — a missing *local* jar is not a
 > blocker.** The build/serve dev loop (`compile` / `compile_local`, `build_archive`, `run_server`,
-> tests) runs the Flux **engine jars** (`${TAGBIO_JARS}`), which are not yet publicly distributable.
-> An environment (e.g. an external dev's own machine) may therefore not have them locally. That splits
+> tests) run the Flux **engine jars**. `tagbio-ai/setup.sh` fetches them into
+> `example-clinic-fc/_jars/` (the default; override with `TAGBIO_JARS`) — **the public download URL is
+> being finalized and lands shortly; until then, drop the jars there by hand** (deliberate, tracked
+> placeholder — not broken). An environment may therefore not have them locally yet. That splits
 > the work three ways:
 > - **Ad-hoc query** (`r.md` / `python.md` → a deployed production FC over the SDK) needs **no jars**
 >   and works anywhere. Self-contained; the primary path for a consumer/analyst.

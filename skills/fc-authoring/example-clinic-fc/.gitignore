@@ -11,3 +11,9 @@ protocols/plugins/_tmp_*.Rmd
 
 # SQL variant: the SQLite DB is generated from the CSV/TSV sources by make_sqlite.sh.
 data/clinic.db
+
+# Downloaded FC engine jars (fetched by setup.sh; large binaries, not source)
+_jars/
+
+# Toy-local SDK symlinks (created by setup.sh)
+_sdk/

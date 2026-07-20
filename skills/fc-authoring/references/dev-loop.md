@@ -13,15 +13,25 @@ locally. **In a deployed cluster the container provides all of this** (out of sc
 just for running the loop on your own machine:
 
 - **Java 21** on `PATH`.
-- **`TAGBIO_JARS`** — a directory holding the FC engine jars (`fc_csv_server.jar` for CSV/TSV,
-  `fc_sql_server.jar` for SQL). The scripts invoke `${TAGBIO_JARS}/fc_csv_server.jar`.
-- **`TAGBIO_R_UTILS`** and **`TAGBIO_PY`** — the local checkouts of the R (`tagbio`) and Python
-  (`tagbiopy`) SDKs, passed as `r_sdk=` / `python_sdk=` to `run_server` so plugins can run.
+- **The FC engine jars** (`fc_csv_server.jar` for CSV/TSV, `fc_sql_server.jar` for SQL). The example
+  `_shell_scripts/*.sh` default to **`example-clinic-fc/_jars/`** — populate it by running
+  `tagbio-ai/setup.sh`. To point at your own build instead, set **`TAGBIO_JARS`** to a jar directory
+  (an *optional* override; the default needs no environment variable).
+  > **Placeholder — public jar download is arriving shortly.** `setup.sh` is already wired to fetch
+  > the jars into `_jars/`; only the public download URL is being finalized. Until it lands, drop
+  > `fc_csv_server.jar` + `fc_sql_server.jar` into `example-clinic-fc/_jars/` (or set `TAGBIO_JARS`)
+  > by hand. This is a deliberate, tracked placeholder — not a missing or broken feature.
+- **The R / Python SDK checkouts** — `run_server`'s **`r_sdk=`** / **`python_sdk=`** take the path to
+  the SDK **repo** (`…/tagbio`, `…/tagbiopy`; `setup.sh` clones them as siblings of tagbio-ai). `r_sdk=`
+  defaults to a sister `../tagbio/` as a convenience, but the **explicit path is the reliable form and
+  the one to know** — pass `r_sdk=/path/to/tagbio` whenever the default doesn't line up (as in this
+  nested example, where the SDKs sit at the workspace root). `TAGBIO_R_UTILS` / `TAGBIO_PY` are just
+  the env-var names we use for these on the deployed container / Notebook — a convention, optional here.
 - For **Python plugins**, the SDK console scripts (`connect_tagbio_py`) must be on `PATH`.
 
-The jars and SDKs are distributed under authorization (`configuration-and-sources.md`); point these
-variables at wherever you installed them. `compile` and `build_archive` need only the jar;
-`run_server` with plugin tests also needs the SDK vars and `PATH`.
+`setup.sh` provisions the jars and SDKs (see above and `r.md` / `python.md`). `compile` and
+`build_archive` need only the jar; `run_server` with plugin tests also needs the R/Python SDK paths
+(`r_sdk=` / `python_sdk=`) and the Python console script on `PATH`.
 
 ## Bootstrapping a new FC from scratch
 

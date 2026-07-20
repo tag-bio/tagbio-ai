@@ -113,12 +113,14 @@ Net: plugin apps obey the same protocol-level gate (who may run/see it) and coll
 (what data comes back) as everything else. `groups=true` specifically blocks **caller-supplied
 `callback_script`s** (untrusted code arriving in the request) — not your FC-authored plugins.
 
-## Plugin libraries: `deploy/build-container.sh`
+## Plugin and transformer libraries: `deploy/build-container.sh`
 
 A deployed FC runs in a **container image**. The base image ships the tidyverse (ggplot2, dplyr,
 tidyr, …) and the Tag.bio SDKs (`tagbio` for R, `tagbiopy` for Python), but **any other library a
-plugin imports must be installed into the image** — via the FC's own **`deploy/build-container.sh`**
-(each FC has its own). Miss one and the build/serve fails at load with `no package called '<X>'`.
+plugin — or a build-time transformer (`transformers.md`) — imports must be installed into the
+image** — via the FC's own **`deploy/build-container.sh`** (each FC has its own). Miss one and it
+fails with `no package called '<X>'`: a plugin at **serve/load** time, a transformer during the
+**build** (transformers run in this same container, so their deps must be provisioned too).
 
 The example ships `deploy/build-container.sh`. Its contents mirror exactly what the toy's plugins
 need beyond the base: **R** `r-plotly` (the R plugin), and **Python** `plotly`, `papermill`,

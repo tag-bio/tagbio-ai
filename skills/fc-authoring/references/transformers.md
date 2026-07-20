@@ -149,6 +149,9 @@ transformer just shells out to whatever produces those rows.
 - **A cross-product pull without the build-order dependency** — the source product must be
   deployed first.
 - **Expecting a transformer to run at serve time** — it runs only during `build_archive`.
+- **A library the transformer uses isn't in `deploy/build-container.sh`** — a transformer runs in
+  the build container, so every `library()` / `import` it makes must be provisioned there
+  (`governance.md`), exactly like a plugin's, or the build fails with `no package called '<X>'`.
 
 Next: `manifest.md` — how one deployable instance ties the build and serve planes together and
 declares where the archive lives.

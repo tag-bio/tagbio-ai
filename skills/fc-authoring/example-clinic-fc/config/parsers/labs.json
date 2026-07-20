@@ -2,6 +2,12 @@
   { "parser_type": "categorical", "column": "panel", "collection": "Lab Panel", "collection_set": "Labs" },
   { "parser_type": "categorical", "column": "analyte", "collection": "Lab Analyte", "collection_set": "Labs" },
 
+  // Denominator flag: labs run on only a SUBSET of encounters, so tag every encounter that has a lab
+  // row with a constant "Has Labs" = "Yes". Prevalence of a finding should be counted over this
+  // tested set, never derived from the result column. categorical-static writes a constant and reads
+  // no column (data-model.md).
+  { "parser_type": "categorical-static", "collection": "Has Labs", "value": "Yes" },
+
   { "parser_type": "numeric", "column": "result_value",
     "where": { "parser_type": "categorical-match", "column": "panel", "operator": "!=", "value": "Urinalysis" },
     "collection": { "parser_type": "categorical", "column": "panel" },

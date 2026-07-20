@@ -11,6 +11,7 @@ working FC** — these appear less often and their options vary.
 | `categorical-match` | a label depends on **matching** the raw value (equals, contains, range) rather than an exact remap | a categorical collection assigned by rule/operator (a richer `categorical-map`) |
 | `categorical-static` | every row should carry a **constant** label (e.g. an always-on "Has X" flag used as a stable denominator) | a categorical collection with one fixed value on every entity |
 | `categorical-transform` | a categorical value must be **derived** from a column (or columns) via a transformation | a categorical collection computed from the source |
+| `categorical-compound` | one categorical value must be **combined from multiple columns** via an `operator` (e.g. `" \| "`), often to build a compound key/label | a categorical collection merging several source columns |
 | `numeric-bins` | a numeric column should become **labeled ranges** (age → `0–17`, `18–64`, `65+`) | a categorical collection of bins |
 | `numeric-transform` | a numeric value needs an **operator applied** (scale/offset/log via an `operator` + a `constant`, optional normalize) — not a free-form expression | a numeric collection/variable |
 | `numeric-compound` | one value must be **combined from multiple numeric columns** via an `operator`/merge (sum, ratio, score) | a numeric collection/variable |

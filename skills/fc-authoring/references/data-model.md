@@ -118,7 +118,9 @@ collection is less a clean factor than a tag structure.)
 > and the right denominator is "entities with a value here," not all entities. When "was this even
 > measured?" matters (a test run on only a subset), model it **explicitly** — a constant "Has X"
 > flag on every tested entity (`catalog-parser-types.md` → `categorical-static`) — rather than
-> inferring it from the presence or absence of a result.
+> inferring it from the presence or absence of a result. The clinic example does exactly this: a
+> `Has Labs` flag (`config/parsers/labs.json`) that lands on the 7 of 8 encounters with a lab, so
+> lab prevalence is counted over the tested set, not all encounters.
 
 ## collection_set: a tag for grouping, not a container
 

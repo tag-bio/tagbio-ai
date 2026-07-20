@@ -34,6 +34,14 @@ echo "Cloning SDK repos into: $DEST"
 clone_one "$R_SDK_URL"
 clone_one "$PY_SDK_URL"
 
+# Toy-local SDK pointers so example-clinic-fc/_shell_scripts default r_sdk/python_sdk to ./_sdk/*
+# (mirrors the _jars/ default; run_server still accepts an explicit path or TAGBIO_R_UTILS/TAGBIO_PY).
+SDK_LINK_DIR="$(cd "$(dirname "$0")" && pwd)/skills/fc-authoring/example-clinic-fc/_sdk"
+mkdir -p "$SDK_LINK_DIR"
+ln -sfn "$DEST/tagbio" "$SDK_LINK_DIR/tagbio"
+ln -sfn "$DEST/tagbiopy" "$SDK_LINK_DIR/tagbiopy"
+echo "Linked SDK pointers into example-clinic-fc/_sdk/"
+
 if $install_r; then
   echo "Installing the R SDK (tagbio) + dependencies ..."
   command -v Rscript >/dev/null 2>&1 || { echo "ERROR: Rscript not found."; exit 1; }
@@ -43,6 +51,27 @@ if $install_py; then
   echo "Installing the Python SDK (tagbiopy) ..."
   command -v pip >/dev/null 2>&1 || { echo "ERROR: pip not found."; exit 1; }
   pip install "$DEST/tagbiopy"
+fi
+
+# --- FC engine jars for the runnable toy example (skills/fc-authoring/example-clinic-fc) ---
+# The toy example's _shell_scripts default to running the engine from example-clinic-fc/_jars/
+# (override with TAGBIO_JARS). These are large binaries: gitignored and downloaded, not committed.
+TAGBIO_JARS_URL="${TAGBIO_JARS_URL:-PUBLIC_JAR_BASE_URL_TBD}"   # TODO(Jesse+Sanjay): the public jar base URL
+JARS_DIR="$(cd "$(dirname "$0")" && pwd)/skills/fc-authoring/example-clinic-fc/_jars"
+echo
+echo "Provisioning FC engine jars for the toy example ..."
+if [ "$TAGBIO_JARS_URL" = "PUBLIC_JAR_BASE_URL_TBD" ]; then
+  echo "  Public jar download is coming shortly (URL being finalized) — skipping fetch for now."
+  echo "  Interim: place fc_csv_server.jar + fc_sql_server.jar in"
+  echo "    skills/fc-authoring/example-clinic-fc/_jars/  (or set TAGBIO_JARS to your own jar dir)."
+elif ! command -v curl >/dev/null 2>&1; then
+  echo "  curl not found — skipping jar download."
+else
+  mkdir -p "$JARS_DIR"
+  for j in fc_csv_server.jar fc_sql_server.jar; do
+    if [ -f "$JARS_DIR/$j" ]; then echo "  already present: $j"
+    else echo "  fetching $j"; curl -fsSL "$TAGBIO_JARS_URL/$j" -o "$JARS_DIR/$j" || echo "  WARN: could not fetch $j"; fi
+  done
 fi
 
 echo

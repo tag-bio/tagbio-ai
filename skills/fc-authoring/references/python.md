@@ -122,11 +122,30 @@ df = fc.df.select(
   `https://` (`request.py` `_set_host`/`auth`) — so `http://localhost:7999` becomes
   `https://localhost:7999` and fails no-auth. `:8000` is effectively hardcoded for the localhost
   path. A prime candidate for the SDK-harmonization work.
-- **Deployed credentials** work the same as R (`r.md`): the SDK reads **`TAGBIO_HOST_URL`** and
-  **`TAGBIO_API_KEY`** from the environment, or from a **`~/.tagbio.json`** (or `~/.tagbio.yaml`)
-  with those keys. So you usually don't pass `api_key` at all — `FC(fc_name="…")` picks it up. The
-  explicit `api_key=os.environ[...]` form is just for when you'd rather pass it directly; **never
-  hardcode the key**. (Ask your Tag.bio admin to issue one; localhost needs none.)
+- **Deployed credentials** come from a **`~/.tagbio.json`** (host + key), the same file R uses:
+  ```json
+  { "TAGBIO_HOST_URL": "https://your-host", "TAGBIO_API_KEY": "<your-key>" }
+  ```
+  Give the **host no trailing slash** — a trailing `/` builds a `//…` URL that 405s. **Read the file and
+  pass the two values explicitly** to `FC()`:
+  ```python
+  import json, os
+  cfg = json.load(open(os.path.expanduser("~/.tagbio.json")))
+  fc  = tagbiopy.fc.FC(fc_name="fc-x", host=cfg["TAGBIO_HOST_URL"], api_key=cfg["TAGBIO_API_KEY"])
+  ```
+  A **bare `FC(fc_name="fc-x")`** that lets the SDK read the host from the file currently misroutes the
+  deployed URL (drops the `/fc-svc/<name>/` path) and 405s — so pass `host`/`api_key` yourself. **Never
+  hardcode the key.** Prefer the **file over environment variables**: it's per-machine and unambiguous,
+  and the two SDKs read env-vs-file in **opposite order** (R env-first, Python file-first), so a stray
+  env var can send R and Python to different hosts. (Ask your Tag.bio admin for a key; localhost needs none.)
+- **Discover before you select:** `fc.summary` (a **property** — no parentheses) returns a DataFrame
+  describing every collection (name, type, size); `fc.list_collections("categorical")` / `("numeric")`
+  list names by type. Use them to choose columns instead of guessing. (R spells the describe call
+  `summary(fc)` — a method; another small cross-SDK asymmetry.)
+- **Select only what you need on a large deployed product.** Every selected collection streams all
+  entity rows, and selecting *all* collections can exceed the server's ~2-minute gateway timeout and
+  fail. Discover, select a subset, `.run()`. For a **full-data download, use the product's front-end
+  download protocols** — server-side export, faster than any SDK `.run()`.
 - Filter server-side with `.where((Collection, value))` chained before `.run()`.
 
 > **Guardrail:** before running an ad-hoc query against any product or source, obtain the user's

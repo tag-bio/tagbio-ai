@@ -117,19 +117,31 @@ df_local <- tbl(local) %>% select(everything()) %>% collect()
   { "TAGBIO_HOST_URL": "https://your-cluster-host", "TAGBIO_API_KEY": "<your-api-key>" }
   ```
 
-  Then `tagConnect()` picks them up with no arguments. **Lock the file down — `chmod 600
+  Then read them and **pass the host explicitly** — `cfg <- jsonlite::fromJSON("~/.tagbio.json"); con <-
+  tagConnect(host_url = cfg$TAGBIO_HOST_URL, api_key = cfg$TAGBIO_API_KEY)` — so nothing ambient (a stray
+  env var, a config for another cluster) can silently redirect the connection. Give the **host no
+  trailing slash**. Bare `tagConnect()` *does* read the file, but its resolution order (**env before
+  file**) differs from Python's (**file before env**), so a stray env var can send R and Python to
+  different hosts — passing the host explicitly sidesteps that entirely. Keep the file per-machine and
+  the single source. **Lock the file down — `chmod 600
   ~/.tagbio.json`** (it holds a live key any process could otherwise read), keep it **out of the
   repo**, and rotate/revoke the key if it leaks. Never commit or hardcode the key; localhost needs
-  none. (The Python SDK reads the same file — `python.md`.)
+  none. (The Python SDK reads the same file, but pass `host`/`api_key` explicitly there — `python.md`.)
 - Always `select(...)` the columns you want **before** `collect()`; a bare `collect()` returns
-  nothing. To pull **everything**, use `select(everything())`.
+  nothing. `select(everything())` pulls all columns — but **only reach for it on a small product**: on
+  a large deployed product it streams every entity row for every collection and can blow past the
+  server's ~2-minute gateway timeout (surfacing in R as the cryptic `No method asJSON S3 class:
+  request` — a masked 504). **Discover, then select the subset you need**; for a full-data download use
+  the product's **front-end download protocols** (server-side, faster than any SDK `collect()`).
 - **The SDK's dplyr/dbplyr layer is a PARTIAL shim** (it grew around specific use cases), so don't
   assume the full framework is wired. In particular, on **any localhost FC** — both a `run_server`
   dev serve *and* the build-in-progress self-query — **`colnames(fc)` comes back empty**, so
   `all_of(colnames(fc))`, tidy-eval injection (`!!sym(x)`), and broader verbs are **not** reliable.
   **Select columns by literal name** (backticks for spaces/pipes, e.g.
-  `` select(`Encounter ID`) ``) or `everything()`. Enumerating with `colnames(fc)`
-  works **only on a deployed product** (on localhost it comes back empty). Keep to `tbl()` →
+  `` select(`Encounter ID`) ``) or `everything()`. **On a deployed product, discover names first:**
+  `summary(fc)` returns a table describing every collection (name, type, size — a method in R, vs the
+  `fc.summary` *property* in Python); `colnames(fc)` returns just the names. (Both come back empty on
+  localhost — enumerate there via the front-end or the config.) Keep to `tbl()` →
   `select(<literal names>)` → `collect()`.
 - **Column naming:** a **categorical** collection is selected by its own name (`` `Department` ``);
   a **numeric variable** is exposed as **`` `Collection = Variable` ``** — e.g.

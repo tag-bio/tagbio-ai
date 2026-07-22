@@ -58,6 +58,12 @@ The archive is the contract between the two planes: build writes it, serve reads
 > So never treat "no local jars" as broken: **query and author locally, and hand jar-execution to the
 > Notebook.** (A jar-distribution mechanism will be documented here in the future.)
 
+> **Pull the latest before you rely on any repo.** The R/Python SDKs (`tagbio`, `tagbiopy`), this skill
+> (`tagbio-ai`), and the data-product repos are **actively changing right now** — SDK auth/connection
+> behavior especially. Before reading SDK source to answer a question, running an example, or editing an
+> FC, **`git -C <repo> pull`** the relevant repo(s). A stale checkout gives stale answers and stale
+> examples; when in doubt, pull first.
+
 ## Reading order
 
 | # | Read | Topic |

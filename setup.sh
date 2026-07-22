@@ -27,7 +27,19 @@ command -v git >/dev/null 2>&1 || { echo "ERROR: git not found on PATH."; exit 1
 DEST="$(cd "$(dirname "$0")/.." && pwd)"   # parent of tagbio-ai
 clone_one() {   # $1 = url
   local dir; dir="$DEST/$(basename "$1" .git)"
-  if [ -d "$dir/.git" ]; then echo "  already present: $dir"; else echo "  cloning $1"; git clone --depth 1 "$1" "$dir"; fi
+  if [ -d "$dir/.git" ]; then
+    # Already cloned: pull the latest. SAFE — skip if there are local edits (never clobber), and
+    # only fast-forward (never merge/diverge). Non-fatal so setup never aborts on a dirty/offline repo.
+    if [ -n "$(git -C "$dir" status --porcelain -uno 2>/dev/null)" ]; then
+      echo "  $dir: local changes present — left as-is (commit or stash, then re-run to update)"
+    else
+      git -C "$dir" pull --ff-only --quiet 2>/dev/null \
+        && echo "  $dir: pulled latest" \
+        || echo "  $dir: could not fast-forward (diverged/offline) — left as-is"
+    fi
+  else
+    echo "  cloning $1"; git clone --depth 1 "$1" "$dir"
+  fi
 }
 
 echo "Cloning SDK repos into: $DEST"

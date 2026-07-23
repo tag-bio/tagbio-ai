@@ -110,23 +110,27 @@ df_local <- tbl(local) %>% select(everything()) %>% collect()
 - **Cross-SDK difference:** this no-name rule is **R-specific**. The **Python** SDK's `FC()` accepts
   an `fc_name` on localhost too (or omits it) — so don't assume the R form when porting (`python.md`).
   It's the same class of asymmetry as `= ` vs `: ` and `output_path` vs `.path`.
-- **Credentials for a deployed FC** come from the env vars **`TAGBIO_HOST_URL`** and
-  **`TAGBIO_API_KEY`**, or a **`~/.tagbio.json`** file in your home directory with the same two keys:
+- **Credentials for a deployed FC.** Both SDKs resolve the **host** and **API key** the same way
+  (harmonized): explicit argument → **`~/.tagbio.json`** → environment variable — **file beats env,
+  per key**; the host is read from **`TAGBIO_HOST_URL` or `TAGBIO_BASE_URL`**. Put them in the file:
 
   ```json
   { "TAGBIO_HOST_URL": "https://your-cluster-host", "TAGBIO_API_KEY": "<your-api-key>" }
   ```
 
-  Then read them and **pass the host explicitly** — `cfg <- jsonlite::fromJSON("~/.tagbio.json"); con <-
-  tagConnect(host_url = cfg$TAGBIO_HOST_URL, api_key = cfg$TAGBIO_API_KEY)` — so nothing ambient (a stray
-  env var, a config for another cluster) can silently redirect the connection. Give the **host no
-  trailing slash**. Bare `tagConnect()` *does* read the file, but its resolution order (**env before
-  file**) differs from Python's (**file before env**), so a stray env var can send R and Python to
-  different hosts — passing the host explicitly sidesteps that entirely. Keep the file per-machine and
-  the single source. **Lock the file down — `chmod 600
-  ~/.tagbio.json`** (it holds a live key any process could otherwise read), keep it **out of the
-  repo**, and rotate/revoke the key if it leaks. Never commit or hardcode the key; localhost needs
-  none. (The Python SDK reads the same file, but pass `host`/`api_key` explicitly there — `python.md`.)
+  then a bare `con <- tagConnect()` resolves both, and `tbl(con, "fc-name")` selects a deployed product.
+  **In the Tag.bio notebook** the host is preset as the `TAGBIO_BASE_URL` env var (an internal cluster
+  host), so you only need the **key** in the file (needs **tagbio ≥ 1.1.69 / tagbiopy ≥ 1.0.3**, which
+  read `TAGBIO_BASE_URL`). **On your own machine** put the external HTTPS host in the file (the internal
+  `*.svc.cluster.local` host won't resolve off-cluster). Give the **host no trailing slash**; **`chmod
+  600 ~/.tagbio.json`** (it holds a live key), keep it **out of the repo**, rotate/revoke if it leaks;
+  never commit or hardcode the key; localhost needs none.
+- **In a plugin, the connection comes ONLY from the engine packet.** The plugin runner
+  (`connect_tagbio.R`) sets a `TAGBIO_PLUGIN_CONTEXT` sentinel, so the SDK ignores `~/.tagbio.json`
+  **and ambient env** for host/key (a developer's key/host must never leak into a plugin — privilege
+  escalation, or dialing the wrong server). A plugin's own-FC callback uses localhost; a call to another
+  deployed FC carries the invoking user's token (`parameters$token`). Set **`TAGBIO_PLUGIN_ALLOW_CONFIG=1`**
+  only to locally test a plugin that pulls from a remote FC. Same rule in the Python SDK.
 - Always `select(...)` the columns you want **before** `collect()`; a bare `collect()` returns
   nothing. `select(everything())` pulls all columns — but **only reach for it on a small product**: on
   a large deployed product it streams every entity row for every collection and can blow past the

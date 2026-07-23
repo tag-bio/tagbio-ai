@@ -80,6 +80,18 @@ So **coverage = every protocol either auto-testable (no mandatory args) or given
 test.** A protocol with a mandatory argument and no explicit test is the coverage gap `compile`
 reports.
 
+> **Developer rule — when you author a new protocol, wire it into `main.json` completely:** register it
+> in **`protocols`**, place it in **exactly one `categories` collection** and its appropriate
+> **`tags`** (collections = app type, tags = data type — see `manifest.md`), **and** write its
+> **`tests/*.json`** *unless* it has **no arguments at all** or **only optional argument_sets** (those
+> auto-test). Everything else needs an explicit test, and
+> **`compile`'s test-coverage warning is your indicator** — `Insufficient test coverage … No test for
+> registered protocol 'X'` means write one. **`minimum-group` argument_sets count as non-optional as a
+> group:** the engine requires **at least one** argument selected *across all* the group's sets to run,
+> so the test must supply at least one (e.g. one analysis variable via
+> `<argument_set_name>__<collection>: <value>`) or it fails with *"Minimum group across argument sets is
+> missing an argument selection."*
+
 ## When and how tests run
 
 - **Coverage** is checked at **`compile`** (fast, no data — `dev-loop.md`).

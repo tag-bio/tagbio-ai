@@ -57,6 +57,15 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
   **per deployed instance** — so two instances built from the same `main` can present different
   names/titles. When both set it, **the manifest wins**. Put it in `main.json` for the single-instance
   case; override in the manifest only when an instance needs to differ.
+- **`main.json` also controls front-end presentation.** Beyond `overview_protocol`, `protocols`
+  (registered) and `tests`, it has two grouping maps the UI renders:
+  - **`categories` = the collections** the user sees as **tiles**. Organize by **app *type*** (e.g.
+    *Instant Reports*, *Summaries*, *Downloads*, *Customizable Reports*). A protocol belongs to
+    **exactly one** collection.
+  - **`tags` = the right-hand filter checkboxes.** Organize by **data *type*** (e.g. *Response*,
+    *Mutations*, *IHC*, *Clinical*, *Adverse Events*). A protocol may carry **multiple** tags.
+  When you register a new protocol, add it to **one category and its appropriate tag(s)** — an
+  unplaced protocol still runs but is hard for users to find.
 - **Cloud-served products** add storage coordinates at the **top level** (bucket + auth) so the
   archive can be fetched from S3 / GCS / Azure; pick the matching server jar
   (`configuration-and-sources.md`).

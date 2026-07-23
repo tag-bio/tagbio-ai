@@ -115,29 +115,31 @@ df = fc.df.select(
   **R's `tbl(con, "name")` errors on localhost** — it takes no name there. Don't carry the R rule
   over to Python (or vice versa); it's the same class of asymmetry as `: ` vs `= ` and
   `.path` vs `$output_path`.
-- **Localhost port (cross-SDK, CONFIRMED — alternate ports are R-only):** R connects to a localhost
-  `run_server` on **any** port (`tagConnect(host_url="http://localhost:7999")`, `r.md`). **Python
-  does not.** `tagbiopy` skips auth **only** when `host == DEFAULT_HOST` (*exactly*
-  `http://localhost:8000`); any other host requires an API key **and** is force-rewritten to
-  `https://` (`request.py` `_set_host`/`auth`) — so `http://localhost:7999` becomes
-  `https://localhost:7999` and fails no-auth. `:8000` is effectively hardcoded for the localhost
-  path. A prime candidate for the SDK-harmonization work.
+- **Localhost port (harmonized as of tagbiopy 1.0.1):** Python's `FC()` now treats **any** localhost
+  host as no-auth http, matching R — `http://localhost:7999` works, not only `:8000`. (Earlier SDKs
+  force-rewrote a non-8000 localhost to `https://` and demanded a key.)
 - **Deployed credentials** come from a **`~/.tagbio.json`** (host + key), the same file R uses:
   ```json
   { "TAGBIO_HOST_URL": "https://your-host", "TAGBIO_API_KEY": "<your-key>" }
   ```
-  Give the **host no trailing slash** — a trailing `/` builds a `//…` URL that 405s. **Read the file and
-  pass the two values explicitly** to `FC()`:
+  On **tagbiopy >= 1.0.1** a bare **`FC(fc_name="fc-x")`** resolves host + key from this file correctly
+  (appends the `/fc-svc/<name>/` path and tolerates a trailing slash on the host):
   ```python
-  import json, os
-  cfg = json.load(open(os.path.expanduser("~/.tagbio.json")))
-  fc  = tagbiopy.fc.FC(fc_name="fc-x", host=cfg["TAGBIO_HOST_URL"], api_key=cfg["TAGBIO_API_KEY"])
+  fc = tagbiopy.fc.FC(fc_name="fc-x")     # host + key from ~/.tagbio.json
   ```
-  A **bare `FC(fc_name="fc-x")`** that lets the SDK read the host from the file currently misroutes the
-  deployed URL (drops the `/fc-svc/<name>/` path) and 405s — so pass `host`/`api_key` yourself. **Never
-  hardcode the key.** Prefer the **file over environment variables**: it's per-machine and unambiguous,
-  and the two SDKs read env-vs-file in **opposite order** (R env-first, Python file-first), so a stray
-  env var can send R and Python to different hosts. (Ask your Tag.bio admin for a key; localhost needs none.)
+  (On older SDKs bare `FC` misrouted the URL and 405'd; if you're stuck on one, read the file and pass
+  `host=cfg["TAGBIO_HOST_URL"], api_key=cfg["TAGBIO_API_KEY"]` yourself.) Still keep the **host without a
+  trailing slash** as hygiene, and **never hardcode the key.** Prefer the **file over environment
+  variables**: it's per-machine and unambiguous, and the two SDKs currently read env-vs-file in
+  **opposite order** (R env-first, Python file-first), so a stray env var can send R and Python to
+  different hosts. (Ask your Tag.bio admin for a key; localhost needs none.)
+- **In a plugin, connection/auth come ONLY from the engine packet — never `~/.tagbio.json`.** The plugin
+  runner (`connect_tagbio_py` / `connect_tagbio.R`) sets a `TAGBIO_PLUGIN_CONTEXT` sentinel, so the SDK
+  refuses the config file inside a plugin (a developer's key must not ride along — that would be a
+  privilege escalation). A plugin's own-FC callback uses localhost (no auth); a call to **another**
+  deployed FC carries the **invoking user's token** (`parameters$token` in R). To locally test a plugin
+  that pulls from a remote FC, set **`TAGBIO_PLUGIN_ALLOW_CONFIG=1`** to opt back into your
+  `~/.tagbio.json` for that run (both SDKs). Introduced tagbiopy 1.0.1 / tagbio 1.1.67.
 - **Discover before you select:** `fc.summary` (a **property** — no parentheses) returns a DataFrame
   describing every collection (name, type, size); `fc.list_collections("categorical")` / `("numeric")`
   list names by type. Use them to choose columns instead of guessing. (R spells the describe call

@@ -23,6 +23,8 @@
   ],
 
   "tests": [
+    // First: the empty-cohort download must succeed (headers, no rows) — guards the 0-entity NPE fix.
+    "tests/test_download_empty_cohort.json",
     "tests/test_bp_by_department.json",
     "tests/test_python_bp.json",
     "tests/test_rmd_bp.json",

@@ -151,6 +151,16 @@ df_local <- tbl(local) %>% select(everything()) %>% collect()
   a **numeric variable** is exposed as **`` `Collection = Variable` ``** — e.g.
   `` `Blood Pressure = Systolic` `` — using the SDK's `qdelim` (` = ` by default). Selecting the
   bare variable name (`` `Systolic` ``) will not resolve.
+- **Filter server-side with `filter()`** — a cohort/background pushed to the engine, so you pull
+  only the matching entities: `` tbl(con) %>% filter(...) %>% select(...) %>% collect() ``. Forms:
+  - **Categorical:** `` filter(`Department` == "Cardiology") ``
+  - **Numeric compare:** `` filter(`Blood Pressure = Systolic` > 120) `` — operators
+    `` > >= < <= == != ``.
+  - **Not-null:** `` filter(!is.na(`Metabolic = HbA1c`)) `` — keeps entities that *have* a value
+    (drops nulls). A bare `` is.na(`col`) `` (is-**null**) isn't supported by the engine yet and
+    errors clearly; use `` !is.na() `` for not-null.
+  Multiple `filter()`s are AND-combined. Needs `tagbio >= 1.1.74`. (Python writes the same as
+  `` .where((collection, variable, "not null")) `` tuples — dplyr NSE vs a tuple DSL; see `python.md`.)
 
 **Three connection targets:** a **localhost** FC you started with `run_server` —
 `tagConnect(host_url = "http://localhost:8000")`, **no auth**; a **deployed** FC in the Tag.bio

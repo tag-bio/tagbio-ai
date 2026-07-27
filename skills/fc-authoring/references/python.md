@@ -148,7 +148,15 @@ df = fc.df.select(
   entity rows, and selecting *all* collections can exceed the server's ~2-minute gateway timeout and
   fail. Discover, select a subset, `.run()`. For a **full-data download, use the product's front-end
   download protocols** — server-side export, faster than any SDK `.run()`.
-- Filter server-side with `.where((Collection, value))` chained before `.run()`.
+- **Filter server-side with `.where(...)`** chained before `.run()` — a cohort/background the engine
+  applies, so you pull only the matching entities. Each condition is a tuple; combine multiple with
+  `'AND'`/`'OR'` between them:
+  - **Categorical:** `.where(("Department", "Cardiology"))`
+  - **Numeric compare:** `.where(("Blood Pressure", "Systolic", ">", 120))` — a 4-tuple
+    `(collection, variable, operator, value)`; operators `= != < <= > >=`.
+  - **Not-null:** `.where(("Metabolic", "HbA1c", "not null"))` — a 3-tuple; keeps entities that
+    *have* a value. `'is null'` is **not** offered (the engine can't do a numeric null match yet).
+  Needs `tagbiopy >= 1.0.6`. (R writes these as dplyr `filter(!is.na(...))`, etc. — see `r.md`.)
 
 > **Guardrail:** before running an ad-hoc query against any product or source, obtain the user's
 > **informed consent** — they must know Claude is about to access potentially sensitive or

@@ -1,0 +1,23 @@
+// Regression test for the empty-cohort download path. background_cohort is a numeric-slice that
+// matches NO entities (no encounter has systolic > 999999), so the download runs over 0 entities.
+// This must SUCCEED — writing a CSV with headers and no data rows — not error or hang. It guards the
+// engine fix where a 0-entity download previously NPE'd (CompilerVariable.orderedIterable on a null
+// wrappedVariable) and orphaned the request.
+{
+  "protocol_instance": {
+    "name": "download",
+    "arguments": {
+      "background_cohort": {
+        "data_function_type": "numeric-slice",
+        "operator": ">",
+        "value": 999999,
+        "criterion": {
+          "data_function_type": "numeric",
+          "collection": "Blood Pressure",
+          "variable": "Systolic"
+        }
+      }
+    }
+  },
+  "output": "_test_results/test_download_empty_cohort.csv"
+}

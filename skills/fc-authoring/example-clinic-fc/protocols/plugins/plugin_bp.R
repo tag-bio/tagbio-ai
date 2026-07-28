@@ -1,7 +1,7 @@
 # Blood Pressure by Department -- a Tag.bio R plugin.
 # A plugin is a function(tag_data, tag_result): pull the analysis frame with
 # tagbio::get_results(), do the work, write to tag_result$output_path, return tag_result.
-if (!require('plotly')) install.packages('plotly', repos = "http://cran.us.r-project.org")
+if (!require('plotly')) install.packages('plotly', repos = "https://cloud.r-project.org")
 require('plotly')
 require('dplyr')
 require('tidyr')

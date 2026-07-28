@@ -68,7 +68,7 @@ fi
 # --- FC engine jars for the runnable toy example (skills/fc-authoring/example-clinic-fc) ---
 # The toy example's _shell_scripts default to running the engine from example-clinic-fc/_jars/
 # (override with TAGBIO_JARS). These are large binaries: gitignored and downloaded, not committed.
-TAGBIO_JARS_URL="${TAGBIO_JARS_URL:-PUBLIC_JAR_BASE_URL_TBD}"   # TODO(Jesse+Sanjay): the public jar base URL
+TAGBIO_JARS_URL="${TAGBIO_JARS_URL:-PUBLIC_JAR_BASE_URL_TBD}"   # TODO: set the public jar base URL once finalized (tracked internally)
 JARS_DIR="$(cd "$(dirname "$0")" && pwd)/skills/fc-authoring/example-clinic-fc/_jars"
 echo
 echo "Provisioning FC engine jars for the toy example ..."

@@ -10,9 +10,14 @@ a derived category, a score, or a value pulled from another product.
 During `build_archive`, the engine stands up a **transient HTTP server** over the in-progress
 build so a transformer can query it, then runs each transformer, then writes the archive:
 
-- **Self-query the local build** (the product being built): `tagConnect()` with **no host_url**,
+- **Self-query the local build** (the product being built): `tagConnect(host_url = "http://localhost:8000")`,
   `tbl(con)` with **no table name** (`r.md`). This is how you read collections that already
-  exist in *this* build to compute new ones.
+  exist in *this* build to compute new ones. **Hardcode the localhost `host_url`** — do *not* lean on
+  a bare `tagConnect()` "defaulting" to localhost. That default is only a last-resort fallback at the
+  BOTTOM of the resolution order, so an ambient host (env `TAGBIO_BASE_URL`, which deployed
+  notebooks/build containers set, or a `~/.tagbio.json` entry) silently outranks it and hijacks the
+  self-query to a remote cluster — a bare `tbl()` there returns HTTP 405. A transformer does **not**
+  run in plugin-context, so unlike a plugin the SDK won't auto-force localhost for you; you must state it.
 - **Pull from another deployed product** (cross-product enrichment): `tagConnect(host_url = …)`
   and `tbl(con, "other-product")`. This is how one FC broadcasts values derived from a related,
   already-deployed FC.
@@ -131,10 +136,13 @@ with open(output_file, "w", newline="") as f:
 Register it like the R one (`"command": "python3 config/transformers/<name>.py"`). A **bash**
 transformer just shells out to whatever produces those rows.
 
-> **The port isn't magic.** The local build server runs on the **default port 8000**. R's
-> `tagConnect()` isn't dynamically discovering it — it simply **defaults to `http://localhost:8000`**
-> too; Python just names that URL explicitly. Both hit the same fixed port. If you build the server
-> on a **non-default `port=`**, match it in the Python `host=` (R picks it up from `TAGBIO_HOST_URL`).
+> **The port isn't magic — and don't lean on the default.** The local build server runs on the
+> **fixed port 8000**. A bare R `tagConnect()` *would* fall back to `http://localhost:8000`, but that
+> fallback is last-resort: an ambient host (env `TAGBIO_BASE_URL` — deployed notebooks and build
+> containers set it — or a `~/.tagbio.json` entry) **outranks it and silently hijacks the self-query
+> to a remote cluster**. So always **hardcode `host_url = "http://localhost:8000"`** (Python names the
+> URL explicitly anyway). If you build the server on a **non-default `port=`**, match that port in the
+> `host_url` on both sides.
 
 1. Write the script (R/Python/bash) taking an output-file path and the entity key collection.
 2. Read inputs by self-querying the local build (or pulling a deployed product).

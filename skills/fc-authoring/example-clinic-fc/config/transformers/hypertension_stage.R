@@ -15,11 +15,14 @@ suppressMessages(library(dplyr))
 args <- commandArgs(trailingOnly = TRUE)
 output_file <- args[1]
 
-# Self-query the LOCAL build in progress: tagConnect() with no host_url, tbl(con) with no
-# table name. A deployed copy would NOT yet have this run's data (chicken-and-egg).
+# Self-query the LOCAL build in progress. HARDCODE localhost: a bare tagConnect() only falls back
+# to localhost when nothing outranks it, so an ambient host (env TAGBIO_BASE_URL, or a ~/.tagbio.json
+# entry) would hijack the connect to a remote cluster and a bare tbl() there 405s. A transformer
+# isn't in plugin-context, so the SDK won't auto-force localhost -- the author must state it. Use no
+# table name (tbl(con)): a deployed copy would NOT yet have this run's data (chicken-and-egg).
 # A numeric variable is exposed as "<Collection> = <Variable>" (the SDK's qdelim); a
 # categorical collection is exposed under its own name.
-con <- tagConnect()
+con <- tagConnect(host_url = "http://localhost:8000")
 bp <- tbl(con) %>%
   select(`Encounter ID`, `Blood Pressure = Systolic`, `Blood Pressure = Diastolic`) %>%
   collect() %>%

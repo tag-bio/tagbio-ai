@@ -30,7 +30,7 @@ plugin is a **function of `(tag_data, tag_result)`**:
 
 ```r
 # protocols/plugins/plugin_bp.R
-if (!require('plotly')) install.packages('plotly', repos = "http://cran.us.r-project.org")
+if (!require('plotly')) install.packages('plotly', repos = "https://cloud.r-project.org")
 require('plotly'); require('dplyr'); require('tidyr')
 
 function(tag_data, tag_result) {

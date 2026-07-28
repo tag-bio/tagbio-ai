@@ -2,7 +2,7 @@
 # Demonstrates consuming a whole collection_set: the analysis frame's columns are every numeric
 # lab collection at once (Lipid, Metabolic, ...), each arriving as "<Collection> = <Variable>"
 # (e.g. "Lipid = LDL"). We reshape to one row per (panel, analyte, value) and box-plot by analyte.
-if (!require('plotly')) install.packages('plotly', repos = "http://cran.us.r-project.org")
+if (!require('plotly')) install.packages('plotly', repos = "https://cloud.r-project.org")
 require('plotly')
 require('dplyr')
 require('tidyr')

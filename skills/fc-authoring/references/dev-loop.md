@@ -27,13 +27,13 @@ just for running the loop on your own machine:
   know** — pass `r_sdk=/path/to/tagbio` whenever the default doesn't line up (as in this nested example,
   where the SDKs sit at the workspace root). `TAGBIO_R_UTILS` is just the env-var name we use for this on
   the container / Notebook — a convention, optional here.
-- **Python is different — plugins launch via the `connect_tagbio_py` console script, which must be on
-  `PATH`.** Install the Python SDK (`setup.sh --python`, i.e. `pip install …/tagbiopy`) and make sure its
-  console-script bin is on `PATH` (find it with `python -m site --user-base`, then `/bin`); a Python
-  plugin fails with `Cannot run program "connect_tagbio_py"` otherwise. `run_server` also takes a
-  `python_sdk=` argument (by convention, and mirrored in deployed commands), but it is the
-  console-script-on-PATH that actually resolves a Python plugin. `TAGBIO_PY` is the container/Notebook
-  env-var name — optional here.
+- **The Python SDK is located by path (`python_sdk=`), like R.** `run_server`'s **`python_sdk=`** points
+  at the Python SDK **repo** (`…/tagbiopy`; `setup.sh` clones it as a sibling) — the engine runs the Python
+  plugin with that checkout on its `PYTHONPATH`, so the plugin imports *that* SDK. It defaults to a sister
+  `../tagbiopy/`; pass `python_sdk=/path/to/tagbiopy` whenever the default doesn't line up. The
+  `connect_tagbio_py` console script must still be installed and on `PATH` (`setup.sh --python`, i.e.
+  `pip install …/tagbiopy`) — it is the launcher the engine invokes; a Python plugin fails with
+  `Cannot run program "connect_tagbio_py"` otherwise.
 
 `setup.sh` provisions the jars and SDKs (see above and `r.md` / `python.md`). `compile` and
 `build_archive` need only the jar; `run_server` with plugin tests also needs the R/Python SDK paths

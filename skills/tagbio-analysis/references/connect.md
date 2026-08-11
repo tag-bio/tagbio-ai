@@ -84,6 +84,8 @@ Same platform, two SDKs, four gratuitous differences. Check this table when port
 | Concern | R (`tagbio`) | Python (`tagbiopy`) |
 |---|---|---|
 | Describe collections | `summary(fc)` — a **method** | `fc.summary` — a **property** |
+| `summary` column names | **snake_case**: `collection`, `collection_type`, `collection_size`, `collection_entity_count` | **Title Case**: `Collection`, `Collection Type`, `Size`, `Entities without data` |
+| `summary` missingness column | entities **WITH** data (populated) | entities **WITHOUT** data (missing) — ⚠️ **inverted** (`discover.md`) |
 | Numeric column name | `Collection = Variable` | `Collection: Variable` |
 | Product name on localhost | `tbl(con)` takes **no name** (errors if given) | `fc_name` optional |
 | Plugin output path | `tag_result$output_path` | `tag_result.path` |

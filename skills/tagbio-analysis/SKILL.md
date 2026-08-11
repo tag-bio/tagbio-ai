@@ -82,9 +82,13 @@ grain, you don't know what your `nrow()` means. See `references/data-model.md`.
    when porting code. A **plugin** frame always carries the prefix; an ad-hoc `select()` may not
    (`query.md`).
 5. **`summary["Size"]` is overloaded and is never a populated count** — level-cardinality for
-   categoricals, variable-count for numerics. The populated count is
-   `entity_count - Entities without data`, and that column is null for every numeric
-   (`discover.md`). Misreading this is wrong by orders of magnitude.
+   categoricals, variable-count for numerics (and for a genomics numeric it can exceed **24,000**,
+   which is your column fan-out). In Python the populated count is
+   `entity_count - Entities without data`, null for every numeric; **in R that column is inverted**
+   and the populated count is `collection_entity_count` itself (`discover.md`). Misreading either is
+   wrong by orders of magnitude, and the R/Python inversion is silent.
+   **Also: the two SDKs' `summary` frames don't even share column names** — check them before
+   porting any block between R and Python.
 6. **Missing means absent, not a level.** Denominators are "entities that have a value here,"
    not all entities (`references/data-model.md`).
 7. **Verify, don't recall.** The running product is the source of truth. When your memory and a

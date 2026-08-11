@@ -75,12 +75,23 @@ Consequences for every summary you compute:
 - Selection on the outcome column is a real bias: restricting to entities *with* a result can turn
   a null finding into a spurious one.
 
-## The `Unique ID` column comes free
+## An identifier column comes free — but not always under the same name
 
-The engine **automatically adds a `Unique ID` column** to every extract — the entity's unique-key
-combination — even when you don't select it. It is the one guaranteed-unique value per row, so
-every row is identifiable and you can always de-duplicate or check for an unexpected fan-out after
-a join.
+The engine **automatically adds the entity's unique-key column** to every extract, even when you
+don't select it. It is the one guaranteed-unique value per row, so every row is identifiable and you
+can always de-duplicate or check for an unexpected fan-out after a join.
+
+⚠️ **Its name is product-dependent — don't hardcode `"Unique ID"`.** Verified across three live
+products: two added a literal **`Unique ID`** column (on one it is even a real collection in
+`summary`), while a third added **`Sample ID`** — its own key collection — and had no `Unique ID` at
+all. `df["Unique ID"]` raises `KeyError` there. Resolve it instead of assuming:
+
+```python
+key = "Unique ID" if "Unique ID" in df.columns else df.columns[0]   # engine puts the key first
+print(len(df), df[key].nunique())                                   # rows vs distinct entities
+```
+
+If you selected the key collection yourself, no extra column is added — you already have it.
 
 ## Collection sets are tags, not folders
 

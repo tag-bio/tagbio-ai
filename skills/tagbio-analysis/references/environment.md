@@ -45,7 +45,7 @@ versions before trusting any documented idiom**, including the ones in this skil
 | Bare `FC(fc_name=...)` resolves host+key from `~/.tagbio.json` | tagbiopy ≥ 1.0.1 | Pass `host=` and `api_key=` explicitly (`connect.md`) |
 | Any-localhost-port treated as no-auth http | tagbiopy ≥ 1.0.1 | Only `:8000` works; other ports get forced to `https` |
 | Reads `TAGBIO_BASE_URL` from the env | tagbiopy ≥ 1.0.3 / tagbio ≥ 1.1.69 | Read the host yourself and pass it in |
-| Server-side `.where(...)` filters | tagbiopy ≥ 1.0.6 | Filter the returned frame client-side |
+| Server-side `.where(...)` filters | tagbiopy ≥ 1.0.6 | ⚠️ **`.where()` still EXISTS and silently does nothing** — see below. Filter client-side |
 | Server-side `filter()` pushdown (R) | tagbio ≥ 1.1.74 | Filter after `collect()` |
 
 **Both SDKs are public repos**, so you can always check what current actually is — no credentials
@@ -61,6 +61,13 @@ curl -fsSL https://raw.githubusercontent.com/tag-bio/tagbio/master/tagbio/DESCRI
 upstream; the Python one is the one that lags. On 0.9.x **none of the Python rows above hold**, and
 it additionally **force-upgrades any non-localhost `http://` to `https://`**, which fails against an
 http-only internal host with `SSL: WRONG_VERSION_NUMBER`. The workaround is in `connect.md`.
+
+⚠️ **The 0.9.x `.where()` trap — verified on 0.9.3a0 against a live product.** `hasattr(fc.df,
+"where")` is **True** and calling it **raises nothing**; it simply **returns every row unfiltered**
+(65 in, 65 out on a 65-entity product). So a feature check by attribute presence tells you the
+opposite of the truth, and code that looks filtered isn't. **Verify by row count, not by
+`hasattr`** — if `len(df)` equals `number_of_entities`, no filter took effect. On 0.9.x, filter
+client-side and don't reach for `.where()` at all.
 
 If you find that gap, **report it rather than working around it privately** — the fix belongs in the
 image, where it lands for every user at once (support@tag.bio). Until it does, use the fallbacks

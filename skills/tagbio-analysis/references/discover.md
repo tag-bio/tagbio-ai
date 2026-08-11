@@ -31,7 +31,33 @@ colnames(fc)     # just the names
 You can also browse the collections in the Tag.bio front-end, which is often faster for getting
 oriented on an unfamiliar product.
 
-### What `summary` actually returns
+### ⚠️ R and Python `summary` do NOT return the same frame — and the missingness column is INVERTED
+
+**Verified on one live product with both SDKs.** This is the most dangerous asymmetry in the
+platform, because the numbers look plausible either way:
+
+| | Python `fc.summary` | R `summary(fc)` |
+|---|---|---|
+| Name column | `Collection` | `collection` |
+| Type column | `Collection Type` | `collection_type` |
+| Size column | `Size` | `collection_size` |
+| Fourth column | `Entities without data` | `collection_entity_count` |
+| **What the fourth column MEANS** | entities **WITHOUT** a value (missing) | entities **WITH** a value (populated) |
+
+Same collection, same moment, 65-entity product: Python reported `Entities without data = 10`; R
+reported `collection_entity_count = 55`. Both are correct — they are **complements**.
+
+Two consequences:
+
+1. **Python-shaped code fails loudly in R** (`Column 'Collection' doesn't exist`) — annoying but safe.
+2. **The populated-count recipe below silently inverts.** In R, `entity_count - collection_entity_count`
+   gives you the **missing** count while you believe it's the populated one. In R the populated count
+   **is** `collection_entity_count` — no arithmetic needed.
+
+So: **never port a `summary`-reading block between the SDKs without re-checking the column names and
+which side of the missingness the number is on.** Print `names(s)` / `s.columns` first.
+
+### What `summary` actually returns (Python)
 
 Four columns (verified against a deployed product) — note the type column is **`Collection Type`**,
 not "Data Type":
@@ -54,8 +80,14 @@ This is the single most common misreading of `summary`, and it is wrong by order
 | `numeric` | the number of **variables** in the collection | `Blood Pressure` → `2`; `HbA1c` → `1` |
 
 A categorical showing `Size=7` next to ~65k missing has seven *labels*, not seven entities. For a
-numeric, `Size` is your **fan-out factor** — the number of columns that one selection will add, and
-on a modeled collection that can be 10+ (see the fitted-curve pattern below).
+numeric, `Size` is your **fan-out factor** — the number of columns that one selection will add.
+
+⚠️ **On a genomics product that factor can be five figures.** Verified on a public TCGA product:
+the `Copy Number` collection reports `Size = 24813`, and `select("Copy Number")` returned a
+**24,814-column** frame over 10,967 rows — roughly 272 million cells, from selecting what looks
+like *one* collection. `Expression` there is another 20,408. **Read `Size` before you select any
+numeric**, and if it's large, select individual `Numeric(collection, variable)` axes instead of the
+whole collection.
 
 **The honest populated count is `entity_count - Entities without data`.** Derive it; don't read
 `Size` for it.

@@ -97,10 +97,16 @@ returned, never the data values.
 
 ## Pull before you rely on it
 
-The SDKs, this skill, and `tagbio-ai` are all moving. Re-running
-`install-companions.sh` fast-forwards the checkout (and refuses to clobber local edits). Do that
-before quoting authoring behavior, and prefer a fresh `summary` over any documented example — the
-running product is always the source of truth.
+The SDKs, these skills, and `tagbio-ai` are all moving. With the **plugin**:
+
+```
+/plugin marketplace update tagbio
+/plugin update tagbio@tagbio            # the qualified name is required here; restart to apply
+```
+
+With a **checkout**, re-running `install-companions.sh` fast-forwards it (and refuses to clobber
+local edits). Either way, do this before quoting authoring behavior — and prefer a fresh `summary`
+over any documented example, because the running product is always the source of truth.
 
 ## A product's own skill
 

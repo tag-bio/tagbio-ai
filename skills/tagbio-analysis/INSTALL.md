@@ -33,6 +33,17 @@ GitHub SSH key; `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` is the other way to force HT
 `tagbio@tagbio` is equivalent and only needed if another marketplace you've added also ships a
 plugin named `tagbio`.
 
+To update later:
+
+```
+/plugin marketplace update tagbio      # pull the repo
+/plugin update tagbio@tagbio           # then the plugin — restart to apply
+```
+
+`update` **does** require the qualified `tagbio@tagbio`; with the bare name it reports
+`Plugin "tagbio" not found`. And an update only appears if the release bumped the plugin's
+`version` — a merged content change alone doesn't reach installed users.
+
 ### B / C / D — install into `~/.claude/skills`
 
 Any of these lands the skill at `~/.claude/skills/tagbio-analysis/`, which keeps the bare

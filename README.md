@@ -28,9 +28,16 @@ Three ways, in order of convenience.
 **Install the plugin** — both skills, kept up to date by git:
 
 ```
-/plugin marketplace add tag-bio/tagbio-ai
-/plugin install tagbio@tagbio
+/plugin marketplace add https://github.com/tag-bio/tagbio-ai
+/plugin install tagbio
 ```
+
+Use the **full HTTPS URL**. The `tag-bio/tagbio-ai` shorthand clones over SSH, which fails on a
+machine with no GitHub SSH key — including most notebook environments. (`CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1`
+is the other way to force HTTPS.)
+
+The plugin name alone is enough; `tagbio@tagbio` is the equivalent fully-qualified form, needed only
+if another marketplace you've added also ships a plugin called `tagbio`.
 
 Skills then invoke as `/tagbio:fc-authoring` and `/tagbio:tagbio-analysis` (or load on their own,
 from their descriptions).
@@ -92,6 +99,11 @@ bash _shell_scripts/run_server_sql.sh
 `run_server` runs the tests **on startup, asynchronously** — wait for them; each writes a result
 file under `_test_results/` (gitignored). Green means the whole loop works on your machine. This is
 the recommended first thing to do after installing the prerequisites.
+
+## Support
+
+Email **support@tag.bio** for help with these skills, the SDKs, or a data product. Bugs and
+suggestions for the skill content are also welcome as GitHub issues on this repo.
 
 ## License
 

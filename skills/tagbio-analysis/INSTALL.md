@@ -22,9 +22,16 @@ anyone typing one.
 Ships `tagbio-analysis` and `fc-authoring` together, from the public repo:
 
 ```
-/plugin marketplace add tag-bio/tagbio-ai
-/plugin install tagbio@tagbio
+/plugin marketplace add https://github.com/tag-bio/tagbio-ai
+/plugin install tagbio
 ```
+
+Use the **full HTTPS URL**. The `tag-bio/tagbio-ai` shorthand clones over SSH and fails without a
+GitHub SSH key; `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` is the other way to force HTTPS.
+
+`/plugin install tagbio` resolves across your configured marketplaces; the fully-qualified
+`tagbio@tagbio` is equivalent and only needed if another marketplace you've added also ships a
+plugin named `tagbio`.
 
 ### B / C / D — install into `~/.claude/skills`
 
@@ -107,6 +114,11 @@ references/troubleshooting.md   symptom → cause
 examples/                       runnable Python + R scripts (neutral toy vocabulary)
 scripts/install-companions.sh   installs the fc-authoring companion skill
 ```
+
+## Support
+
+Email **support@tag.bio** for help with the skills, the SDKs, or a data product. Content bugs can
+also go to <https://github.com/tag-bio/tagbio-ai/issues>.
 
 ## Note on the guardrails
 

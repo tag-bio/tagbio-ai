@@ -16,13 +16,18 @@
 | Symptom | Cause and fix |
 |---|---|
 | `TypeError: can't multiply sequence by non-int of type 'float'` doing arithmetic on `summary` | `Size`, `Entities without data`, and `info["entity_count"]` arrive as **comma-formatted strings**. Coerce with `pd.to_numeric(str(x).replace(",", ""))` (`discover.md`). |
-| A rate computed from `summary["Size"]` is absurdly small | `Size` is **not** a populated count — it's level-cardinality for categoricals, variable-count for numerics. Use `entity_count - Entities without data` (`discover.md`). |
+| A rate computed from `summary["Size"]` is absurdly small | `Size` is **not** a populated count — it's level-cardinality for categoricals, variable-count for numerics. In Python use `entity_count - Entities without data`; **in R the populated count is `collection_entity_count` directly** — that same subtraction there gives you the missing count (`discover.md`). |
 | `Entities without data` is `NaN` for a numeric collection | Expected — the server doesn't report numeric missingness. Pull the column and count nulls. |
 | Columns are `"X: X"` in a plugin but `"X"` in an ad-hoc pull | Not a bug: the plugin frame always applies `"<Collection>: <Variable>"`, and a single-variable numeric often names its variable after the collection. Normalize both cases (`query.md`). |
 | `TypeError` from inside `select()` | A name that isn't a collection in **this** product. Intersect against `fc.summary` / `colnames(fc)` first (`discover.md`). |
 | A sibling product 403s or 502s while others work | The registry lists products your key can't reach (**403**) and ones registered but not currently serving (**502**). Neither is an SDK fault — report and move on. |
 | `AttributeError` on `.select()` (tagbiopy 0.9.x) | `fc.analysis_variables` defaults to `None`. Set `fc.analysis_variables = []` before selecting. |
-| Empty result, no error | A bare `collect()` with no `select()`. Always select first. |
+| A bare `collect()` returned **every column** | Verified on tagbio 1.1.77: no `select()` means **pull everything**, silently. Always `select()` first (`query.md`). |
+| `.where(...)` ran fine but nothing was filtered | **tagbiopy 0.9.x: `.where()` exists and silently no-ops.** Check by row count, never by `hasattr`. Filter client-side (`environment.md`). |
+| R: `Column 'Collection' doesn't exist` reading `summary()` | R uses **snake_case** (`collection`, `collection_type`, `collection_size`, `collection_entity_count`). Python-shaped code fails here (`discover.md`). |
+| Missingness looks inverted between R and Python | It is. Python's `Entities without data` counts entities **without** a value; R's `collection_entity_count` counts those **with** one. They're complements (`discover.md`). |
+| `KeyError: 'Unique ID'` | The auto-added key column is **product-dependent** — some products add `Unique ID`, others their own key (e.g. `Sample ID`). Resolve it, don't hardcode (`data-model.md`). |
+| One numeric selection returned thousands of columns | Expected on a genomics product — `Size` is the fan-out factor and can exceed 24,000. Select individual `Numeric(coll, var)` axes (`discover.md`). |
 | A numeric column "doesn't exist" | You selected the bare variable name. A numeric needs collection **and** variable — `Numeric(coll, var)` / `` `Coll = Var` ``. |
 | Column names have `= ` or `: ` prefixes | Expected — R uses `Collection = Variable`, Python `Collection: Variable`. Strip with `sub()` / `.rename()`. |
 | `No method asJSON S3 class: request` (R) | A **masked 504** — the gateway timed out (~2 min). You selected too much. Select fewer collections, or use the front-end download protocol. |

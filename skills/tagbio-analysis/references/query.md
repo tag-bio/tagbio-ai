@@ -28,8 +28,12 @@ df <- fc %>%
   collect()                                             # -> data.frame
 ```
 
-**Always `select()` before `collect()`.** A bare `collect()` with no select pulls **nothing** — not
-an error, just an empty result.
+**Always `select()` before `collect()`.** ⚠️ **A bare `collect()` with no `select()` pulls
+EVERYTHING** — verified on tagbio 1.1.77: `fc %>% collect()` on a 48-collection product returned all
+48 columns, silently. That is the single easiest way to trigger the ~2-minute gateway timeout on a
+large product (the masked-504 below), and on a wide genomics product it is catastrophic — see the
+fan-out warning in `discover.md`. It is not an error and gives you no warning, so make `select()`
+a reflex.
 
 ## Column naming on the way back
 
@@ -100,11 +104,15 @@ fc %>% filter(`Blood Pressure = Systolic` > 120) %>% select(...) %>% collect()
 fc %>% filter(!is.na(`Metabolic = HbA1c`)) %>% select(...) %>% collect()
 ```
 
-Operators: `= != < <= > >=`. Two limits to know:
+Operators: `= != < <= > >=`. Three limits to know:
 
 - **There is no server-side "is null" test** — only **not-null**. The engine can't match a numeric
   null yet, and asking for it errors.
-- **On older SDKs there is no pushdown at all.** Pull, then filter the frame client-side:
+- ⚠️ **On tagbiopy 0.9.x, `.where()` exists and silently no-ops** — verified: it raises nothing and
+  returns every row. **Always confirm a filter took effect by row count**, never by `hasattr`
+  (`environment.md`). R's `filter()` pushdown on tagbio ≥ 1.1.74 was verified to genuinely filter
+  server-side (65 → 7 rows), so the two SDKs are not equally trustworthy here.
+- **On older SDKs there is no working pushdown at all.** Pull, then filter the frame client-side:
   `df[df["HbA1c"].notna()]` / `filter(!is.na(...))`. Client-side is always the reliable
   fallback; it just costs transfer.
 

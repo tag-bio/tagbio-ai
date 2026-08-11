@@ -5,9 +5,10 @@
 # (ACC/AHA rule), which no single source column holds. So we self-query the local build
 # for each encounter's Systolic/Diastolic, classify it, and emit the new collection.
 #
-# The engine invokes this with two args:
+# The engine invokes this with three args:
 #   $1  output_file       -- where to write the FC-ingestion CSV
 #   $2  entity_collection  -- the collection whose values key each row (here "Encounter ID")
+#   $3  callback_url       -- this build's self-query API (may be an ephemeral port=auto port, not 8000)
 
 library(tagbio)
 suppressMessages(library(dplyr))
@@ -15,14 +16,16 @@ suppressMessages(library(dplyr))
 args <- commandArgs(trailingOnly = TRUE)
 output_file <- args[1]
 
-# Self-query the LOCAL build in progress. HARDCODE localhost: a bare tagConnect() only falls back
-# to localhost when nothing outranks it, so an ambient host (env TAGBIO_BASE_URL, or a ~/.tagbio.json
-# entry) would hijack the connect to a remote cluster and a bare tbl() there 405s. A transformer
-# isn't in plugin-context, so the SDK won't auto-force localhost -- the author must state it. Use no
-# table name (tbl(con)): a deployed copy would NOT yet have this run's data (chicken-and-egg).
+# Self-query the LOCAL build in progress. The engine injects this build's actual callback URL as
+# args[3] (it may run on an ephemeral port=auto port, not just 8000); fall back to 8000 if absent.
+# Force the explicit localhost host either way: a bare tagConnect() only falls back to localhost when
+# nothing outranks it, so an ambient host (env TAGBIO_BASE_URL, or a ~/.tagbio.json entry) would
+# hijack the connect to a remote cluster and a bare tbl() there 405s. A transformer isn't in
+# plugin-context, so the SDK won't auto-force localhost -- the author must state it. Use no table
+# name (tbl(con)): a deployed copy would NOT yet have this run's data (chicken-and-egg).
 # A numeric variable is exposed as "<Collection> = <Variable>" (the SDK's qdelim); a
 # categorical collection is exposed under its own name.
-con <- tagConnect(host_url = "http://localhost:8000")
+con <- tagConnect(host_url = if (length(args) >= 3) args[3] else "http://localhost:8000")
 bp <- tbl(con) %>%
   select(`Encounter ID`, `Blood Pressure = Systolic`, `Blood Pressure = Diastolic`) %>%
   collect() %>%

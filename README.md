@@ -42,6 +42,20 @@ if another marketplace you've added also ships a plugin called `tagbio`.
 Skills then invoke as `/tagbio:fc-authoring` and `/tagbio:tagbio-analysis` (or load on their own,
 from their descriptions).
 
+To pick up a new release:
+
+```
+/plugin marketplace update tagbio      # pull this repo
+/plugin update tagbio@tagbio           # then update the plugin — restart to apply
+```
+
+Note the asymmetry: `install` accepts the bare `tagbio`, but **`update` requires the qualified
+`tagbio@tagbio`** and reports `Plugin "tagbio" not found` without it. Both steps are needed — the
+first refreshes the catalog, the second installs from it.
+
+Nothing is delivered until the plugin's `version` is bumped, so a merged content change alone will
+not reach installed users. See [plugins/tagbio/README.md](plugins/tagbio/README.md).
+
 **Install one skill on its own** — copy a `skills/<name>/` directory to `~/.claude/skills/<name>/`
 (user-wide) or `<repo>/.claude/skills/<name>/` (per project). It keeps the bare `/<name>` command.
 `skills/tagbio-analysis/INSTALL.md` covers this, including image-wide and shared-filesystem

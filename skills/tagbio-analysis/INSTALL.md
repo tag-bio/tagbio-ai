@@ -103,7 +103,7 @@ Nothing, to be *read*. To actually run a query it needs, in order of preference 
 |---|---|---|
 | Host | `TAGBIO_BASE_URL`, else `TAGBIO_HOST_URL` in `~/.tagbio.json` | Preset in the Tag.bio notebook; off-cluster, set it yourself |
 | API key | `~/.tagbio.json` → `TAGBIO_API_KEY` (`email:uuid`) | Generate in the front-end → account settings; `chmod 600` |
-| SDKs | Preinstalled in the notebook (`TAGBIO_PY` / `TAGBIO_R_UTILS`) | Off-cluster: `bash setup.sh --python --r` from a `tagbio-ai` checkout |
+| SDKs | Preinstalled in the notebook (`TAGBIO_PY` / `TAGBIO_R_UTILS`) | Off-cluster, both repos are public: `pip install "git+https://github.com/tag-bio/tagbiopy@master"` and `remotes::install_github("tag-bio/tagbio", subdir="tagbio")` |
 | Engine jars | `TAGBIO_JARS` (notebook only) | Optional — needed only to serve a product locally |
 
 Verify all of it in one line — see `references/environment.md`.

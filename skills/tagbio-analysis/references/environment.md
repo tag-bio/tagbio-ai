@@ -48,10 +48,23 @@ versions before trusting any documented idiom**, including the ones in this skil
 | Server-side `.where(...)` filters | tagbiopy ≥ 1.0.6 | Filter the returned frame client-side |
 | Server-side `filter()` pushdown (R) | tagbio ≥ 1.1.74 | Filter after `collect()` |
 
-**A concrete lag to expect:** an image may carry a **0.9.x `tagbiopy`** alongside a current
-**1.1.x `tagbio`**. On 0.9.x, none of the Python rows above hold — and additionally it
-**force-upgrades any non-localhost `http://` to `https://`**, which fails against an http-only
-internal host with `SSL: WRONG_VERSION_NUMBER`. The workaround is in `connect.md`.
+**Both SDKs are public repos**, so you can always check what current actually is — no credentials
+needed:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/tag-bio/tagbiopy/master/src/tagbiopy/__init__.py | grep __version__
+curl -fsSL https://raw.githubusercontent.com/tag-bio/tagbio/master/tagbio/DESCRIPTION | grep ^Version
+```
+
+**A concrete lag to expect:** an image may carry a **0.9.x `tagbiopy`** while upstream is on the
+**1.0.x** line, alongside an essentially current **1.1.x `tagbio`**. The R SDK tends to track
+upstream; the Python one is the one that lags. On 0.9.x **none of the Python rows above hold**, and
+it additionally **force-upgrades any non-localhost `http://` to `https://`**, which fails against an
+http-only internal host with `SSL: WRONG_VERSION_NUMBER`. The workaround is in `connect.md`.
+
+If you find that gap, **report it rather than working around it privately** — the fix belongs in the
+image, where it lands for every user at once (support@tag.bio). Until it does, use the fallbacks
+above.
 
 ## Updating the SDKs
 
@@ -67,15 +80,24 @@ bash ~/notebook-environment-setup/update-sdks.sh --r-only     # R only
 ```
 
 It force-syncs the SDK repos and installs **the package only** (`--no-deps`), so it is safe inside
-pinned environments. Three things to know: it needs **git access to the `tag-bio` SDK repos**
-(credentials on the box — if your environment lacks them the updater will fail on the fetch, which
-is a permissions issue, not a broken script); you must **restart any running kernel or
-`run_server`** afterwards to pick up the change; and an SDK upgrade can change connection behavior,
-so re-read the version table above after updating.
+pinned environments. **The SDK repos are public, so pass `--https` and no credentials are needed**;
+the default clone is SSH, which only helps if the box has a registered key. Two other things to
+know: you must **restart any running kernel or `run_server`** afterwards to pick up the change, and
+an SDK upgrade can change connection behavior, so re-read the version table above after updating.
 
-If the updater isn't present, or you can't reach those repos, **work with the SDK you have** — the
-version table tells you which idioms to avoid, and every one of them has a client-side fallback.
-Don't `pip install` an SDK over the platform-managed one to chase a feature.
+**Don't `pip install` an SDK over the platform-managed one to chase a feature.** In the notebook the
+Python SDK is an **editable install pointing at `$TAGBIO_PY`**, shared with the Jupyter kernel and
+the platform's own tooling; replacing it per user creates drift where two people on the same image
+behave differently, and can break the kernel. If you genuinely need a newer SDK before the image
+catches up, put it in a **venv** (next section) and leave base alone:
+
+```bash
+python -m venv ~/.venvs/tagbio
+~/.venvs/tagbio/bin/pip install "git+https://github.com/tag-bio/tagbiopy@master"
+```
+
+Otherwise **work with the SDK you have** — the version table tells you which idioms to avoid, and
+every one of them has a client-side fallback.
 
 ## Installing anything else — use a venv
 
@@ -102,11 +124,21 @@ keep SDK work in the base kernel and heavy third-party work in the venv.
 
 Three differences. **The host changes:** an in-cluster address (typically
 `*.svc.cluster.local`) **will not resolve** from outside, so use your tenant's **external HTTPS
-host** — ask your Tag.bio administrator for it if you don't know it. **Nothing is preinstalled:**
-clone and install the SDKs yourself — `bash setup.sh --python --r` from a `tagbio-ai` checkout does
-both (`companion-skills.md`), or install by hand (`pip install` the Python SDK into a venv;
-`R CMD INSTALL` / `remotes::install_local` the R one). **Config carries more:** put both host and
-key in `~/.tagbio.json` (`connect.md`), since there's no `TAGBIO_BASE_URL` set for you.
+host** — ask your Tag.bio administrator for it if you don't know it. **Config carries more:** put
+both host and key in `~/.tagbio.json` (`connect.md`), since there's no `TAGBIO_BASE_URL` set for you.
+**Nothing is preinstalled**, so install the SDKs — both repos are public, so this needs no
+credentials:
+
+```bash
+pip install "git+https://github.com/tag-bio/tagbiopy@master"                 # Python SDK
+Rscript -e 'remotes::install_github("tag-bio/tagbio", subdir = "tagbio")'     # R SDK
+```
+
+The R package lives in a **`tagbio/` subdirectory** of its repo, hence `subdir=`; prebuilt tarballs
+sit at that repo's root if you'd rather `R CMD INSTALL` one. `bash setup.sh --python --r` from a
+`tagbio-ai` checkout does both as well (`companion-skills.md`). Off-cluster you own the environment,
+so installing straight into it is fine — the venv rule above is about not disturbing a
+platform-managed notebook.
 
 The engine jars are distributed under authorization, so without them the `local-fc.md` workflow is
 notebook-only — author and query locally, and run any jar step in the notebook.

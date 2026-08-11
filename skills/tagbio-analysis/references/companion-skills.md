@@ -32,7 +32,7 @@ ls -d "$(dirname "$(dirname "$PWD")")/fc-authoring" 2>/dev/null   # sibling, if 
 
 | You got `tagbio-analysis` as… | `fc-authoring` is… |
 |---|---|
-| the `tagbio` **plugin** (`/plugin install tagbio@tagbio`) | **already installed** — same plugin. Invoke `/fc-authoring` |
+| the `tagbio` **plugin** (`/plugin install tagbio`) | **already installed** — same plugin. Invoke `/fc-authoring` |
 | a directory **inside a `tagbio-ai` checkout** (`skills/tagbio-analysis/`) | **already on disk** as `../fc-authoring` — read it in place; wire it up only if you want `/fc-authoring` |
 | a standalone `~/.claude/skills/tagbio-analysis/` (tarball, image, shared mount) | **probably absent** — install it below |
 
@@ -42,9 +42,13 @@ ls -d "$(dirname "$(dirname "$PWD")")/fc-authoring" 2>/dev/null   # sibling, if 
 `fc-authoring` together and keeps them updated by git:
 
 ```
-/plugin marketplace add tag-bio/tagbio-ai
-/plugin install tagbio@tagbio
+/plugin marketplace add https://github.com/tag-bio/tagbio-ai
+/plugin install tagbio
 ```
+
+Use the **full HTTPS URL**, not the `tag-bio/tagbio-ai` shorthand: the shorthand clones over SSH,
+which fails on a machine with no GitHub SSH key (the notebook usually has none). The plugin name
+needs no `@marketplace` suffix unless it's ambiguous across your marketplaces.
 
 **Otherwise**, the skill ships a script that clones (or fast-forward updates) the repo and wires
 every skill it contains into `~/.claude/skills/`. It is idempotent and touches nothing else — no SDK
@@ -84,6 +88,12 @@ curl -fsSL https://raw.githubusercontent.com/tag-bio/tagbio-ai/main/skills/fc-au
 The `SKILL.md` reading-order table lists every reference file, so fetch the spine first and then
 only the topic you need. If there's no network either, say plainly that the authoring guidance
 isn't available rather than reconstructing it from memory.
+
+## Getting help
+
+For anything about these skills, the SDKs, or a data product — email **support@tag.bio**. Content
+bugs can also go to <https://github.com/tag-bio/tagbio-ai/issues>. Report what `summary` actually
+returned, never the data values.
 
 ## Pull before you rely on it
 

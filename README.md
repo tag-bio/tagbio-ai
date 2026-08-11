@@ -1,6 +1,6 @@
 # tagbio-ai
 
-AI enablement for building on the Tag.bio / Flux platform.
+AI enablement for building on — and analyzing — the Tag.bio / Flux platform.
 
 Each subdirectory of `skills/` is a self-contained Claude Code **skill** — a set of
 Markdown files that teach a Claude how to do one job well, with a worked example it can
@@ -12,12 +12,37 @@ read and copy.
   data modeling from CSV/SQL sources, entities, collections and variables, parsers,
   data_functions, protocols (the cohort builder and R/Python plugins), and transformers.
   Threaded throughout by a small fictional **clinic** example FC.
+- **`skills/tagbio-analysis/`** — how to **consume** a deployed FC as an analyst: connect and
+  authenticate, discover collections, pull a dataframe, filter server-side, join sibling products,
+  and analyze the result honestly. Product- and tenant-agnostic — it names no host, no product, and
+  no collection. Carries the data-access guardrails (consent, PHI attestation, no data values in
+  the transcript).
+
+The two are companions: **author** with the first, **query** with the second. Each states when to
+hand off to the other.
 
 ## Using a skill
 
-Point a Claude at the skill directory (or hand it the `SKILL.md`). The `SKILL.md` is the
-spine: it states what to read, in what order, and pulls in the topic files under
-`references/` on demand.
+Three ways, in order of convenience.
+
+**Install the plugin** — both skills, kept up to date by git:
+
+```
+/plugin marketplace add tag-bio/tagbio-ai
+/plugin install tagbio@tagbio
+```
+
+Skills then invoke as `/tagbio:fc-authoring` and `/tagbio:tagbio-analysis` (or load on their own,
+from their descriptions).
+
+**Install one skill on its own** — copy a `skills/<name>/` directory to `~/.claude/skills/<name>/`
+(user-wide) or `<repo>/.claude/skills/<name>/` (per project). It keeps the bare `/<name>` command.
+`skills/tagbio-analysis/INSTALL.md` covers this, including image-wide and shared-filesystem
+distribution for a whole team.
+
+**Just read it** — point a Claude at the skill directory, or hand it the `SKILL.md`. Nothing to
+install. The `SKILL.md` is the spine: it states what to read, in what order, and pulls in the topic
+files under `references/` on demand.
 
 ## Prerequisites
 

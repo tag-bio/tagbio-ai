@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "tagbio",
+  "description": "AI enablement for the Tag.bio / Flux platform",
+  "owner": { "name": "Tag.bio", "url": "https://github.com/tag-bio" },
+  "plugins": [
+    {
+      "name": "tagbio",
+      "source": "./plugins/tagbio",
+      "description": "Work with Tag.bio / Flux data products: analyze a deployed product with the R or Python SDK (tagbio-analysis), and author one from scratch (fc-authoring).",
+      "version": "1.0.0",
+      "author": { "name": "Tag.bio" },
+      "homepage": "https://github.com/tag-bio/tagbio-ai",
+      "license": "Apache-2.0",
+      "category": "data",
+      "keywords": ["tagbio", "flux", "data-product", "bioinformatics", "r", "python"]
+    }
+  ]
+}

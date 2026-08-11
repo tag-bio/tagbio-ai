@@ -1,0 +1,8 @@
+{
+  "name": "tagbio",
+  "description": "Work with Tag.bio / Flux data products: analyze a deployed data product with the R (tagbio) or Python (tagbiopy) SDK, and author one from scratch.",
+  "version": "1.0.0",
+  "author": { "name": "Tag.bio" },
+  "homepage": "https://github.com/tag-bio/tagbio-ai",
+  "license": "Apache-2.0"
+}

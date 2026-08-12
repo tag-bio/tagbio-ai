@@ -15,8 +15,16 @@ Every argument lives in an **argument_set**, whose **type** governs how the user
 | argument_set_type | The user must… |
 |---|---|
 | `mandatory` | provide a value for **every** argument in the set |
-| `minimum-one` | choose **at least one** |
+| `minimum-one` | choose **at least one** argument *within this set* |
+| `minimum-group` | choose **at least one** across *all* sets tagged `minimum-group` (a **cross-set** requirement) |
 | `optional` | may leave it empty (an empty filter matches everyone) |
+
+> **`minimum-group` vs `minimum-one` — it's about scope.** `minimum-one` is enforced *per set*: that one
+> set must have a selection. `minimum-group` is enforced *across every set that shares the type* — the
+> user must make a selection in **at least one** of them, and may leave the others empty. Use it to offer
+> **alternative** argument sets where filling any one is enough (e.g. a stratifier the user can pick from
+> tissue **or** liquid **or** plasma, each its own `minimum-group` set). If none is filled the engine
+> errors: *"Minimum group across argument sets is missing an argument selection."*
 
 > **Wrap the identity fields.** The set's identity fields (`argument_set_type`, `name`, `title`,
 > `description`, `asset`) go **wrapped** in an `argument_set_definition` object (and a hand-crafted

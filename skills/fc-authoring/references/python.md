@@ -70,6 +70,11 @@ Key points:
 - **Libraries:** the plugin runs in the FC's environment; every package it imports (here `plotly`)
   must be installed in the FC's **container image** via `deploy/build-container.sh`
   (`governance.md`), or the protocol fails at load with `no package called '<X>'`.
+- **Ignore the bytecode.** Running a Python plugin drops `__pycache__/*.pyc` next to it, named for the
+  interpreter (e.g. `plugin_bp.cpython-312.pyc`) — regenerated cruft that a broad `git add` will happily
+  commit. Add `__pycache__/` and `*.py[cod]` to the repo's `.gitignore`. (Note the interpreter tag: a
+  Python-version bump under you produces a *new* filename, so a rule scoped to an old name silently
+  re-commits it — ignore the directory, not a specific file.)
 
 ## Jupyter notebook flavor
 

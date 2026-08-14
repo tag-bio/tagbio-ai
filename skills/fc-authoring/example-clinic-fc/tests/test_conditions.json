@@ -1,0 +1,9 @@
+// Manual (registered) test for the conditions protocol -- a MANUAL test so a render failure is FATAL
+// (auto-tests tolerate failures). This is the regression guard: it renders a plugin doing a string op
+// on a non-exclusive categorical, which fails if the SDK ever hands plugins a raw parquet list column.
+{
+  "protocol_instance": {
+    "name": "conditions"
+  },
+  "output": "_test_results/test_conditions.html"
+}

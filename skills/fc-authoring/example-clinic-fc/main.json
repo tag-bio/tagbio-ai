@@ -19,6 +19,7 @@
     // "protocols/protocol_ipynb_bp.json",
     "protocols/protocol_lab_results.json",
     "protocols/protocol_python_lab_results.json",
+    "protocols/protocol_conditions.json",
     "protocols/protocol_download.json"
   ],
 
@@ -32,6 +33,7 @@
     // "tests/test_ipynb_bp.json",
     "tests/test_lab_results.json",
     "tests/test_python_lab_results.json",
+    "tests/test_conditions.json",
     "tests/test_cohort_cardiology.json",
     "tests/test_download.json",
     "tests/test_download_all_genotypes.json"

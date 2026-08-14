@@ -1,0 +1,23 @@
+// An external (R plugin) protocol over a NON-EXCLUSIVE (multi-value) categorical: `Conditions` is a
+// `categorical-delimited` collection (a patient may have several). It doubles as the regression guard
+// that a multi-value categorical reaches a plugin as a "; "-joined string (CSV-shape), not a raw list.
+{
+  "protocol_definition": {
+    "name": "conditions",
+    "title": "Patients per Condition",
+    "description": "Count of patients per condition -- exercises a non-exclusive (multi-value) categorical.",
+    "asset": "chart-axes-box-plot-ver-line-mixed.png"
+  },
+  "script": {
+    "method": "external",
+    "sdk": "R",
+    "plugin": "protocols/plugins/plugin_conditions.R",
+    "output_type": "html",
+
+    "background": { "data_function_type": "categorical-all" },
+
+    "analysis_variables": [
+      "protocols/data_functions/categorical_collection_conditions.json"
+    ]
+  }
+}

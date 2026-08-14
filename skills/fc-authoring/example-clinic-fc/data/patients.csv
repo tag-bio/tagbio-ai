@@ -1,7 +1,7 @@
-patient_id,age,sex,region
-P001,66,F,North
-P002,53,M,North
-P003,40,F,South
-P004,75,M,West
-P005,34,F,South
-P006,61,M,East
+patient_id,age,sex,region,conditions
+P001,66,F,North,Hypertension|Type 2 Diabetes
+P002,53,M,North,Asthma
+P003,40,F,South,
+P004,75,M,West,Hypertension|Coronary Artery Disease|Type 2 Diabetes
+P005,34,F,South,Migraine
+P006,61,M,East,Hypertension|Hyperlipidemia

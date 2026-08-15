@@ -64,7 +64,16 @@ Key points:
   every row is always identifiable.
 - **Column naming:** a categorical collection is its own name (`Department`); a **numeric variable**
   is `"<Collection> = <Variable>"` — the R SDK's `" = "` separator (the **Python SDK uses `": "`**;
-  `python.md`). Rename if you want plain columns.
+  `python.md`). Rename if you want plain columns. **Do not copy a Python plugin's `": "` column names
+  into R** — R receives `" = "`; the columns will silently read as "missing." Remap once after load:
+  `colnames(df) <- gsub(" = ", ": ", colnames(df), fixed = TRUE)`.
+- **A categorical *variable* behaves differently from a numeric one.** It does **not** become a
+  per-variable column. The packet delivers **one** column named for the collection, and each variable
+  is a **tag among that column's `"; "`-joined values** (categorical = a tag set, not a vector). So
+  four `{collection: "Has Biomarker Baseline", variable: "FM Plasma"|"FM Liquid"|…}` data-functions
+  yield a single `Has Biomarker Baseline` column whose values are `FM Plasma; FM Tissue; …`. Gate on it
+  by **tag membership** (does the value set contain `"FM Plasma"`), never by a `"Collection = Variable"`
+  column — that column does not exist for categoricals.
 - **Output:** write to **`tag_result$output_path`** (for `output_type: "html"`, a download, etc.)
   and `return(tag_result)`. (The **Python** SDK spells this attribute **`tag_result.path`** — the two
   SDKs differ here as well as on the column separator; watch it when porting between languages.)

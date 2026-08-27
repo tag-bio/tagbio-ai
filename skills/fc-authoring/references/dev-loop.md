@@ -155,9 +155,9 @@ The engine **auto-tests every protocol that takes no arguments** (including the 
 mandatory argument. A test today just checks the protocol **runs without crashing** — a failure
 **takes the whole server process down** (a delayed kill, not a soft failure — see `testing.md` for
 the full behavior and why that's the intended production safeguard); a pass writes its `output`
-(gitignored) to eyeball. Force a run with
-`run_tests=true` (implied when `main.json` sets `tests`); add `die=true` to run everything then
-exit (handy in CI). Full detail and the test JSON schema are in `testing.md`.
+(gitignored) to eyeball. Tests run by default (the manifest's `serve.run_tests` defaults to `true`
+if omitted); add `die=true` to run everything then exit (handy in CI). Full detail and the test
+JSON schema are in `testing.md`.
 
 ## Handy flags
 
@@ -165,7 +165,7 @@ exit (handy in CI). Full detail and the test JSON schema are in `testing.md`.
 |---|---|
 | `verbosity=0..5` | log detail (append `d` to see deprecation notices) |
 | `die=true` | run all processes, then stop the server (one-shot builds/tests) |
-| `run_tests=true` | run the registered tests (or set `run_tests: "true"` in the manifest `serve` block) |
+| `run_tests=false` | opt out of the registered tests (on by default via the manifest) |
 | `log=build.log` | send output to a file instead of the console |
 
 ## Housekeeping: detecting cruft

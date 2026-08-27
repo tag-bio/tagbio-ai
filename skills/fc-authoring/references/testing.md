@@ -95,11 +95,11 @@ reports.
 ## When and how tests run
 
 - **Coverage** is checked at **`compile`** (fast, no data — `dev-loop.md`).
-- **Execution** must be **turned on** — it is *not* automatic just because `tests` is set. Set
-  **`run_tests: "true"`** in the manifest's **`serve`** block (the example's manifests do), or pass
-  **`run_tests=true`** on the CLI. On `run_server` the tests then run **on startup, asynchronously**
-  — the server keeps serving while they execute, so **wait for them** (watch for the result files /
-  the log). For a one-shot CI run, add **`die=true`** to run everything and exit:
+- **Execution defaults to on**: the manifest's **`serve.run_tests`** defaults to `"true"` if you
+  omit it — set it to `"false"` to opt out, or override either way with `run_tests=true`/`false` on
+  the CLI. On `run_server` the tests then run **on startup, asynchronously** — the server keeps
+  serving while they execute, so **wait for them** (watch for the result files / the log). For a
+  one-shot CI run, add **`die=true`** to run everything and exit:
 
   ```bash
   java -Xmx4g -jar ${TAGBIO_JARS}/fc_csv_server.jar run_server manifest=manifest.json \
@@ -119,10 +119,10 @@ A test today checks only **that the protocol does not fail**:
   test fails the **entire process exits** (non-zero) — a **delayed kill**, not a pre-serve gate.
   So a deployment with a failing test **won't stay up**: it comes up, self-terminates seconds
   later, and won't keep serving a broken build (there is a brief serving window before it dies —
-  it's not a hard "refuse to start"). With `run_tests: "true"` in the `serve` block, that makes a
-  **production** deployment self-validate its own archive on startup and fail loudly — catching an
-  **incompatible deployed archive** (one that differs from what you built and tested locally) or a
-  **failure that wasn't tested properly and got pushed to production**. For a **build/CI** gate, use
+  it's not a hard "refuse to start"). Since tests run by default, a **production** deployment
+  self-validates its own archive on startup and fails loudly — catching an **incompatible deployed
+  archive** (one that differs from what you built and tested locally) or a **failure that wasn't
+  tested properly and got pushed to production**. For a **build/CI** gate, use
   `die=true` to run the tests once and exit non-zero on failure. Typical causes of a failure: a
   data_function naming a collection/variable that isn't in the archive, a missing plugin library, an
   unsatisfied mandatory argument, or an output-path/`output_type` mismatch. Read the log (raise

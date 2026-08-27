@@ -35,7 +35,8 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
   // The SERVE side — inputs run_server needs (gated OFF for build_archive).
   "serve": {
     "main": "main.json"                     // registered protocols + tests
-    // "run_tests": "true"                  // optionally execute tests when serving
+    // "run_tests": "false"                 // defaults to true if omitted; set false to opt out
+    // "hide_failed_arguments": "true"      // see below
   },
 
   // The immutable artifact that connects the two planes: build writes it, serve reads it.
@@ -57,6 +58,13 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
   **per deployed instance** — so two instances built from the same `main` can present different
   names/titles. When both set it, **the manifest wins**. Put it in `main.json` for the single-instance
   case; override in the manifest only when an instance needs to differ.
+- **`run_tests` and `hide_failed_arguments` live only in the manifest's `serve` block** —
+  unlike identity, `main.json` does not carry either (a leftover key there is ignored, with a
+  one-time startup warning). `hide_failed_arguments` marks any argument whose auto-test fails as
+  invalid and hides it from the front end, instead of failing the whole protocol — useful when one
+  FC serves several similar-but-not-identical schemas (e.g. several data products built from one
+  codebase) and an argument valid for one instance doesn't exist in another, as long as it's
+  optional.
 - **`main.json` also controls front-end presentation.** Beyond `overview_protocol`, `protocols`
   (registered) and `tests`, it has two grouping maps the UI renders:
   - **`categories` = the collections** the user sees as **tiles**. Organize by **app *type*** (e.g.

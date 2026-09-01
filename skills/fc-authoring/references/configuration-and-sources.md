@@ -159,6 +159,37 @@ Distinct from `other_tables`: a **join adds columns to a table**; an **other_tab
 source onto entities**. Reach for a join for a lookup/dimension, an other_table for an adjunct
 dataset.
 
+## Key-value (tall) source tables
+
+Some sources are **key-value** (also called "tall" or "long"): instead of one column per
+measurement, a single row holds one `(key, value)` pair, and there are many rows per entity — one
+per measurement. The toy's `labs` table is this shape: each row is `(panel, analyte,
+result_value)`, not a wide row with a separate `LDL` column and `HDL` column.
+
+**The misconception this shape trips people up on:** `collection` (and `variable`) look like they
+must be a literal string, so the instinct is to write one static parser per key you already know
+about — `LDL`, `HDL`, `HbA1c`, one at a time, hand-maintained as new keys turn up in the data. They
+don't have to be a string. Both accept a **nested parser** that reads the name from a column, per
+row, instead — so one parser covers every key in the table, present or future, without being told
+what they are in advance:
+
+```jsonc
+{ "parser_type": "numeric", "column": "result_value",
+  "collection": { "parser_type": "categorical", "column": "panel" },     // key → collection name
+  "variable":   { "parser_type": "categorical", "column": "analyte" } }  // key → variable name
+```
+
+Numeric values get this full three-way split — `collection`, `variable`, and the value column are
+all independent, because the value has its own column separate from the key columns. A categorical
+*result* value can't split three ways the same way — see `parsers.md` ("Dynamic naming: name a
+collection/variable from the data") for why, and the pattern (folding the key into `collection`
+instead) that replaces it.
+
+> Mental model: a wide table has *one column per measurement*; a key-value table has *one row per
+> measurement*, with the measurement's name living in a column instead of a header. It's the same
+> shape-mismatch problem transposed tables solve below, just rows carrying names instead of column
+> headers.
+
 ## Transposed tables
 
 Some sources are **transposed**: the **rows are features and the columns are entities**. This is

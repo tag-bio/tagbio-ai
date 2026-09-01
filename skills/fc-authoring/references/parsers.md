@@ -143,6 +143,17 @@ shared `result_value` column — numeric rows to the numeric parser, qualitative
 first-class, composable layer — a nested parser inside a parser — the same composition idea that runs
 through data_functions.
 
+**Categorical only has two dynamic slots, not three.** Numeric parsing gets a full three-way split
+— `collection`, `variable`, and the value itself — because the value lives in its own column
+(`result_value`), separate from the key column (`analyte`). A plain `categorical` parser has no
+such separate value column: its own `column` reading *is* the variable/tag, so there's no slot left
+to also carry a dynamic key. That's why the qualitative labs parser above has no `variable` at all — the
+key (`analyte`) is folded into `collection` instead (`categorical-compound`: `panel + " | " +
+analyte` → `"Urinalysis | Leukocytes"`), leaving the raw result (`"Positive"`) to become the
+variable. For a key-value source with a qualitative result, concatenating the key into the
+collection name (static + dynamic, via `categorical-compound`) is the pattern for categorical
+dynamic naming — not a workaround for a missing feature, the intended shape.
+
 The four common types cover the vast majority of columns; keep these options in mind for the
 cases that need them.
 

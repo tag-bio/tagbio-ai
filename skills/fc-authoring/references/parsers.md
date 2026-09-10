@@ -166,6 +166,14 @@ across-column values onto the column-entities, with a `start` index marking wher
 entity-columns begin (the leading columns are the file's fixed feature columns). Collections,
 variables, and naming otherwise work the same.
 
+**Don't reach for `-row` here just because the data is "key-value."** A long table — one row
+per entity per key, id-joined like any other row (e.g. one row per `Patient_ID` + `Gene`, with
+a `VAF` column) — is the **dynamic-naming** pattern above (plain `numeric`/`categorical`
+parsers, entities are still rows). `-row` parsers are for the opposite, unrelated shape: a wide
+matrix where entities are *columns* (e.g. a gene x sample expression matrix, one row per gene).
+Confusing the two costs a real detour — a long key-value table has no `start` index to give a
+`-row` parser, because it was never transposed in the first place.
+
 ## The extended set
 
 The four above cover most columns. For splitting delimited cells, binning numerics, deriving

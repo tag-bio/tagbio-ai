@@ -181,6 +181,29 @@ The example ships this as `_shell_scripts/cruft_detector.sh`. `cruft=purge` will
 finds — useful for cleanup, but review the `cruft=true` report first and commit beforehand, since it
 removes files. Good to run before a release so the repo carries only what it uses.
 
+## Borrowing a pattern from a sibling FC: verify it's used, not just present
+
+Copying a shape from another FC (a protocol, an `argument_set`, a handler) is a normal and
+encouraged way to move fast — but a file that **exists** in a sibling repo is not the same as a
+file **anything there actually uses**. Dead, orphaned config accumulates in real FCs same as
+anywhere else, and copying an unused pattern reproduces its problems — or its untested absence of
+problems — into your own FC.
+
+Before adopting another FC's file as a template:
+
+- **Run (or ask for) `cruft=true` against it** — the same detector you'd reach for on your own
+  repo's housekeeping (above) tells you whether the file you're about to copy is orphaned there
+  too.
+- **Grep for its consumers directly** if a cruft report isn't handy: which protocols/argument_sets
+  actually reference this file by name? Zero hits is a red flag, not a proof of concept.
+- **Prefer the most-consumed analog over the most-similar-looking one.** A file used by several
+  live apps of the same shape as your need is a stronger precedent than one that merely resembles
+  it structurally.
+
+This is the same "verify, don't assume" discipline as the loop above (`compile` wins over memory)
+— aimed at a different failure mode: assuming a copied pattern is validated by its presence in a
+working FC, when it may just be inert alongside the parts that are.
+
 ## Recipe: after any change
 
 1. `compile` — did every reference still resolve and every protocol keep a test?

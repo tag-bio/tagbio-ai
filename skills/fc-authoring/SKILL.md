@@ -139,9 +139,10 @@ hard constraint, not a suggestion.
 
 4. **Never commit data or its byproducts.** No source data files, archives (`*.ser`), logs
    (`build.log`), `data_dictionary.tsv`, or diagnostic output go into git — for a real FC these are
-   PHI or leak it. Keep them gitignored. (The example FC ships tiny **synthetic, fictional** clinic
-   data purely to be runnable and to teach; a real FC's data is **never** committed. Treat the toy
-   as the exception that states the rule.)
+   PHI or leak it. Keep them gitignored, using `example-clinic-fc/.gitignore` as the literal template
+   (copy it in the same first pass as the skeleton — `dev-loop.md` → Bootstrapping). The example FC's
+   own tiny **synthetic, fictional** data is the sole, explicit exception that proves the rule; a real
+   FC's data is **never** committed.
 
 5. **Never hardcode or commit credentials.** API keys, tokens, **SQL connection details**
    (host/user/password in a `sql_connection` file), and **cloud storage auth** (S3/GCS/Azure keys

@@ -76,6 +76,12 @@ The single most common symptom. Work down it:
 - **A run that hangs or a query that "takes forever"** can be normal on a large FC — long runtimes
   are not automatically pathological. Validate logic on a bounded smoke-test subset before blaming
   performance.
+- **Test crashes with "Variable was not found within the collection."** A hand-written
+  `tests/*.json` guessed a categorical value that doesn't actually exist — and since a test
+  failure **kills the whole server process** (`testing.md`), every test registered after it never
+  even runs. Grep `data_dictionary.tsv` for the collection name instead of guessing: every value a
+  categorical actually takes appears as its own row in the `variable` column — schema/count-level,
+  not row-level, so it's safe to check (`SKILL.md` → Guardrails).
 
 ## When two runs disagree
 

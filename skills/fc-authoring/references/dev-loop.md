@@ -52,12 +52,17 @@ my-fc/
   protocols/         # one protocol + its data_functions (add as you go)
   main.json          # identity + registered protocols[] + tests[]
   manifest.json      # data_model (config, data_dir) + serve (main) + archive path
+  .gitignore         # build/test artifacts -- copy example-clinic-fc/.gitignore, below
 ```
 
 1. **Author the config directly — this skill is how.** Choose the **entity grain** (`entities.md`)
    first, then model outward: point tables at your sources, give collections human-readable English
    names, write real parsers (and joins), and skip columns you don't need. Copy the shapes from
    `example-clinic-fc/` — it *is* the reference skeleton — and start tiny, growing it under the loop.
+   **Copy its `.gitignore` too, in the same first pass, not as an afterthought** — every one of the
+   things it excludes (archive, `data_dictionary.tsv`, logs, `_test_results/`) can carry real data
+   the moment this stops being the toy FC (`SKILL.md` → Guardrails has the full "why", `example-clinic-fc/.gitignore`
+   is the literal, ready-to-copy list).
 2. Write a **`main.json`** (identity + an empty `protocols`/`tests` to start) and a **`manifest.json`**
    pointing `data_model.config` at your config and `serve.main` at main (`manifest.md`).
 3. Run the loop: **`compile` → `build_archive`** until the data model is right, then add a protocol
@@ -181,28 +186,30 @@ The example ships this as `_shell_scripts/cruft_detector.sh`. `cruft=purge` will
 finds — useful for cleanup, but review the `cruft=true` report first and commit beforehand, since it
 removes files. Good to run before a release so the repo carries only what it uses.
 
-## Borrowing a pattern from a sibling FC: verify it's used, not just present
+## Borrowing a pattern from an existing FC: verify it's used, not just present
 
-Copying a shape from another FC (a protocol, an `argument_set`, a handler) is a normal and
-encouraged way to move fast — but a file that **exists** in a sibling repo is not the same as a
-file **anything there actually uses**. Dead, orphaned config accumulates in real FCs same as
-anywhere else, and copying an unused pattern reproduces its problems — or its untested absence of
-problems — into your own FC.
+Copying a shape from another FC you have access to (a protocol, an `argument_set`, a handler) is a
+normal and encouraged way to move fast — but a file that **exists** there is not the same as a file
+**anything actually uses**. Dead, orphaned config accumulates in real FCs same as anywhere else, and
+copying an unused pattern reproduces its problems — or its untested absence of problems — into your
+own FC.
 
 Before adopting another FC's file as a template:
 
-- **Run (or ask for) `cruft=true` against it** — the same detector you'd reach for on your own
-  repo's housekeeping (above) tells you whether the file you're about to copy is orphaned there
-  too.
+- **Run (or ask for) `cruft=true` against it** — the same detector above tells you whether the file
+  you're about to copy is orphaned there too.
 - **Grep for its consumers directly** if a cruft report isn't handy: which protocols/argument_sets
   actually reference this file by name? Zero hits is a red flag, not a proof of concept.
-- **Prefer the most-consumed analog over the most-similar-looking one.** A file used by several
-  live apps of the same shape as your need is a stronger precedent than one that merely resembles
-  it structurally.
+- **Prefer the most-consumed analog over the most-similar-looking one.** A file used by several live
+  apps of the same shape as your need is a stronger precedent than one that merely resembles it
+  structurally.
 
-This is the same "verify, don't assume" discipline as the loop above (`compile` wins over memory)
-— aimed at a different failure mode: assuming a copied pattern is validated by its presence in a
-working FC, when it may just be inert alongside the parts that are.
+This is the same "verify, don't assume" discipline as the loop above (`compile` wins over memory) —
+aimed at a different failure mode: assuming a copied pattern is validated by its presence in a
+working FC, when it may just be inert alongside the parts that are. The same caution extends to an
+existing FC's *operational* conventions, not just its config — a repo doing something (committing
+data, skipping a guardrail) proves the practice is real, not that the reason it's safe there travels
+with it (`SKILL.md` Guardrails are never conditional on what you observe elsewhere).
 
 ## Recipe: after any change
 

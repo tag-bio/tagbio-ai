@@ -175,8 +175,10 @@ the whole data model on one page. Review **all of it** after every data-model ch
 collection you touched:
 
 1. Build, then summarize the dictionary per collection: data type, number of variables, entities
-   covered. Summarize instead of reading raw rows, because rows carry real values (subject IDs, raw
-   categories). On customer data, only the summary should reach an AI or a ticket:
+   covered. **Treat the dictionary itself as sensitive data** (PII, PHI, confidential business
+   values). It holds no entity-level linkage across collections, but every categorical variable name
+   *is* a source value: an ID, a date, a free-text field or a site name lands in it verbatim. On customer data, only the
+   collection-level summary below should reach an AI or a ticket:
 
    ```bash
    python3 - data_dictionary.tsv <<'PY'
@@ -188,7 +190,9 @@ collection you touched:
    PY
    ```
 
-2. Read it against what you **expect**, and fix and rebuild for each anomaly:
+2. Read it against what you **expect**, and fix and rebuild for each anomaly. Signals that depend on
+   values (an extra value in a flag, values missing their key prefix) are checked locally by whoever
+   holds the data; only the count or shape ("3 of 41 values lack a `Gene: ` prefix") is shared:
 
    | Signal in the summary | What it usually means |
    |---|---|

@@ -132,7 +132,8 @@ Reads the sources, applies the parsers, runs transformers, and writes the immuta
 is where **data-dependent** problems surface: a parser that produced nothing, a join key that
 didn't match, a transformer error, a duplicate unique key. Read `build.log` and the per-table
 report lines; confirm the collections you expect appear in the generated `data_dictionary.tsv`
-(`configuration-and-sources.md`). Higher `verbosity` (0–5) means more detail.
+(`configuration-and-sources.md`), then QC the whole data model against it ("QC the data model with
+`data_dictionary.tsv`" below). Higher `verbosity` (0–5) means more detail.
 
 ### 3. `run_server` — serve the protocols locally
 
@@ -163,6 +164,46 @@ the full behavior and why that's the intended production safeguard); a pass writ
 (gitignored) to eyeball. Tests run by default (the manifest's `serve.run_tests` defaults to `true`
 if omitted); add `die=true` to run everything then exit (handy in CI). Full detail and the test
 JSON schema are in `testing.md`.
+
+## QC the data model with `data_dictionary.tsv` (iterate after every build)
+
+A clean build, a clean compile and green tests do **not** mean the data model is right. A parser that
+reads the wrong type, a map that lets unmapped values through, or attributes that lost their pairing
+all build without error, and the apps on top often still render. Each build writes
+`data_dictionary.tsv`: one row per collection × variable, with its data type and entity counts. It is
+the whole data model on one page. Review **all of it** after every data-model change, not just the
+collection you touched:
+
+1. Build, then summarize the dictionary per collection: data type, number of variables, entities
+   covered. Summarize instead of reading raw rows, because rows carry real values (subject IDs, raw
+   categories). On customer data, only the summary should reach an AI or a ticket:
+
+   ```bash
+   python3 - data_dictionary.tsv <<'PY'
+   import csv, sys, collections
+   by = collections.defaultdict(list)
+   for r in csv.DictReader(open(sys.argv[1]), delimiter="\t"): by[r["collection"]].append(r)
+   for c, rs in by.items():
+       print(f"{rs[0]['data_type'][:11]:11} vars={len(rs):<5} entities={rs[0]['collection_entity_count']:<6} {c}")
+   PY
+   ```
+
+2. Read it against what you **expect**, and fix and rebuild for each anomaly:
+
+   | Signal in the summary | What it usually means |
+   |---|---|
+   | A collection covers far fewer entities than its source (`Age` on 18 of 578 patients) | The values don't parse as that type: e.g. a numeric parser on a column that is mostly binned text (`"<50"`, `"50-54"`). Model it as categorical. |
+   | A yes/no flag has values other than its one value (`Has Labs` holding `Yes`, `Week 2`, `Week 4`) | A `categorical-map` passed unmapped values through. Add a `where` so only the rows you mean reach the map. |
+   | Multi-valued attribute collections whose values carry no key (`Lab Flag` = `High`, `Low`) | Unpaired tuples: nothing says *which* analyte was High. Compound them key-first (`entities.md`). |
+   | A status collection with no way to tell its source apart (`Quality Status` = `PASS`, `FAIL`, on entities with several slides) | The same pairing problem: compound with the source (`H&E: FAIL`). |
+   | Two collections that should cover the same entities don't (`Has Labs` 171 vs a lab collection at 140) | A filter or join difference. Decide whether it's intended. |
+   | A collection you parsed is missing | It produced nothing: wrong column name, a `where` that matches no rows, or a case mismatch. |
+
+3. Repeat until the summary matches your expectations, **then** look at the apps.
+
+**Caveat:** the dictionary lists at most about 10 variables per collection, so `vars=10` can mean
+"many". To check a shape across a big collection (e.g. "are all values key-prefixed?"), count over
+the listed rows rather than assuming they're the full set.
 
 ## Handy flags
 

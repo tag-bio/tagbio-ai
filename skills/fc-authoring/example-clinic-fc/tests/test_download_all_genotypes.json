@@ -4,7 +4,9 @@
   "protocol_instance": {
     "name": "download",
     "arguments": {
-      "background_cohort": { "data_function_type": "categorical-all" },
+      "background_cohort": {
+        "data_function_type": "categorical-all"
+      },
       "include_all_dna_variants": true
     }
   },

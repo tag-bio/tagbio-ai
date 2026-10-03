@@ -184,7 +184,10 @@ one list no longer reliably matches value #3 of another. Three fixes, in order o
 2. **Combine the paired fields into a single tuple-carrying value** on the coarse grain — one
    "Result with Unit" collection whose every value carries the whole tuple (`"LDL 142 mg/dL"`). The
    fallback when the tuple has several fields that don't reduce to one attribute→variable mapping; note
-   the value becomes categorical, so you lose numeric analysis on it.
+   the value becomes categorical, so you lose numeric analysis on it. **Put the key first**
+   (`"LDL: High"`, not `"High (LDL)"`) so the collection still sorts, filters and groups by the key.
+   Build it with `categorical-compound`:
+   `{ "parser_type": "categorical-compound", "operator": ": ", "columns": ["analyte", "flag"], "collection": "Lab Flag" }`.
 3. **Build a separate FC at the finer grain** (option 2 above), where that child *is* the entity and
    its fields are plain per-entity collections. Reach here when the finer grain is important enough to
    analyze in its own right — the case where you need it kept numeric *and* paired at that grain.
@@ -199,6 +202,13 @@ There is no in-between that keeps two grains in one product — resist inventing
 - **Modeling a finer grain as the entity "to keep all the detail."** You keep the detail as
   aggregates/collections on the coarser grain; you do not need a row per lab to serve
   lab values on an encounter.
+- **Parallel attribute collections from one roll-up table.** Several categorical parsers on the same
+  child table, each reading one attribute column (`analyte` → "Lab Analyte", `flag` → "Lab Flag",
+  `unit` → "Lab Unit"), produce lists that are no longer paired: "LDL" and "High" are both on the
+  encounter, but nothing says the High was the LDL. Every attribute collection must carry its key
+  (compound, above). A collection holding the key alone ("Lab Analyte") is fine. Watch for the
+  quieter version: a collection that drops a dimension the question needs, e.g. analytes rolled up
+  across several draws with no record of which draw.
 - **Trying to put two grains in one FC.** An FC has exactly one grain. If a parent owns several
   child tuples whose fields must stay aligned, first give each its own dynamically-named
   collection/variable (or combine them into single tuple-carrying values) on the coarse grain; if

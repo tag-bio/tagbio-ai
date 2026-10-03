@@ -1,1 +1,5 @@
-{ "data_function_type": "numeric", "collection": "Encounter Date", "variable": "Encounter Date" }
+{
+  "data_function_type": "numeric",
+  "collection": "Encounter Date",
+  "variable": "Encounter Date"
+}

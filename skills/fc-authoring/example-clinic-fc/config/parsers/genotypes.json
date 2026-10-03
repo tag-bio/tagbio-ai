@@ -2,6 +2,9 @@
   {
     "parser_type": "categorical-row",
     "start": 2,
-    "collection": { "parser_type": "categorical", "column": "gene" }
+    "collection": {
+      "parser_type": "categorical",
+      "column": "gene"
+    }
   }
 ]

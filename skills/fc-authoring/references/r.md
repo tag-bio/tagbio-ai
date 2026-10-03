@@ -58,6 +58,14 @@ Key points:
   `analysis_variables`. **The `row_name` collection must itself be one of the `analysis_variables`**
   (it is consumed as the row names) — include an id data_function in the protocol, or `get_results`
   errors with "Can't find column".
+- **A multi-valued categorical can arrive in two shapes.** It may be one `"; "`-joined string per
+  cell (see below), or a **list column** whose cells are character vectors. The list shape shows up
+  with the parquet download path, which carries multi-valued categoricals as `LIST<string>`. Handle
+  both: `unlist()` each cell, then split on `"; "`. Code that assumes strings fails silently on a list
+  column. `as.character()` yields junk like `c("LDL", "HDL")` that matches nothing, the plugin renders
+  an "empty cohort" page, and its test still passes. Also treat a yes/no flag from such a collection
+  as possibly conflicting: a cell can hold both `"Yes"` and `"No"`, so decide explicitly what that
+  means rather than testing `"Yes" %in%`.
 - **`Unique ID` is always there.** The engine **automatically adds a `Unique ID` column** (the
   entity's unique-key combination) to every extract — ad-hoc queries and plugin frames alike — even
   when it isn't in `analysis_variables`. It's the **one guaranteed-unique value per entity**, so
@@ -205,5 +213,7 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
   `analysis_variables`, or it fails with "Can't find column". (The Python `.df` doesn't use a
   `row_name`, so the two languages' `analysis_variables` legitimately differ here.)
 - **Wrong `row_name`** — name an id collection that actually exists in the analysis frame.
+- **Assuming one shape for a multi-valued categorical.** It can be a `"; "`-joined string or a list
+  column (see Key points). Handle both, or the plugin quietly finds nothing.
 
 Next: `python.md` — the same in Python.

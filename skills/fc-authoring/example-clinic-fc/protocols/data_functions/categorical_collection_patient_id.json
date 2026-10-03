@@ -1,1 +1,4 @@
-{ "data_function_type": "categorical", "collection": "Patient ID" }
+{
+  "data_function_type": "categorical",
+  "collection": "Patient ID"
+}

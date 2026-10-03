@@ -18,7 +18,10 @@
     },
     "analysis_variables": [
       "protocols/data_functions/bundle_download_core.json",
-      { "data_function_type": "argument-reference", "argument": "include_all_dna_variants" }
+      {
+        "data_function_type": "argument-reference",
+        "argument": "include_all_dna_variants"
+      }
     ]
   }
 }

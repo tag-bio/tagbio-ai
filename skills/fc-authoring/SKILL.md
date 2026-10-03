@@ -116,7 +116,8 @@ It is deliberately generic. When you build a real FC, copy its shape, not its do
    validation. See `files-and-value-resolution.md`.
 7. **Prefer verification over recall.** The running engine is the source of truth: when your memory
    and a fresh `compile` disagree, **the compile wins**. Run the loop, read the output, and treat a
-   passing test as "didn't crash," not "correct." See `dev-loop.md`.
+   passing test as "didn't crash," not "correct." See `dev-loop.md`. After each build, QC the
+   whole data model from `data_dictionary.tsv` (`dev-loop.md`): tests don't catch a wrong data model.
 
 ## Guardrails
 

@@ -13,12 +13,10 @@
     "sdk": "connect_tagbio_py",
     "plugin": "protocols/plugins/plugin_bp.py",
     "output_type": "html",
-
     "background": {
       "data_function_type": "argument-value",
       "argument": "background_cohort"
     },
-
     "analysis_variables": [
       "protocols/data_functions/categorical_collection_department.json",
       "protocols/data_functions/numeric_collection_blood_pressure_systolic.json",

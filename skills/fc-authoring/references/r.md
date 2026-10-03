@@ -215,5 +215,10 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
 - **Wrong `row_name`** — name an id collection that actually exists in the analysis frame.
 - **Assuming one shape for a multi-valued categorical.** It can be a `"; "`-joined string or a list
   column (see Key points). Handle both, or the plugin quietly finds nothing.
+- **Default text sizes.** First-pass plots almost always come out with small labels, ticks and
+  legends, and long labels collide with axes and controls. Set one base size for every plot
+  (`theme_minimal(base_size = 14)`, plotly `font = list(size = 14)`, and the equivalent for
+  non-ggplot packages such as `forestplot`'s `txt_gp`), wrap long titles, and use repelling labels
+  (`ggrepel`) on scatter or volcano plots. Check the rendered HTML, not just the code.
 
 Next: `python.md` — the same in Python.

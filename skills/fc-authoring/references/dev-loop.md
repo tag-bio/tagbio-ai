@@ -205,9 +205,9 @@ collection you touched:
 
 3. Repeat until the summary matches your expectations, **then** look at the apps.
 
-**Caveat:** the dictionary lists at most about 10 variables per collection, so `vars=10` can mean
-"many". To check a shape across a big collection (e.g. "are all values key-prefixed?"), count over
-the listed rows rather than assuming they're the full set.
+**Caveat:** the dictionary lists at most `data_dictionary.variable_limit` variables per collection
+(set in `main.json`, often 10), so `vars=10` can mean "many". Raise the limit for a QC build, or count
+over the listed rows rather than assuming they're the full set.
 
 ## Handy flags
 

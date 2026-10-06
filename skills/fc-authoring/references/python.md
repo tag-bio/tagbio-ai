@@ -177,6 +177,9 @@ df = fc.df.select(
 4. Ensure every imported package is installed in the environment.
 5. Reference the plugin from an `external` / `"sdk": "connect_tagbio_py"` protocol
    (`protocols.md`).
+6. **Check plot text size in the rendered output.** Look at every plot at the size the page shows
+   it: axis titles, tick labels, legends and annotations should all read without zooming. See
+   "Small plot text" below.
 
 ## Common mistakes
 
@@ -184,6 +187,11 @@ df = fc.df.select(
 - **Expecting columns that aren't in `analysis_variables`** — `tag_data.df` only has what the
   protocol requested.
 - **Not writing to `tag_result.path`** (or setting `tag_result.df`) before returning.
+- **Small plot text.** First-pass plots almost always come out with small labels, ticks and
+  legends. Set one size for the whole figure (`sns.set_theme(font_scale=1.4)` or
+  `plt.rcParams["font.size"] = 14`, plotly `font=dict(size=14)`), size annotations explicitly, and
+  wrap long titles. A larger `figsize` alone makes text *smaller* once the page scales the image
+  down to fit, so grow the fonts with the figure. Check the rendered output, not just the code.
 
 Next: `transformers.md` — computing new collections after load, and enriching from other
 products.

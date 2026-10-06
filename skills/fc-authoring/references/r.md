@@ -203,6 +203,9 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
 3. Produce the output and write it to `tag_result$output_path`; `return(tag_result)`.
 4. Ensure every library used is installed in the environment.
 5. Reference the plugin from an `external` / `"sdk": "R"` protocol (`protocols.md`).
+6. **Check plot text size in the rendered report.** Open the output HTML and look at every plot at
+   the size the page shows it: axis titles, tick labels, legends, facet strips and annotations
+   should all read without zooming. See "Small plot text" below.
 
 ## Common mistakes
 
@@ -215,10 +218,15 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
 - **Wrong `row_name`** — name an id collection that actually exists in the analysis frame.
 - **Assuming one shape for a multi-valued categorical.** It can be a `"; "`-joined string or a list
   column (see Key points). Handle both, or the plugin quietly finds nothing.
-- **Default text sizes.** First-pass plots almost always come out with small labels, ticks and
+- **Small plot text.** First-pass plots almost always come out with small labels, ticks and
   legends, and long labels collide with axes and controls. Set one base size for every plot
-  (`theme_minimal(base_size = 14)`, plotly `font = list(size = 14)`, and the equivalent for
-  non-ggplot packages such as `forestplot`'s `txt_gp`), wrap long titles, and use repelling labels
-  (`ggrepel`) on scatter or volcano plots. Check the rendered HTML, not just the code.
+  (`theme_minimal(base_size = 16)` or more, plotly `font = list(size = 14)`, and the equivalent for
+  non-ggplot packages such as `forestplot`'s `txt_gp`). Size the other text layers explicitly too:
+  `geom_text`, `stat_compare_means`, facet strips, captions. Wrap long titles, and use repelling
+  labels (`ggrepel`) on scatter or volcano plots. **Text size is relative to the figure:** the page
+  scales each plot to fit its column (840 px in `default-color`, 1260 px in
+  `default-color-expanded`), so a wider `fig.width` *shrinks* the text unless the base size grows
+  with it. Prefer the expanded theme for plot-heavy reports, and check the rendered HTML, not just
+  the code.
 
 Next: `python.md` — the same in Python.

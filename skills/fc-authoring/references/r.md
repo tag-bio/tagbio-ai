@@ -228,5 +228,13 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
   `default-color-expanded`), so a wider `fig.width` *shrinks* the text unless the base size grows
   with it. Prefer the expanded theme for plot-heavy reports, and check the rendered HTML, not just
   the code.
+- **Debugging a plugin with `print()` or `message()`.** Neither one reliably shows you anything.
+  `print()` output goes into the document being knitted, and that document is thrown away if a
+  later chunk fails. `message()` and `warning()` are swallowed when the Rmd sets
+  `opts_chunk$set(message = FALSE, warning = FALSE)`. `cat(file = stderr())` doesn't reliably
+  reach the log either. Write intermediate values to a file instead (`writeLines(...)` or
+  `saveRDS(...)` to a fixed path like `/tmp/<plugin>_diag.txt`), run the protocol, then read the
+  file on the box. Write counts, column names and `class()` values, not data rows. Remove the
+  chunk once you're done.
 
 Next: `python.md` — the same in Python.

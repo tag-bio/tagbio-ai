@@ -1,14 +1,14 @@
 # Ad-hoc check (Python): data product and collection set discovery, head(n), collection-set selection,
 # timestamp columns, and opt-in categories for single_valued categoricals.
 #
-# Requires tagbiopy >= 1.0.12 and an engine with single_valued (2.99.34+).
+# Requires tagbiopy >= 1.1.1 and an engine with single_valued (2.99.34+).
 # Run after `bash _shell_scripts/run_server.sh` is up.
 
 import pandas as pd
 
 import tagbiopy
 import tagbiopy.fc
-from tagbiopy.fundamentals import CollectionSet
+from tagbiopy.fundamentals import CollectionSet, Numeric
 
 HOST = "http://localhost:8000"
 fc = tagbiopy.fc.FC(host=HOST)
@@ -38,6 +38,10 @@ assert {"Lab Panel", "Lab Analyte", "Lipid: LDL"} <= set(labs.columns), labs.col
 # Timestamps: numeric epoch milliseconds by default, datetime when the server runs native_timestamps=true.
 dates = fc.df.select("Encounter Date").run()["Encounter Date"]
 assert pd.api.types.is_numeric_dtype(dates) or pd.api.types.is_datetime64_any_dtype(dates), dates.dtype
+# datetimes=True converts the FC's is_timestamp columns whatever the server setting; other numerics stay.
+dated = fc.df.select("Encounter Date", Numeric("Blood Pressure", "Systolic")).run(datetimes=True)
+assert pd.api.types.is_datetime64_any_dtype(dated["Encounter Date"]), "datetimes=True gives datetimes"
+assert pd.api.types.is_numeric_dtype(dated[[c for c in dated.columns if "Systolic" in c][0]])
 
 # Opt-in categories: single_valued categoricals become 'category' only when asked; multi-valued stays text.
 plain = fc.df.select("Department", "Conditions").run()

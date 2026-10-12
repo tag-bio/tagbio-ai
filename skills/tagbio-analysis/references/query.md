@@ -158,7 +158,7 @@ Get the logic right cheaply before paying for the full pull:
 
 - Select **two or three columns** and check the shape, dtypes, and null counts.
 - Use a **server-side filter** to bound the rows while developing, or **`head(n)`** to pull just `n`
-  entities (a reproducible sample, the same ones for the same `seed`; SDK 1.0.12 / 1.1.91+):
+  entities (a reproducible sample, the same ones for the same `seed`; SDK 1.1.1 / 1.1.91+):
 
   ```r
   fc |> filter(Department == "Cardiology") |> select(`Encounter ID`, Department) |> head(20) |> collect()

@@ -1,5 +1,5 @@
 """List data products and collection sets, then look at a product through a small sample (Python).
-Needs tagbiopy >= 1.0.12.
+Needs tagbiopy >= 1.1.1.
 
 The listing calls move no data. head(n) and run() EXECUTE A REAL PULL (of n entities): under the
 guardrails in ../SKILL.md, don't run them against a proprietary/regulated product without the

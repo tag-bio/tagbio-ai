@@ -15,12 +15,14 @@
     "pattern": "yyyy-MM-dd",
     "transform": "timestamp",
     "collection": "Encounter Date",
+    "single_valued": true,
     "variable": "Encounter Date"
   },
   {
     "parser_type": "categorical",
     "column": "department",
-    "collection": "Department"
+    "collection": "Department",
+    "single_valued": true
   },
   // "floor" is pulled in by the entity_table's join on departments.csv; reference a joined column
   // as "<join table_alias>.<column>" — here "dept_lookup.floor", not bare "floor".

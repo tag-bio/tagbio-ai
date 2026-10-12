@@ -1,3 +1,6 @@
+// "single_valued": true marks a field that must hold one value per entity; the build fails if a
+// second value arrives (a duplicate row, another table writing the same collection). Conditions is
+// deliberately multi-valued, so it is not marked.
 [
   {
     "parser_type": "categorical-map",
@@ -6,17 +9,20 @@
       "F": "Female",
       "M": "Male"
     },
-    "collection": "Sex"
+    "collection": "Sex",
+    "single_valued": true
   },
   {
     "parser_type": "categorical",
     "column": "region",
-    "collection": "Patient Region"
+    "collection": "Patient Region",
+    "single_valued": true
   },
   {
     "parser_type": "numeric",
     "column": "age",
     "collection": "Patient Age",
+    "single_valued": true,
     "variable": "Patient Age"
   },
   {

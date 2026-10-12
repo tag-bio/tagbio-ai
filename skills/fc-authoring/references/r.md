@@ -96,6 +96,9 @@ via `tagbio::get_results()`. Example: `protocols/plugins/plugin_bp.Rmd` (protoco
 
 ## Querying a product ad-hoc
 
+(For analysis work, including listing data products and collection sets, `head(n)` samples and
+opt-in factors, see the companion `tagbio-analysis` skill's `discover.md`.)
+
 To pull data into an R session — for exploration, QC, or a transformer — connect with the SDK
 and use a dplyr-style `tbl` → `select` → `collect`:
 

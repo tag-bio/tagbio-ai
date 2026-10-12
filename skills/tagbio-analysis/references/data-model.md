@@ -56,6 +56,10 @@ Why it matters to you:
 - **Exports flatten it back.** A CSV/dataframe extract typically merges a categorical collection's
   one-hot variables into a **single familiar column**, so what you receive usually *looks* like a
   factor. Just don't be surprised when a multi-valued one doesn't.
+- **Some collections are guaranteed single-valued.** A product can declare a collection
+  `single_valued` (its build fails otherwise). Those arrive as plain strings by default, and as a real
+  factor / `category` when you ask (`collect(factors = TRUE)`, `run(categories=True)`;
+  `discover.md`). The API's collection list marks them `"single_valued": true`.
 
 ## 4. Missing means absent, not a level
 
@@ -98,4 +102,5 @@ If you selected the key collection yourself, no extra column is added — you al
 A product may group related collections under a **collection_set** (e.g. all lab collections tagged
 `Labs`). It is a **flat tag** for search and bulk selection — no hierarchy, no namespace, and it may
 span both numeric and categorical collections. Useful for "give me the whole family"; it tells you
-nothing about type.
+nothing about type. List them with `tagListCollectionSets(fc)` / `fc.list_collection_sets()` and pull
+a whole set with `collection_set("Labs")` / `CollectionSet("Labs")` inside a select (`discover.md`).

@@ -198,7 +198,7 @@ this guard turns that into a clear message.
 
 ## Data products, collection sets and quick looks
 
-Requires R SDK 1.1.91+ / tagbiopy 1.0.12+.
+Requires R SDK 1.1.91+ / tagbiopy 1.1.1+.
 
 ```r
 # R
@@ -207,6 +207,7 @@ tagListCollectionSets(fc)         # e.g. "Labs"
 fc |> select(`Encounter ID`, collection_set("Labs")) |> collect()   # every collection in a set
 fc |> filter(Department == "Cardiology") |> head(10) |> collect()   # 10 entities, not the whole pull
 fc |> select(Department) |> collect(factors = TRUE)                 # single-valued columns as factors
+fc |> select(`Encounter Date`) |> collect(dates = TRUE)              # timestamp columns as POSIXct
 ```
 
 ```python
@@ -216,6 +217,7 @@ fc.list_collection_sets()
 fc.df.select("Encounter ID", CollectionSet("Labs")).run()            # from tagbiopy.fundamentals
 fc.df.select("Department").where(("Department", "Cardiology")).head(10).run()
 fc.df.select("Department").run(categories=True)                      # single-valued columns as 'category'
+fc.df.select("Encounter Date").run(datetimes=True)                    # timestamp columns as datetime64
 ```
 
 - **`head(n)` is a reproducible sample, not "the first n".** Entities have no order; `head()` returns
@@ -225,9 +227,10 @@ fc.df.select("Department").run(categories=True)                      # single-va
   value per entity) convert; multi-valued columns stay `"; "`-joined strings. The saving is mostly
   memory on big pulls in Python. Code doing string replacement on a factor or category column behaves
   differently, so leave it off unless you want it. It applies to the default parquet download.
-- **Timestamps** arrive as numeric epoch milliseconds, or as real date-times (`POSIXct` /
-  `datetime64`) when the product's server runs with native timestamps. Check the column type before
-  doing date arithmetic.
+- **Timestamps** arrive as numeric epoch milliseconds by default (real date-times only when the
+  product's server runs with native timestamps). Ask for `dates = TRUE` / `datetimes=True` to get UTC
+  date-times either way: the SDK looks up which columns the product flags as timestamps, so other
+  numerics are untouched.
 - **On a localhost FC** `tagListDataProducts` / `list_data_products` list just the one product served.
 
 Runnable versions of all of the above: `examples/discover_and_sample.R` and

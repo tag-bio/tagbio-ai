@@ -88,6 +88,9 @@ in `build-container.sh` (beyond `tagbiopy`), and the SDK's console scripts on `P
 
 ## Querying a product ad-hoc
 
+(For analysis work, including listing data products and collection sets, `head(n)` samples and
+opt-in categories, see the companion `tagbio-analysis` skill's `discover.md`.)
+
 The Python SDK connects to a running product and returns a pandas DataFrame. A runnable
 **localhost** example is in `example-clinic-fc/_python/query_clinic.py`:
 

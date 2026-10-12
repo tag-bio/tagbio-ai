@@ -47,6 +47,7 @@ versions before trusting any documented idiom**, including the ones in this skil
 | Reads `TAGBIO_BASE_URL` from the env | tagbiopy ≥ 1.0.3 / tagbio ≥ 1.1.69 | Read the host yourself and pass it in |
 | Server-side `.where(...)` filters | tagbiopy ≥ 1.0.6 | ⚠️ **`.where()` still EXISTS and silently does nothing** — see below. Filter client-side |
 | Server-side `filter()` pushdown (R) | tagbio ≥ 1.1.74 | Filter after `collect()` |
+| List data products / collection sets, select a whole collection set, `head(n)`, opt-in factors / categories | tagbiopy ≥ 1.0.12 / tagbio ≥ 1.1.91 | `summary(con)` (R) for products; select a set's collections by name; bound pulls with a filter (`discover.md`) |
 
 **Both SDKs are public repos**, so you can always check what current actually is — no credentials
 needed:

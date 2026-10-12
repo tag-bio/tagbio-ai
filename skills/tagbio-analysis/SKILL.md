@@ -60,7 +60,7 @@ grain, you don't know what your `nrow()` means. See `references/data-model.md`.
 |---|------|-------|
 | 1 | `references/environment.md` | **Start here.** What the Tag.bio notebook already gives you; SDK versions and their limits. |
 | 2 | `references/connect.md` | Auth, the three connection targets, and the exact working connection recipe. |
-| 3 | `references/discover.md` | Listing collections and their types — do this before every query. |
+| 3 | `references/discover.md` | Listing data products, collection sets and collections (with types) — do this before every query; `head(n)` samples. |
 | 4 | `references/data-model.md` | Entity grain, collections vs variables, and why categoricals behave oddly. |
 | 5 | `references/query.md` | Selecting, column naming, server-side filters, payload limits. |
 | 6 | `references/analysis-patterns.md` | Collapse-then-join, longitudinal work, caching, honest endpoints. |

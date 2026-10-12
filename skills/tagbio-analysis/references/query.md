@@ -157,7 +157,19 @@ home directory, out of git and out of shared folders, and delete it when done.
 Get the logic right cheaply before paying for the full pull:
 
 - Select **two or three columns** and check the shape, dtypes, and null counts.
-- Use a **server-side filter** to bound the rows while developing.
+- Use a **server-side filter** to bound the rows while developing, or **`head(n)`** to pull just `n`
+  entities (a reproducible sample, the same ones for the same `seed`; SDK 1.0.12 / 1.1.91+):
+
+  ```r
+  fc |> filter(Department == "Cardiology") |> select(`Encounter ID`, Department) |> head(20) |> collect()
+  ```
+
+  ```python
+  fc.df.select("Encounter ID", "Department").where(("Department", "Cardiology")).head(20).run()
+  ```
+
+  `head()` picks *which entities* come back; it isn't "the first rows". Don't print the result
+  either (guardrail 3).
 - Confirm your join keys are present and unique **before** pulling the wide frame.
 - A long-running query on a big product is **not automatically pathological** — validate the logic on
   a bounded subset before blaming performance.

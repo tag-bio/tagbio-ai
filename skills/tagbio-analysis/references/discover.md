@@ -196,6 +196,43 @@ setdiff(wanted, available)                      # report what's missing
 On some SDK versions a bad name raises an unhelpful `TypeError` from deep inside the query builder;
 this guard turns that into a clear message.
 
+## Data products, collection sets and quick looks
+
+Requires R SDK 1.1.91+ / tagbiopy 1.0.12+.
+
+```r
+# R
+tagListDataProducts(con)          # every data product on the cluster: name, title, description, url
+tagListCollectionSets(fc)         # e.g. "Labs"
+fc |> select(`Encounter ID`, collection_set("Labs")) |> collect()   # every collection in a set
+fc |> filter(Department == "Cardiology") |> head(10) |> collect()   # 10 entities, not the whole pull
+fc |> select(Department) |> collect(factors = TRUE)                 # single-valued columns as factors
+```
+
+```python
+# Python
+tagbiopy.list_data_products(host=...)                                 # same catalog
+fc.list_collection_sets()
+fc.df.select("Encounter ID", CollectionSet("Labs")).run()            # from tagbiopy.fundamentals
+fc.df.select("Department").where(("Department", "Cardiology")).head(10).run()
+fc.df.select("Department").run(categories=True)                      # single-valued columns as 'category'
+```
+
+- **`head(n)` is a reproducible sample, not "the first n".** Entities have no order; `head()` returns
+  `n` of the entities matching your filters, the same ones for the same `seed` (default 1). Use it to
+  look at a big product or try an analysis before pulling everything; change `seed` for another set.
+- **Factors and categories are opt-in.** Only collections the product declares `single_valued` (one
+  value per entity) convert; multi-valued columns stay `"; "`-joined strings. The saving is mostly
+  memory on big pulls in Python. Code doing string replacement on a factor or category column behaves
+  differently, so leave it off unless you want it. It applies to the default parquet download.
+- **Timestamps** arrive as numeric epoch milliseconds, or as real date-times (`POSIXct` /
+  `datetime64`) when the product's server runs with native timestamps. Check the column type before
+  doing date arithmetic.
+- **On a localhost FC** `tagListDataProducts` / `list_data_products` list just the one product served.
+
+Runnable versions of all of the above: `examples/discover_and_sample.R` and
+`examples/discover_and_sample.py` (pass a product name, or `localhost`).
+
 ## Also worth checking before you analyze
 
 - **`fc.info` / the product's title and description** — states the entity noun ("records",

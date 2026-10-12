@@ -104,6 +104,7 @@ Values not present in `map` pass through unchanged unless you map them explicitl
 | `where` | any | a **row predicate** — the parser only fires on matching rows; lets you split one source into differently-filtered parsers (`catalog-table-types.md`) |
 | `null_value` | any | the value to **emit** when the cell is empty or matches a null indicator — e.g. `"Missing"` to make missingness an explicit level instead of dropping the entity |
 | `null_indicators` | any | per-parser list of tokens that count as missing (overrides the table/config-level list for this parser) |
+| `single_valued` | any | (engine 2.99.34+; older engines ignore it) `true` = each entity may hold **at most one value** in this collection; the build fails with an error naming the collection and example values otherwise. Declaring it on any one parser applies it to the whole collection, across every table that writes it. An identical repeated value is allowed. On a numeric it forbids merging while loading (so it can't be combined with `merge`); only categorical collections report `single_valued` afterwards. (A repeated `0` in `sparse-zero` storage can't be detected.) |
 
 Naming obeys the uniqueness rules in `data-model.md` (collection names unique per type;
 variable names unique within a collection).
@@ -194,6 +195,12 @@ values from multiple columns, constant flags, and operator-based matching, see
 4. Rebuild and confirm the collection appears with the expected values.
 
 ## Common mistakes
+
+- **Not declaring a field that must have one value per entity.** A visit label, a record date or a
+  status that drives exact-match filters (`Visit == "Baseline"`) breaks silently when a second
+  value sneaks in — a broadcast table, a second form, a duplicate row — because the cell becomes
+  `"Baseline; Logs"` and the match fails. Add `"single_valued": true` to its parser so the build
+  fails loudly instead.
 
 - **Putting a `variable` on a categorical parser.** Categorical collections derive variables from
   their values, so a `variable` here is **rejected at build** with a clear error. (This is a *known*

@@ -41,8 +41,12 @@ One file per test under `tests/`, registered in `main.json`'s `tests` array. Sha
 - **`arguments`** is a map of argument key → value. **Every mandatory (and minimum-one)
   argument_set must be satisfied**, or the protocol errors. Three value shapes:
   - a **data_function**, e.g. a cohort: `{ "data_function_type": "categorical-all" }` (all
-    entities) or `{ "data_function_type": "categorical", "collection": "Department", "variable":
-    "Cardiology" }`;
+    entities), or a filtered one:
+
+    ```json
+    { "data_function_type": "categorical", "collection": "Department", "variable": "Cardiology" }
+    ```
+
   - an **array of level names** for a checkbox/selection argument, e.g. `["Sepal width"]`;
   - a **raw scalar** — the argument's plain value: a **string** for a filter pick
     (`"cohort_clinic__Department": "Cardiology"`) or a **boolean** for a toggle

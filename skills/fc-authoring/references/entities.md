@@ -187,7 +187,16 @@ one list no longer reliably matches value #3 of another. Three fixes, in order o
    the value becomes categorical, so you lose numeric analysis on it. **Put the key first**
    (`"LDL: High"`, not `"High (LDL)"`) so the collection still sorts, filters and groups by the key.
    Build it with `categorical-compound`:
-   `{ "parser_type": "categorical-compound", "operator": ": ", "columns": ["analyte", "flag"], "collection": "Lab Flag" }`.
+
+   ```json
+   {
+     "parser_type": "categorical-compound",
+     "operator": ": ",
+     "columns": ["analyte", "flag"],
+     "collection": "Lab Flag"
+   }
+   ```
+
 3. **Build a separate FC at the finer grain** (option 2 above), where that child *is* the entity and
    its fields are plain per-entity collections. Reach here when the finer grain is important enough to
    analyze in its own right — the case where you need it kept numeric *and* paired at that grain.

@@ -65,9 +65,13 @@ the cohort builder's background ANDs its filter sections:
 `set-union` is identical with OR semantics — swap the type and the same criteria yields "in **any**
 section" instead of "in **all**." Crucially, the sets being combined almost always come from
 **argument selections** (a filter's handler resolves the user's pick to an entity set), *not* from
-static whole-collection references: a bare `{ "data_function_type": "categorical", "collection":
-"APOE" }` is *every* entity that has an APOE value (i.e. everyone), so unioning two of those is a
-no-op. Reach for `set-operation` only for the odd difference/other op the two workhorses don't cover.
+static whole-collection references: a bare categorical reference such as
+
+```json
+{ "data_function_type": "categorical", "collection": "APOE" }
+```
+
+is *every* entity that has an APOE value (i.e. everyone), so unioning two of those is a no-op. Reach for `set-operation` only for the odd difference/other op the two workhorses don't cover.
 
 > **`categorical-opposite` has a null trap.** A categorical collection's entities can be `Positive`,
 > `Negative`, **or neither** — an entity with *no* value in that collection is in **none** of its

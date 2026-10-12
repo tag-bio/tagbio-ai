@@ -10,9 +10,12 @@ a derived category, a score, or a value pulled from another product.
 During `build_archive`, the engine stands up a **transient HTTP server** over the in-progress
 build so a transformer can query it, then runs each transformer, then writes the archive:
 
-- **Self-query the local build** (the product being built): `tagConnect(host_url = "http://localhost:8000")`,
-  `tbl(con)` with **no table name** (`r.md`). This is how you read collections that already
-  exist in *this* build to compute new ones. **Hardcode the localhost `host_url`** — do *not* lean on
+- **Self-query the local build** (the product being built): `tagConnect(host_url = <callback URL>)`,
+  `tbl(con)` with **no table name** (`r.md`). The engine passes the callback URL as the transformer's
+  **third argument** (`http://localhost:<port>`). The build binds an ephemeral port, so several builds
+  can run side by side, or next to a dev server on 8000. Read it, falling back to
+  `http://localhost:8000` only if it's absent. This is how you read collections that already
+  exist in *this* build to compute new ones. **Always pass the `host_url` explicitly** — do *not* lean on
   a bare `tagConnect()` "defaulting" to localhost. That default is only a last-resort fallback at the
   BOTTOM of the resolution order, so an ambient host (env `TAGBIO_BASE_URL`, which deployed
   notebooks/build containers set, or a `~/.tagbio.json` entry) silently outranks it and hijacks the
@@ -24,7 +27,7 @@ build so a transformer can query it, then runs each transformer, then writes the
 - **Pull from a *locally-served* dependency** (deploy outage, or building both together): serve the
   dependency on a **non-default port** (`run_server … port=7999`) and point the transformer at it —
   `tagConnect(host_url = "http://localhost:7999")`, **bare `tbl(con)`** (single-FC serve, `r.md`).
-  Use a port ≠ 8000 so it doesn't collide with the build's own transformer-callback server. When
+  Use a port ≠ 8000 so it doesn't collide with a dev server you may have running. When
   the two builds run **near-concurrently**, the dependency's server may not be up when this
   transformer starts — so **poll until it can serve a pull** (retry `tbl(con) %>% select(<a
   column>) %>% collect()` with a `Sys.sleep`/deadline loop) instead of failing on a not-yet-ready
@@ -105,7 +108,7 @@ consuming FC's archive — transformers run at build time, not serve time.
 ## Recipe: add a transformer
 
 A transformer can be **R, Python, or bash** — the language is irrelevant to the engine, which only
-cares about the two arguments in and the ingestion CSV out. The **shipped worked example is R**
+cares about the arguments in (output path, entity collection, callback URL) and the ingestion CSV out. The **shipped worked example is R**
 (`config/transformers/hypertension_stage.R`). A **Python** transformer is the same shape — self-query
 the local build with `tagbiopy` (the no-`fc_name` localhost form, `python.md`) and write the same CSV:
 
@@ -115,7 +118,8 @@ import tagbiopy.fc
 from tagbiopy.fundamentals import Numeric
 
 output_file = sys.argv[1]            # arg 1: output CSV path   (arg 2 = entity_collection name)
-fc = tagbiopy.fc.FC(host="http://localhost:8000")               # the local build server; no fc_name
+host = sys.argv[3] if len(sys.argv) > 3 else "http://localhost:8000"  # arg 3: the build's callback URL
+fc = tagbiopy.fc.FC(host=host)       # the local build server; no fc_name
 df = fc.df.select("Encounter ID", Numeric("Blood Pressure", "Systolic")).run()
 sys_col = next(c for c in df.columns if c.endswith("Systolic"))  # "Blood Pressure: Systolic"
 
@@ -136,16 +140,17 @@ with open(output_file, "w", newline="") as f:
 Register it like the R one (`"command": "python3 config/transformers/<name>.py"`). A **bash**
 transformer just shells out to whatever produces those rows.
 
-> **The port isn't magic — and don't lean on the default.** The local build server runs on the
-> **fixed port 8000**. A bare R `tagConnect()` *would* fall back to `http://localhost:8000`, but that
-> fallback is last-resort: an ambient host (env `TAGBIO_BASE_URL` — deployed notebooks and build
-> containers set it — or a `~/.tagbio.json` entry) **outranks it and silently hijacks the self-query
-> to a remote cluster**. So always **hardcode `host_url = "http://localhost:8000"`** (Python names the
-> URL explicitly anyway). If you build the server on a **non-default `port=`**, match that port in the
-> `host_url` on both sides.
+> **Use the callback URL the engine hands you — and don't lean on the default.** The build server
+> runs on an **ephemeral port**, passed to the transformer as its third argument; hardcoding
+> `localhost:8000` breaks as soon as two builds run at once. A bare R `tagConnect()` *would* fall
+> back to `http://localhost:8000`, but that fallback is last-resort: an ambient host (env
+> `TAGBIO_BASE_URL` — deployed notebooks and build containers set it — or a `~/.tagbio.json` entry)
+> **outranks it and silently hijacks the self-query to a remote cluster**. So always pass
+> `host_url` explicitly: the third argument, or `http://localhost:8000` if it's missing. The shipped
+> `hypertension_stage.R` does exactly this.
 
-1. Write the script (R/Python/bash) taking an output-file path and the entity key collection.
-2. Read inputs by self-querying the local build (or pulling a deployed product).
+1. Write the script (R/Python/bash) taking an output-file path, the entity key collection, and the build's callback URL.
+2. Read inputs by self-querying the local build at that callback URL (or pulling a deployed product).
 3. Compute values and write FC-ingestion rows (`data_type,collection_set_name,collection_name,
    variable_name,auth_groups,entity,value`) to the output file.
 4. Register it in the config's transformer set; rebuild.

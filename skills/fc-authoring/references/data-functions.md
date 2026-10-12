@@ -19,7 +19,11 @@ protocols and arguments.
 **numeric** — a numeric collection and one of its variables:
 
 ```json
-{ "data_function_type": "numeric", "collection": "Blood Pressure", "variable": "Systolic" }
+{
+  "data_function_type": "numeric",
+  "collection": "Blood Pressure",
+  "variable": "Systolic"
+}
 ```
 
 **categorical** — a categorical collection (its levels are the sets/tags from `data-model.md`):
@@ -42,7 +46,11 @@ which can bind only one type at a time. When present it *also* restricts the mem
 type; a collection-set is not fundamentally a type filter. A misspelled `data_type` errors at compile:
 
 ```json
-{ "data_function_type": "collection-set", "collection_set": "Labs", "data_type": "numeric" }
+{
+  "data_function_type": "collection-set",
+  "collection_set": "Labs",
+  "data_type": "numeric"
+}
 ```
 
 **bundle** — groups several data_functions into one reference, so a protocol consumes them

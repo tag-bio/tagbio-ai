@@ -58,14 +58,12 @@ Key points:
   `analysis_variables`. **The `row_name` collection must itself be one of the `analysis_variables`**
   (it is consumed as the row names) — include an id data_function in the protocol, or `get_results`
   errors with "Can't find column".
-- **A multi-valued categorical can arrive in two shapes.** It may be one `"; "`-joined string per
-  cell (see below), or a **list column** whose cells are character vectors. The list shape shows up
-  with the parquet download path, which carries multi-valued categoricals as `LIST<string>`. Handle
-  both: `unlist()` each cell, then split on `"; "`. Code that assumes strings fails silently on a list
-  column. `as.character()` yields junk like `c("LDL", "HDL")` that matches nothing, the plugin renders
-  an "empty cohort" page, and its test still passes. Also treat a yes/no flag from such a collection
-  as possibly conflicting: a cell can hold both `"Yes"` and `"No"`, so decide explicitly what that
-  means rather than testing `"Yes" %in%`.
+- **A multi-valued categorical arrives as one `"; "`-joined string per cell** (see below), whichever
+  download format the SDK used. The parquet path carries it as `LIST<string>`, and the SDK collapses
+  that to the same joined string as CSV, so the frame looks the same either way. Split on `"; "` to
+  get the values; an exact match like `col == "LDL"` misses cells that hold several. Treat a yes/no
+  flag from such a collection as possibly conflicting: a cell can hold both `"Yes"` and `"No"`, so
+  decide explicitly what that means rather than testing for `"Yes"`.
 - **`Unique ID` is always there.** The engine **automatically adds a `Unique ID` column** (the
   entity's unique-key combination) to every extract — ad-hoc queries and plugin frames alike — even
   when it isn't in `analysis_variables`. It's the **one guaranteed-unique value per entity**, so
@@ -78,9 +76,9 @@ Key points:
 - **A categorical *variable* behaves differently from a numeric one.** It does **not** become a
   per-variable column. The packet delivers **one** column named for the collection, and each variable
   is a **tag among that column's `"; "`-joined values** (categorical = a tag set, not a vector). So
-  four `{collection: "Has Biomarker Baseline", variable: "FM Plasma"|"FM Liquid"|…}` data-functions
-  yield a single `Has Biomarker Baseline` column whose values are `FM Plasma; FM Tissue; …`. Gate on it
-  by **tag membership** (does the value set contain `"FM Plasma"`), never by a `"Collection = Variable"`
+  three `{collection: "Conditions", variable: "Hypertension"|"Asthma"|…}` data-functions yield a
+  single `Conditions` column whose values are `Hypertension; Type 2 Diabetes; …`. Gate on it by **tag
+  membership** (does the value set contain `"Hypertension"`), never by a `"Collection = Variable"`
   column — that column does not exist for categoricals.
 - **Output:** write to **`tag_result$output_path`** (for `output_type: "html"`, a download, etc.)
   and `return(tag_result)`. (The **Python** SDK spells this attribute **`tag_result.path`** — the two
@@ -115,13 +113,15 @@ df  <- tbl(con) %>%
 con2 <- tagConnect(host_url = Sys.getenv("TAGBIO_BASE_URL"))   # auth via ~/.tagbio.json
 df2  <- tbl(con2, "fc-clinic") %>% select(`Encounter ID`, Department) %>% collect()
 
-# The LOCAL build currently being built (inside a transformer): no host_url, no name.
-local <- tagConnect()
-df_local <- tbl(local) %>% select(everything()) %>% collect()
+# The LOCAL build currently being built (inside a transformer): the callback URL the engine passes
+# as the third argument, and no name. Never a bare tagConnect() -- an ambient host would win.
+args  <- commandArgs(trailingOnly = TRUE)
+local <- tagConnect(host_url = if (length(args) >= 3) args[3] else "http://localhost:8000")
+df_local <- tbl(local) %>% select(`Encounter ID`, `Blood Pressure = Systolic`) %>% collect()
 ```
 
-- **`tbl(con)` with NO name** targets the **single product a localhost `run_server` serves** — and,
-  with no host_url at all, the **local build in progress** in a transformer (`transformers.md`).
+- **`tbl(con)` with NO name** targets the **single product a localhost `run_server` serves** — and
+  the **local build in progress** in a transformer, reached at its callback URL (`transformers.md`).
   **`tbl(con, "name")`** is only for a **deployed** cluster that hosts many named products. (Passing
   a name to a localhost server errors.)
 - **Cross-SDK difference:** this no-name rule is **R-specific**. The **Python** SDK's `FC()` accepts
@@ -228,6 +228,16 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
   `default-color-expanded`), so a wider `fig.width` *shrinks* the text unless the base size grows
   with it. Prefer the expanded theme for plot-heavy reports, and check the rendered HTML, not just
   the code.
+- **Vertical, page-wide plots.** Lay bar charts, box plots and violins out **horizontally** (values
+  on x, categories on y; `coord_flip()` or `y = category` in ggplot2) — categories and long labels read and compare more easily, and
+  a vertical layout is easy to produce when someone asks for it. Histograms are the exception: value
+  on x, proportion on y. Size each plot to its content (height grows with the number of categories)
+  instead of one fixed page-wide size, which turns two bars into slabs. Show percentages on a full
+  0–100% axis, and order groups naturally (age bands in numeric order, "Not recorded" last).
+- **Development notes in report text.** The report's prose is read by the people using the product:
+  describe what a section shows and how to read it. Leave out change history, dates of decisions,
+  ticket references and the names of other internal products — those belong in code comments or
+  commit messages.
 - **Debugging a plugin with `print()` or `message()`.** Neither one reliably shows you anything.
   `print()` output goes into the document being knitted, and that document is thrown away if a
   later chunk fails. `message()` and `warning()` are swallowed when the Rmd sets

@@ -102,6 +102,9 @@ How the map behaves depends on *which* entity keys it lines up with:
 - **Broadcast (coarser table).** `patients` maps `{ "patient_id": "patient_id" }` — only part
   of the entity's `[patient_id, encounter_date]` key. One patient row therefore matches **all**
   of that patient's encounters, and its values (Region, Sex) repeat across them.
+  **Every** parser on a broadcast table repeats this way, so give it only patient-level parsers.
+  A visit-level field parsed here (a visit label, a record date) lands on every encounter too,
+  next to the encounter's own value, and the collection becomes multi-valued.
 - **Roll-up (finer table).** `labs` maps `{ "encounter_id": "encounter_id" }`. But
   `encounter_id` is **not** one of the entity's unique_keys, so it must be declared in the
   top-level `foreign_keys` array to be joinable. Each lab row belongs to one encounter; the
@@ -328,6 +331,10 @@ changes.
 
 - **Joining on the wrong key.** A coarser key broadcasts (and can multi-count); pick the key
   that matches the adjunct table's true grain.
+- **Sharing visit-level parsers with a broadcast table.** A parser file reused across tables
+  (a common visit-label or date parser, say) must not be attached to a coarser table. Its values
+  spread to every entity of that patient, and an exact-match filter such as `Visit == "Baseline"`
+  quietly stops matching once the cell reads `"Baseline; Logs"`.
 - **Forgetting `foreign_keys`.** An other_table can only join on a `unique_key` or a declared
   `foreign_key`; a join column that is neither will not resolve.
 - **Hoisting parsers to the config root.** Author them nested in their table.

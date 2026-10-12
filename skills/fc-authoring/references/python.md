@@ -192,6 +192,17 @@ df = fc.df.select(
   `plt.rcParams["font.size"] = 14`, plotly `font=dict(size=14)`), size annotations explicitly, and
   wrap long titles. A larger `figsize` alone makes text *smaller* once the page scales the image
   down to fit, so grow the fonts with the figure. Check the rendered output, not just the code.
+- **Vertical, page-wide plots.** Lay bar charts, box plots and violins out **horizontally** (values
+  on x, categories on y; `barh` / `orient="h"`) — categories and long labels read and compare more
+  easily, and a vertical layout is easy to produce when someone asks for it. Histograms are the
+  exception: value on x, proportion on y. Size each plot to its content (height grows with the number
+  of categories) instead of one fixed page-wide size, which turns two bars into slabs. Show
+  percentages on a full 0–100% axis, and order groups naturally (age bands in numeric order,
+  "Not recorded" last).
+- **Development notes in report text.** The report's prose is read by the people using the product:
+  describe what a section shows and how to read it. Leave out change history, dates of decisions,
+  ticket references and the names of other internal products — those belong in code comments or
+  commit messages.
 
 Next: `transformers.md` — computing new collections after load, and enriching from other
 products.

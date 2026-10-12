@@ -27,7 +27,11 @@ Maps a column's values into a categorical collection; the **distinct values beco
 variables** (so there is **no `variable` attribute** — the platform derives them).
 
 ```json
-{ "parser_type": "categorical", "column": "department", "collection": "Department" }
+{
+  "parser_type": "categorical",
+  "column": "department",
+  "collection": "Department"
+}
 ```
 
 `Department` yields `Cardiology`, `Endocrinology`, `Primary Care` as filter/group dimensions.

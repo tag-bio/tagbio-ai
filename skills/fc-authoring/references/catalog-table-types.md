@@ -32,6 +32,7 @@ against a working FC** — some attributes are rare and their options vary.
 | `comment_character` | flat files | lines starting with this are ignored |
 | `max_columns` | wide/transposed | raise the column cap for very wide files (common with transposed biomedical data) |
 | `null_indicators` | any | tokens (e.g. `"NA"`, `""`) that mark a missing value |
+| `single_valued` | any | default for this table's parsers: `true` makes each field one-value-per-entity unless a parser says `false` (`parsers.md`) |
 
 ## Mapping / shaping attributes
 

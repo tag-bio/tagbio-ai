@@ -104,7 +104,23 @@ Values not present in `map` pass through unchanged unless you map them explicitl
 | `where` | any | a **row predicate** — the parser only fires on matching rows; lets you split one source into differently-filtered parsers (`catalog-table-types.md`) |
 | `null_value` | any | the value to **emit** when the cell is empty or matches a null indicator — e.g. `"Missing"` to make missingness an explicit level instead of dropping the entity |
 | `null_indicators` | any | per-parser list of tokens that count as missing (overrides the table/config-level list for this parser) |
-| `single_valued` | any | (engine 2.99.34+; older engines ignore it) `true` = each entity may hold **at most one value** in this collection; the build fails with an error naming the collection and example values otherwise. Declaring it on any one parser applies it to the whole collection, across every table that writes it. An identical repeated value is allowed. On a numeric it forbids merging while loading (so it can't be combined with `merge`); only categorical collections report `single_valued` afterwards. (A repeated `0` in `sparse-zero` storage can't be detected.) |
+| `single_valued` | any | (engine 2.99.34+; older engines ignore it; table / config defaults need a newer engine, see below) `true` = each entity may hold **at most one value** in this collection; the build fails with an error naming the collection and example values otherwise. Declaring it on any one parser applies it to the whole collection, across every table that writes it. An identical repeated value is allowed. On a numeric it forbids merging while loading (so it can't be combined with `merge`); only categorical collections report `single_valued` afterwards. (A repeated `0` in `sparse-zero` storage can't be detected.) |
+
+**Where `null_indicators` come from.** Set them once at the **config** level (`config.json`), per
+**table**, or per **parser**: a parser's list wins, then its table's, then the config's. A list
+**replaces** the one it would inherit; it doesn't add to it. A parser with
+`"null_indicators": ["N/A"]` no longer treats the config's `"NA"` or `""` as missing, so repeat any
+inherited tokens you still want: `["N/A", "NA", ""]`.
+
+**Making `single_valued` the default.** Rather than flagging parser by parser, set
+`"single_valued": true` once at the **config** level (top of `config.json`) or on a **table**. A table
+setting overrides the config, and a parser's own `"single_valued": false` overrides both. That's how you
+mark a genuinely multi-valued field, such as several labs rolling up to one encounter. Two kinds of
+parser skip an *inherited* default automatically: types that emit several values per row by design
+(`categorical-delimited`, `json-array`, `tagify`, `key-value`, `clean-word`, `dirty-word`, `window`),
+and numerics with an explicit `merge`. An explicit `true` on the parser itself still applies. Turning
+the default on is the quickest way to find every field that silently became multi-valued: the first
+build lists them.
 
 Naming obeys the uniqueness rules in `data-model.md` (collection names unique per type;
 variable names unique within a collection).

@@ -40,7 +40,7 @@ stopifnot("collection set expands to its collections" =
 dates <- fc %>% select(`Encounter Date`) %>% collect()
 stopifnot("Encounter Date is numeric or a date-time, never text" =
             is.numeric(dates$`Encounter Date`) || inherits(dates$`Encounter Date`, "POSIXct"))
-# dates = TRUE converts the FC's is_timestamp columns whatever the server setting; other numerics stay.
+# dates = TRUE converts the datetime-parser columns (tagbio.dates, engine 2.99.37+); other numerics stay.
 dated <- fc %>% select(`Encounter Date`, `Blood Pressure = Systolic`) %>% collect(dates = TRUE)
 stopifnot("dates = TRUE gives POSIXct" = inherits(dated$`Encounter Date`, "POSIXct"),
           "non-timestamp numerics stay numeric" = is.numeric(dated$`Blood Pressure = Systolic`))

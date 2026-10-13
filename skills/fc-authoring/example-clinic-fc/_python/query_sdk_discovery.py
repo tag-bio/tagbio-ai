@@ -38,7 +38,7 @@ assert {"Lab Panel", "Lab Analyte", "Lipid: LDL"} <= set(labs.columns), labs.col
 # Timestamps: numeric epoch milliseconds by default, datetime when the server runs native_timestamps=true.
 dates = fc.df.select("Encounter Date").run()["Encounter Date"]
 assert pd.api.types.is_numeric_dtype(dates) or pd.api.types.is_datetime64_any_dtype(dates), dates.dtype
-# datetimes=True converts the FC's is_timestamp columns whatever the server setting; other numerics stay.
+# datetimes=True converts the datetime-parser columns (tagbio.dates, engine 2.99.37+); other numerics stay.
 dated = fc.df.select("Encounter Date", Numeric("Blood Pressure", "Systolic")).run(datetimes=True)
 assert pd.api.types.is_datetime64_any_dtype(dated["Encounter Date"]), "datetimes=True gives datetimes"
 assert pd.api.types.is_numeric_dtype(dated[[c for c in dated.columns if "Systolic" in c][0]])

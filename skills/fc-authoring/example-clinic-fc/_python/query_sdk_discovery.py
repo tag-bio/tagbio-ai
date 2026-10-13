@@ -42,6 +42,15 @@ assert pd.api.types.is_numeric_dtype(dates) or pd.api.types.is_datetime64_any_dt
 dated = fc.df.select("Encounter Date", Numeric("Blood Pressure", "Systolic")).run(datetimes=True)
 assert pd.api.types.is_datetime64_any_dtype(dated["Encounter Date"]), "datetimes=True gives datetimes"
 assert pd.api.types.is_numeric_dtype(dated[[c for c in dated.columns if "Systolic" in c][0]])
+# Day-level dates (year-month-day label, timestamp-days number) convert on engines that record date kinds
+# (2.99.37+); older engines leave them as text/number. Either way they must agree.
+days = fc.df.select("Encounter Day", "Encounter Days Since 1970").run(datetimes=True)
+if pd.api.types.is_datetime64_any_dtype(days["Encounter Day"]):
+    assert (days["Encounter Day"] == days["Encounter Days Since 1970"]).all(), "day label and number agree"
+    print("day-level dates converted")
+# (collection, variable) tuples select a numeric variable
+pair = fc.df.select(("Blood Pressure", "Systolic")).run()
+assert any("Systolic" in c for c in pair.columns), pair.columns
 
 # Opt-in categories: single_valued categoricals become 'category' only when asked; multi-valued stays text.
 plain = fc.df.select("Department", "Conditions").run()

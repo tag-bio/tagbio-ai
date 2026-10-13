@@ -18,6 +18,24 @@
     "single_valued": true,
     "variable": "Encounter Date"
   },
+  // The same date as a calendar-day label (categorical "2024/06/02") and as days since 1970 (numeric).
+  // Exports record how each encodes a date, so the SDKs' dates option can convert both.
+  {
+    "parser_type": "datetime",
+    "column": "encounter_date",
+    "pattern": "yyyy-MM-dd",
+    "transform": "year-month-day",
+    "collection": "Encounter Day",
+    "single_valued": true
+  },
+  {
+    "parser_type": "datetime",
+    "column": "encounter_date",
+    "pattern": "yyyy-MM-dd",
+    "transform": "timestamp-days",
+    "collection": "Encounter Days Since 1970",
+    "variable": "Encounter Days Since 1970"
+  },
   {
     "parser_type": "categorical",
     "column": "department",

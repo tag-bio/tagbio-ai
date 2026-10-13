@@ -66,6 +66,11 @@ It is common to parse the **same date column twice** — once as `timestamp` (fo
 once as `year-month-day` into a separate `… Calendar Date` collection (for display). They are
 distinct collections, so the names must differ.
 
+**Only datetime parsers mark dates for export.** The `timestamp*` transforms and `year-month-day`
+record how their values encode a date (engine 2.99.37+), so the SDKs' `dates` option can convert
+them; relative outputs (`age`, `day-of-week`, partial dates) aren't marked. A numeric or categorical
+parser can't mark a column as a date. If a column holds dates, parse it with a `datetime` parser.
+
 **Timezones and partial dates** (endemic in clinical data). The `pattern` must **match what the
 source actually contains** — if it carries a time and zone, include them
 (`yyyy-MM-dd'T'HH:mm:ssXXX`); if it is a bare date, a plain `yyyy-MM-dd` stores it at day

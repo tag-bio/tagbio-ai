@@ -227,10 +227,11 @@ fc.df.select("Encounter Date").run(datetimes=True)                    # timestam
   value per entity) convert; multi-valued columns stay `"; "`-joined strings. The saving is mostly
   memory on big pulls in Python. Code doing string replacement on a factor or category column behaves
   differently, so leave it off unless you want it. It applies to the default parquet download.
-- **Timestamps** arrive as numeric epoch milliseconds by default (real date-times only when the
-  product's server runs with native timestamps). Ask for `dates = TRUE` / `datetimes=True` to get UTC
-  date-times either way: the SDK looks up which columns the product flags as timestamps, so other
-  numerics are untouched.
+- **Dates** arrive as numbers or text by default: epoch milliseconds or days for timestamps (real
+  date-times only when the server runs native timestamps), `yyyy/MM/dd` labels for calendar days.
+  Ask for `dates = TRUE` / `datetimes=True` to convert them: timestamps become UTC date-times and
+  day-level columns become dates. Only columns the product built with a `datetime` parser convert;
+  other numerics are untouched. Day-level conversion needs SDK 1.1.92 / 1.1.2 and engine 2.99.37+.
 - **On a localhost FC** `tagListDataProducts` / `list_data_products` list just the one product served.
 
 Runnable versions of all of the above: `examples/discover_and_sample.R` and

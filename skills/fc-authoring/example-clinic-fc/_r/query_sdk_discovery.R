@@ -44,6 +44,14 @@ stopifnot("Encounter Date is numeric or a date-time, never text" =
 dated <- fc %>% select(`Encounter Date`, `Blood Pressure = Systolic`) %>% collect(dates = TRUE)
 stopifnot("dates = TRUE gives POSIXct" = inherits(dated$`Encounter Date`, "POSIXct"),
           "non-timestamp numerics stay numeric" = is.numeric(dated$`Blood Pressure = Systolic`))
+# Day-level dates (year-month-day label, timestamp-days number) convert to Date on engines that record
+# date kinds (2.99.37+); older engines leave them as text/number. Either way they must agree.
+days <- fc %>% select(`Encounter Day`, `Encounter Days Since 1970`) %>% collect(dates = TRUE)
+if (inherits(days$`Encounter Day`, "Date")) {
+  stopifnot("day label and day number agree" =
+              all(days$`Encounter Day` == days$`Encounter Days Since 1970`))
+  cat("day-level dates converted\n")
+}
 
 # Opt-in factors: single_valued categoricals become factors only when asked; multi-valued stays text.
 plain   <- fc %>% select(Department, Conditions) %>% collect()

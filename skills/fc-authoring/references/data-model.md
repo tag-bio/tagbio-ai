@@ -24,6 +24,7 @@ Clinic examples (`example-clinic-fc/`):
 | Collection | Type | Source | Notes |
 |---|---|---|---|
 | `Encounter Date` | date | `encounters.encounter_date` | the entity's own date |
+| `Encounter Day`, `Encounter Days Since 1970` | categorical / numeric | `encounters.encounter_date` | the same date as a `2024/06/02` label and as days since 1970, for exports |
 | `Department` | categorical | `encounters.department` | one label per encounter |
 | `Diagnosis` | categorical | `encounters.diagnosis` | one label per encounter |
 | `Patient Region` | categorical | `patients.region` (broadcast) | one value, repeated across the patient's encounters |

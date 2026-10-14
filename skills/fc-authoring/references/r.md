@@ -157,6 +157,13 @@ df_local <- tbl(local) %>% select(`Encounter ID`, `Blood Pressure = Systolic`) %
   escalation, or dialing the wrong server). A plugin's own-FC callback uses localhost; a call to another
   deployed FC carries the invoking user's token (`parameters$token`). Set **`TAGBIO_PLUGIN_ALLOW_CONFIG=1`**
   only to locally test a plugin that pulls from a remote FC. Same rule in the Python SDK.
+- **A call to another FC must handle "unreachable", and the plugin decides what that means.** Wrap the
+  pull (`tbl(tagConnect(token = parameters$token, host_url = parameters$host_url), "fc-x") %>%
+  select(...) %>% collect()`) in `tryCatch` and show a note or a partial report when it fails. Startup
+  tests have no user: inside the cluster the SDK (tagbio >= 1.1.96) reaches the FC directly, elsewhere
+  the call fails with a `tagbio_remote_unavailable` error. In an Rmd, **end the chunk right after
+  `knitr::knit_exit()`** -- it stops only after the current chunk, so code after it in the same chunk
+  still runs.
 - Always `select(...)` the columns you want **before** `collect()`; a bare `collect()` returns
   nothing. `select(everything())` pulls all columns — but **only reach for it on a small product**: on
   a large deployed product it streams every entity row for every collection and can blow past the

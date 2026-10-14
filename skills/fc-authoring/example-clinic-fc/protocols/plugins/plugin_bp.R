@@ -9,7 +9,9 @@ require('tidyr')
 function(tag_data, tag_result) {
 
   # One row per entity; columns are the analysis_variables (Encounter ID is used as the row name).
-  data <- tagbio::get_results(tag_data, row_name = "Encounter ID")
+  # dates = TRUE delivers date columns (here Encounter Date) as POSIXct/Date instead of numbers.
+  data <- tagbio::get_results(tag_data, row_name = "Encounter ID", dates = TRUE)
+  span <- format(range(data$`Encounter Date`, na.rm = TRUE), "%Y-%m-%d")
 
   # A numeric variable arrives named "<Collection> = <Variable>" (e.g. "Blood Pressure = Systolic");
   # drop the collection prefix so the columns read as plain Systolic / Diastolic.
@@ -19,7 +21,8 @@ function(tag_data, tag_result) {
     tidyr::pivot_longer(c(Systolic, Diastolic), names_to = "measure", values_to = "mmHg")
 
   fig <- plot_ly(data_tall, x = ~Department, y = ~mmHg, color = ~measure, type = "box") %>%
-    layout(boxmode = "group", yaxis = list(title = "mmHg"))
+    layout(boxmode = "group", yaxis = list(title = "mmHg"),
+           title = sprintf("Encounters %s to %s", span[1], span[2]))
 
   htmlwidgets::saveWidget(fig, tag_result$output_path)
 

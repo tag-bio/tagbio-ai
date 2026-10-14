@@ -20,7 +20,8 @@
       "protocols/data_functions/categorical_collection_encounter_id.json",
       "protocols/data_functions/categorical_collection_department.json",
       "protocols/data_functions/numeric_collection_blood_pressure_systolic.json",
-      "protocols/data_functions/numeric_collection_blood_pressure_diastolic.json"
+      "protocols/data_functions/numeric_collection_blood_pressure_diastolic.json",
+      "protocols/data_functions/numeric_collection_encounter_date.json"
     ]
   }
 }

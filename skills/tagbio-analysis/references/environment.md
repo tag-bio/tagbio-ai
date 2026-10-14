@@ -48,6 +48,7 @@ versions before trusting any documented idiom**, including the ones in this skil
 | Server-side `.where(...)` filters | tagbiopy ≥ 1.0.6 | ⚠️ **`.where()` still EXISTS and silently does nothing** — see below. Filter client-side |
 | Server-side `filter()` pushdown (R) | tagbio ≥ 1.1.74 | Filter after `collect()` |
 | List data products / collection sets, select a whole collection set, `head(n)`, opt-in factors / categories and dates | tagbiopy ≥ 1.1.1 / tagbio ≥ 1.1.91 | `summary(con)` (R) for products; select a set's collections by name; bound pulls with a filter (`discover.md`) |
+| `FC.run_protocol` on a plugin protocol returns its rendered output (`bytes`) | tagbiopy ≥ 1.1.5 | Pass `download=True` to get the bytes |
 
 **Both SDKs are public repos**, so you can always check what current actually is — no credentials
 needed:

@@ -41,25 +41,31 @@ import plotly.express as px
 
 
 def blood_pressure_report(tag_data: TagbioData, tag_result: TagbioResult):
-    # tag_data.df is a pandas DataFrame: one row per entity, columns = the analysis_variables.
-    # A numeric variable arrives as "<Collection>: <Variable>" (see the note below); strip the
-    # prefix so columns read as plain Systolic / Diastolic.
-    df = tag_data.df.rename(columns=lambda c: c.replace("Blood Pressure: ", ""))
+    # get_df() is a pandas DataFrame: one row per entity, columns = the analysis_variables.
+    # datetimes=True delivers date columns (here Encounter Date) as UTC datetimes. A numeric
+    # variable arrives as "<Collection>: <Variable>" (see the note below); strip the prefix so
+    # columns read as plain Systolic / Diastolic.
+    df = tag_data.get_df(datetimes=True).rename(columns=lambda c: c.replace("Blood Pressure: ", ""))
+    first, last = df["Encounter Date"].min(), df["Encounter Date"].max()
     tall = df.melt(id_vars=["Department"],
                    value_vars=["Systolic", "Diastolic"],
                    var_name="measure", value_name="mmHg")
-    fig = px.box(tall, x="Department", y="mmHg", color="measure")
+    fig = px.box(tall, x="Department", y="mmHg", color="measure",
+                 title=f"Encounters {first:%Y-%m-%d} to {last:%Y-%m-%d}")
     fig.write_html(tag_result.path)   # write output for output_type: html
     return tag_result
 ```
 
 Key points:
 
-- **Input:** `tag_data.df` is a **pandas DataFrame** — one row per entity, columns named by the
+- **Input:** `tag_data.get_df()` (or `tag_data.df`) is a **pandas DataFrame** — one row per entity, columns named by the
   protocol's `analysis_variables`. A **categorical** collection is its own name (`Department`); a
   **numeric variable** arrives as **`"<Collection>: <Variable>"`** — e.g. `"Blood Pressure:
   Systolic"`. (The Python SDK uses a `": "` separator here; the **R SDK uses `" = "`** for the same
   thing — a known inconsistency between the two SDKs. Rename the columns if you want plain names.)
+- **Dates:** `tag_data.get_df(datetimes=True)` delivers every date column from a datetime parser as a
+  UTC datetime (`tag_data.df` is the same frame without conversion). Don't convert epoch numbers
+  yourself. Relative durations (e.g. days from start of treatment) stay numeric.
 - **`Unique ID` is always there.** The engine **automatically adds a `Unique ID` column** (the
   entity's unique-key combination) to every extract — ad-hoc queries and plugin frames alike — even
   when it isn't in `analysis_variables`. It's the **one guaranteed-unique value per entity**, so
@@ -174,7 +180,7 @@ df = fc.df.select(
 
 1. Create `protocols/plugins/plugin_<name>.py` with a `def fn(tag_data: TagbioData, tag_result:
    TagbioResult): …`.
-2. Read the frame from `tag_data.df` (pandas).
+2. Read the frame with `tag_data.get_df(datetimes=True)` (pandas).
 3. Produce output, write to `tag_result.path` (or set `tag_result.df`); `return
    tag_result`.
 4. Ensure every imported package is installed in the environment.

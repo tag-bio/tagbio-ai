@@ -154,6 +154,10 @@ df = fc.df.select(
   deployed FC carries the **invoking user's token** (`parameters$token` in R). To locally test a plugin
   that pulls from a remote FC, set **`TAGBIO_PLUGIN_ALLOW_CONFIG=1`** to opt back into your
   `~/.tagbio.json` for that run (both SDKs). Introduced tagbiopy 1.0.1 / tagbio 1.1.67.
+- **A call to another FC must handle "unreachable", and the plugin decides what that means.** Wrap the
+  pull in `try` / `except` and write a note or a partial report when it fails. Startup tests have no
+  user: inside the cluster the SDK (tagbiopy >= 1.1.6) reaches the FC directly, elsewhere it raises
+  `tagbiopy.request.RemoteFCUnavailable` (or a connection error if the FC is down).
 - **Discover before you select:** `fc.summary` (a **property** — no parentheses) returns a DataFrame
   describing every collection (name, type, size); `fc.list_collections("categorical")` / `("numeric")`
   list names by type. Use them to choose columns instead of guessing. (R spells the describe call

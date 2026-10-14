@@ -80,6 +80,10 @@ This is the split that decides which protocols you must hand-write tests for.
   protocol as **missing a test** until you supply one with **toy arguments that satisfy the
   mandatory contract** (a cohort satisfied with `categorical-all`, a checkbox with one level).
 
+**Every failure counts, plugins included.** All tests run first (plugin protocols get their real data),
+then one report lists every failure. With `run_tests: true` the server then stops instead of going
+live; with `run_tests: log` it goes live and lists the failures in `/s` `failed_tests`.
+
 So **coverage = every protocol either auto-testable (no mandatory args) or given an explicit
 test.** A protocol with a mandatory argument and no explicit test is the coverage gap `compile`
 reports.

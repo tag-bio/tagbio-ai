@@ -67,8 +67,8 @@ once as `year-month-day` into a separate `… Calendar Date` collection (for dis
 distinct collections, so the names must differ.
 
 **Only datetime parsers mark dates for export.** The `timestamp*` transforms and `year-month-day`
-record how their values encode a date (engine 2.99.37+), so the SDKs' `dates` option can convert
-them; relative outputs (`age`, `day-of-week`, partial dates) aren't marked. A numeric or categorical
+record how their values encode a date, so they're exported as dates (R `POSIXct`/`Date`, pandas
+`datetime64`); relative outputs (`age`, `day-of-week`, partial dates) aren't marked. A numeric or categorical
 parser can't mark a column as a date. If a column holds dates, parse it with a `datetime` parser.
 
 **Timezones and partial dates** (endemic in clinical data). The `pattern` must **match what the

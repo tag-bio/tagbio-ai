@@ -159,10 +159,9 @@ variable name will not resolve.
 
 Real products are consistent in ways that let you predict the shape once you've seen `summary`:
 
-- **A date usually appears twice** — once numeric (a sortable epoch timestamp) and once categorical
-  (a `YYYY/MM/DD` display string). A common pattern is `X Date` = **numeric**, `X Calendar Date` =
-  **categorical**. The string form is often the cleaner one to parse; timestamps can carry junk
-  outliers (year 1900, year 3025) that need clipping.
+- **A date usually appears twice** — a numeric timestamp (`X Date`) and a categorical day-level
+  date (`X Calendar Date`). Both arrive as dates. Either can carry junk outliers (year 1900,
+  year 3025) that need clipping.
 - **Scores, ages, counts, pressures, volumes** are numeric. **Stages, statuses, lateralities, codes,
   flags, IDs** are categorical.
 - **Identifiers** may be categorical (carried for output, not analysis) and can be **very
@@ -207,7 +206,6 @@ tagListCollectionSets(fc)         # e.g. "Labs"
 fc |> select(`Encounter ID`, collection_set("Labs")) |> collect()   # every collection in a set
 fc |> filter(Department == "Cardiology") |> head(10) |> collect()   # 10 entities, not the whole pull
 fc |> select(Department) |> collect(factors = TRUE)                 # single-valued columns as factors
-fc |> select(`Encounter Date`) |> collect(dates = TRUE)              # timestamp columns as POSIXct
 ```
 
 ```python
@@ -217,7 +215,6 @@ fc.list_collection_sets()
 fc.df.select("Encounter ID", CollectionSet("Labs")).run()            # from tagbiopy.fundamentals
 fc.df.select("Department").where(("Department", "Cardiology")).head(10).run()
 fc.df.select("Department").run(categories=True)                      # single-valued columns as 'category'
-fc.df.select("Encounter Date").run(datetimes=True)                    # timestamp columns as datetime64
 ```
 
 - **`head(n)` is a reproducible sample, not "the first n".** Entities have no order; `head()` returns
@@ -227,11 +224,10 @@ fc.df.select("Encounter Date").run(datetimes=True)                    # timestam
   value per entity) convert; multi-valued columns stay `"; "`-joined strings. The saving is mostly
   memory on big pulls in Python. Code doing string replacement on a factor or category column behaves
   differently, so leave it off unless you want it. It applies to the default parquet download.
-- **Dates** arrive as numbers or text by default: epoch milliseconds or days for timestamps (real
-  date-times only when the server runs native timestamps), `yyyy/MM/dd` labels for calendar days.
-  Ask for `dates = TRUE` / `datetimes=True` to convert them: timestamps become UTC date-times and
-  day-level columns become dates. Only columns the product built with a `datetime` parser convert;
-  other numerics are untouched. Day-level conversion needs SDK 1.1.92 / 1.1.2 and engine 2.99.37+.
+- **Dates arrive as dates.** Columns the product built with a `datetime` parser come back as UTC
+  date-times (R `POSIXct`, pandas `datetime64`) or, for day-level columns, R `Date` / pandas UTC-midnight
+  `datetime64`. Other numerics are untouched. Relative durations (e.g. days since start of treatment)
+  stay numbers.
 - **On a localhost FC** `tagListDataProducts` / `list_data_products` list just the one product served.
 
 Runnable versions of all of the above: `examples/discover_and_sample.R` and

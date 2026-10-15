@@ -35,19 +35,13 @@ assert len(cardio) == 2 and set(cardio["Department"]) == {"Cardiology"}, "head()
 labs = fc.df.select("Encounter ID", CollectionSet("Labs")).run()
 assert {"Lab Panel", "Lab Analyte", "Lipid: LDL"} <= set(labs.columns), labs.columns
 
-# Timestamps: numeric epoch milliseconds by default, datetime when the server runs native_timestamps=true.
-dates = fc.df.select("Encounter Date").run()["Encounter Date"]
-assert pd.api.types.is_numeric_dtype(dates) or pd.api.types.is_datetime64_any_dtype(dates), dates.dtype
-# datetimes=True converts the datetime-parser columns (tagbio.dates, engine 2.99.37+); other numerics stay.
-dated = fc.df.select("Encounter Date", Numeric("Blood Pressure", "Systolic")).run(datetimes=True)
-assert pd.api.types.is_datetime64_any_dtype(dated["Encounter Date"]), "datetimes=True gives datetimes"
+# Columns built by a datetime parser arrive as UTC datetimes (timestamps and day-level dates alike).
+dated = fc.df.select("Encounter Date", Numeric("Blood Pressure", "Systolic")).run()
+assert pd.api.types.is_datetime64_any_dtype(dated["Encounter Date"]), "timestamps arrive as datetimes"
 assert pd.api.types.is_numeric_dtype(dated[[c for c in dated.columns if "Systolic" in c][0]])
-# Day-level dates (year-month-day label, timestamp-days number) convert on engines that record date kinds
-# (2.99.37+); older engines leave them as text/number. Either way they must agree.
-days = fc.df.select("Encounter Day", "Encounter Days Since 1970").run(datetimes=True)
-if pd.api.types.is_datetime64_any_dtype(days["Encounter Day"]):
-    assert (days["Encounter Day"] == days["Encounter Days Since 1970"]).all(), "day label and number agree"
-    print("day-level dates converted")
+days = fc.df.select("Encounter Day", "Encounter Days Since 1970").run()
+assert pd.api.types.is_datetime64_any_dtype(days["Encounter Day"]), "day-level dates arrive as datetimes"
+assert (days["Encounter Day"] == days["Encounter Days Since 1970"]).all(), "day label and number agree"
 # (collection, variable) tuples select a numeric variable
 pair = fc.df.select(("Blood Pressure", "Systolic")).run()
 assert any("Systolic" in c for c in pair.columns), pair.columns

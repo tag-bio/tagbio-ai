@@ -9,8 +9,8 @@ require('tidyr')
 function(tag_data, tag_result) {
 
   # One row per entity; columns are the analysis_variables (Encounter ID is used as the row name).
-  # dates = TRUE delivers date columns (here Encounter Date) as POSIXct/Date instead of numbers.
-  data <- tagbio::get_results(tag_data, row_name = "Encounter ID", dates = TRUE)
+  # Date columns (here Encounter Date) arrive as POSIXct/Date.
+  data <- tagbio::get_results(tag_data, row_name = "Encounter ID")
   span <- format(range(data$`Encounter Date`, na.rm = TRUE), "%Y-%m-%d")
 
   # A numeric variable arrives named "<Collection> = <Variable>" (e.g. "Blood Pressure = Systolic");

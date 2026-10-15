@@ -35,9 +35,9 @@ require('plotly'); require('dplyr'); require('tidyr')
 
 function(tag_data, tag_result) {
   # The analysis frame: one row per entity; columns are the protocol's analysis_variables,
-  # with the row_name collection used as the row names. dates = TRUE delivers date columns
-  # (here Encounter Date) as POSIXct/Date instead of numbers.
-  data <- tagbio::get_results(tag_data, row_name = "Encounter ID", dates = TRUE)
+  # with the row_name collection used as the row names. Date columns (here Encounter Date)
+  # arrive as POSIXct/Date.
+  data <- tagbio::get_results(tag_data, row_name = "Encounter ID")
   span <- format(range(data$`Encounter Date`, na.rm = TRUE), "%Y-%m-%d")
 
   # A numeric variable arrives named "<Collection> = <Variable>" (e.g. "Blood Pressure =
@@ -61,9 +61,8 @@ Key points:
   `analysis_variables`. **The `row_name` collection must itself be one of the `analysis_variables`**
   (it is consumed as the row names) — include an id data_function in the protocol, or `get_results`
   errors with "Can't find column".
-- **Dates:** pass `dates = TRUE` to `get_results()` and every date column from a datetime parser
-  arrives as `POSIXct` (timestamps, UTC) or `Date` (day-level dates). Don't convert epoch numbers
-  yourself. Relative durations (e.g. days from start of treatment) stay numeric.
+- **Dates:** every date column from a datetime parser arrives from `get_results()` as `POSIXct`
+  (timestamps, UTC) or `Date` (day-level dates). Relative durations (e.g. days from start of treatment) stay numeric.
 - **A multi-valued categorical arrives as one `"; "`-joined string per cell** (see below), whichever
   download format the SDK used. The parquet path carries it as `LIST<string>`, and the SDK collapses
   that to the same joined string as CSV, so the frame looks the same either way. Split on `"; "` to
@@ -215,7 +214,7 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
 ## Recipe: write an R plugin
 
 1. Create `protocols/plugins/plugin_<name>.R` as `function(tag_data, tag_result) { … }`.
-2. Pull the frame with `tagbio::get_results(tag_data, row_name = "<id collection>", dates = TRUE)`.
+2. Pull the frame with `tagbio::get_results(tag_data, row_name = "<id collection>")`.
 3. Produce the output and write it to `tag_result$output_path`; `return(tag_result)`.
 4. Ensure every library used is installed in the environment.
 5. Reference the plugin from an `external` / `"sdk": "R"` protocol (`protocols.md`).

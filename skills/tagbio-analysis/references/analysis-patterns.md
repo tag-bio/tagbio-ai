@@ -63,9 +63,8 @@ definition is not interpretable.
 
 ## Longitudinal work
 
-- **Parse the string date, not the epoch number,** when the product offers both — the numeric
-  timestamp is often dirtier. **Clip implausible dates** (year 1900, year 3025 sentinels) to a
-  sensible window and report how many you dropped.
+- **Clip implausible dates** (year 1900, year 3025 sentinels) to a sensible window and report how
+  many you dropped.
 - **Sort by subject, then date, before any `first`/`last`/`diff`.** A groupby on unsorted data gives
   arbitrary "first" values.
 - **Require a minimum trajectory** for slope/change analyses — e.g. ≥3 observations spanning ≥1

@@ -36,22 +36,13 @@ labs <- fc %>% select(`Encounter ID`, collection_set("Labs")) %>% collect()
 stopifnot("collection set expands to its collections" =
             all(c("Lab Panel", "Lab Analyte", "Lipid = LDL") %in% names(labs)))
 
-# Timestamps: numeric epoch milliseconds by default, POSIXct when the server runs native_timestamps=true.
-dates <- fc %>% select(`Encounter Date`) %>% collect()
-stopifnot("Encounter Date is numeric or a date-time, never text" =
-            is.numeric(dates$`Encounter Date`) || inherits(dates$`Encounter Date`, "POSIXct"))
-# dates = TRUE converts the datetime-parser columns (tagbio.dates, engine 2.99.37+); other numerics stay.
-dated <- fc %>% select(`Encounter Date`, `Blood Pressure = Systolic`) %>% collect(dates = TRUE)
-stopifnot("dates = TRUE gives POSIXct" = inherits(dated$`Encounter Date`, "POSIXct"),
-          "non-timestamp numerics stay numeric" = is.numeric(dated$`Blood Pressure = Systolic`))
-# Day-level dates (year-month-day label, timestamp-days number) convert to Date on engines that record
-# date kinds (2.99.37+); older engines leave them as text/number. Either way they must agree.
-days <- fc %>% select(`Encounter Day`, `Encounter Days Since 1970`) %>% collect(dates = TRUE)
-if (inherits(days$`Encounter Day`, "Date")) {
-  stopifnot("day label and day number agree" =
-              all(days$`Encounter Day` == days$`Encounter Days Since 1970`))
-  cat("day-level dates converted\n")
-}
+# Columns built by a datetime parser arrive as dates: POSIXct (UTC) timestamps, Date for day-level.
+dated <- fc %>% select(`Encounter Date`, `Blood Pressure = Systolic`) %>% collect()
+stopifnot("timestamps arrive as POSIXct" = inherits(dated$`Encounter Date`, "POSIXct"),
+          "other numerics stay numeric" = is.numeric(dated$`Blood Pressure = Systolic`))
+days <- fc %>% select(`Encounter Day`, `Encounter Days Since 1970`) %>% collect()
+stopifnot("day-level dates arrive as Date" = inherits(days$`Encounter Day`, "Date"),
+          "day label and day number agree" = all(days$`Encounter Day` == days$`Encounter Days Since 1970`))
 
 # Opt-in factors: single_valued categoricals become factors only when asked; multi-valued stays text.
 plain   <- fc %>% select(Department, Conditions) %>% collect()

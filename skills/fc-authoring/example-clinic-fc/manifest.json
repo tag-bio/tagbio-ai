@@ -5,7 +5,12 @@
     "name": "fc-clinic",
     "title": "Clinic FC (example)",
     "entity_name_singular": "encounter",
-    "entity_name_plural": "encounters"
+    "entity_name_plural": "encounters",
+    // The terms the data is used under; served by /s.
+    "license": {
+      "name": "CC0 1.0 (fictional example data)",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
   },
 
   "data_model": {

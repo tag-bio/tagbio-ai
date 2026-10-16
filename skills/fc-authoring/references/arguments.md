@@ -32,6 +32,20 @@ Every argument lives in an **argument_set**, whose **type** governs how the user
 > attributes like `method` and `dependencies` are **not** identity — they stay at the top level, a
 > **sibling** of `argument_set_definition`.
 
+**Open by default: `expanded`.** Put `"expanded": true` in the `argument_set_definition` to show the
+set already opened, so its options are visible without a click. Use it for a set the user should not
+miss, such as a display choice that changes what the report shows. To make the user actually
+**choose**, combine it with a `mandatory` set and **no** `suggested_value`: the protocol won't run
+until a value is picked.
+
+```json
+{ "argument_set_definition": { "argument_set_type": "mandatory", "name": "color_by_set",
+    "title": "Color Bars By", "expanded": true },
+  "argument_expanders": [
+    { "argument_type": "static-radio", "name": "color_by", "title": "Color Bars By",
+      "options": [ "Department", "Sex" ] } ] }
+```
+
 There are **two ways** to populate a set — **strongly prefer the first:**
 
 - **`argument_expanders` (autogenerate — prefer).** Point it at **data_functions** and the platform

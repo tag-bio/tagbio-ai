@@ -20,7 +20,12 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
     "name": "fc-clinic",
     "title": "Clinic FC (example)",
     "entity_name_singular": "encounter",
-    "entity_name_plural": "encounters"
+    "entity_name_plural": "encounters",
+    // The terms the data is used under, served by /s (see "Describing the product" below).
+    "license": {
+      "name": "CC0 1.0 (fictional example data)",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
   },
 
   // The BUILD side — inputs build_archive needs (gated OFF for run_server, which loads the archive).
@@ -53,6 +58,13 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
   `entity_name_plural`** — the noun the **UI** uses when it labels and counts entities ("8
   **encounters**", "this **encounter**"). Set them to your grain's real-world noun; they are
   cosmetic but user-facing.
+- **Describing the product:** `description` (shown in the UI), `links` (a list of URLs, e.g. the data
+  sources), `owner`, and **`license`**, the terms the data is used under. All are served by `/s`,
+  so the UI, SDKs and AI clients can read them. `license` is an object of string fields (a plain
+  string is shorthand for `{"name": ...}`); declare whatever the source's terms need, e.g.
+  `{"name": "...", "url": "...", "attribution": "...", "commercial_use": "not allowed",
+  "redistribution": "not allowed"}`. Set it whenever the data comes with terms or required
+  attribution.
 - **Why identity can live in both `main.json` and the manifest:** `main.json` carries the product's
   *own* identity (used when you serve it directly), while the manifest can **override** it
   **per deployed instance** — so two instances built from the same `main` can present different

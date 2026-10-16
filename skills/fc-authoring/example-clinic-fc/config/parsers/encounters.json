@@ -19,7 +19,7 @@
     "variable": "Encounter Date"
   },
   // The same date as a calendar-day label (categorical "2024/06/02") and as days since 1970 (numeric).
-  // Exports record how each encodes a date, so the SDKs' dates option can convert both.
+  // Both arrive in the SDKs as dates (R Date, pandas datetime64).
   {
     "parser_type": "datetime",
     "column": "encounter_date",

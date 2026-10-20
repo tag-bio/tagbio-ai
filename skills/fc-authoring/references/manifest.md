@@ -65,6 +65,9 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
   `{"name": "...", "url": "...", "attribution": "...", "commercial_use": "not allowed",
   "redistribution": "not allowed"}`. Set it whenever the data comes with terms or required
   attribution.
+- **`prompts`** (optional): starter questions the product answers well, offered by AI clients over
+  the FC's MCP endpoint (`mcp.md`). A list of strings, or objects with `text` plus optional `name`,
+  `title`, `description`.
 - **Why identity can live in both `main.json` and the manifest:** `main.json` carries the product's
   *own* identity (used when you serve it directly), while the manifest can **override** it
   **per deployed instance** — so two instances built from the same `main` can present different

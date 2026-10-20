@@ -87,6 +87,7 @@ The archive is the contract between the two planes: build writes it, serve reads
 | — | `references/testing.md` | The test JSON, when tests run, how failures surface. |
 | — | `references/governance.md` | Deployment, `run_server` auth, `auth_groups`, versioned deploys. |
 | — | `references/troubleshooting.md` | Reading `build.log`; "my collection didn't appear" checklists. |
+| — | `references/mcp.md` | Every FC is an MCP server at `/m`: how protocols become AI tools, and writing protocols that make good ones. |
 | — | `references/catalog-*.md` | Full enumerations of parser / table / data_function types — load on demand. |
 
 Spine in one line: **entities → data model → sourced & parsed → referenced (data_functions)

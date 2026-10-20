@@ -12,6 +12,14 @@ Which one you're talking to changes the auth rules and the API:
 
 The middle row is `local-fc.md`; the last belongs to `fc-authoring`.
 
+## SDK or MCP?
+
+Every FC is also an MCP server at `/m`: an AI client can run the product's own **apps
+(protocols)** as tools, with no code. That suits "run this analysis with these filters." The SDK
+suits everything else here: your own queries, joins and models over the raw collections. For a
+local `run_server`: `claude mcp add --transport http fc-local http://localhost:8000/m`. Deployed
+products are reached through the platform's MCP gateway. Details: `fc-authoring`'s `mcp.md`.
+
 ## Credentials
 
 `~/.tagbio.json` holds the key, and optionally the host:

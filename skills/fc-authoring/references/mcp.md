@@ -25,6 +25,7 @@ claude mcp add --transport http fc-clinic http://localhost:8000/m
 | `tools/call` | runs the protocol as a protocol instance (exactly as the UI would) |
 | `resources/read fc://about` | the data product's details (`/s`) |
 | `resources/read fc://protocols` | every protocol with its full argument definitions (`/p`) |
+| `resources/read fc://data-model`, tool `data_model` | the data model: what one entity is, every collection (type, values, entities with a value), and any collection's values with counts |
 | `prompts/list`, `prompts/get` | the starter questions in your data product definition's `prompts` |
 
 **Tool schemas come from your argument sets.** Each argument becomes a typed input:
@@ -44,7 +45,8 @@ Arguments in a `mandatory` argument set are required. **`argument_values`** list
 values of any filter argument (with entity counts), or a numeric range's spread, by running that
 argument's own `argument_protocol`, the same call that fills the UI's picker.
 
-**Results:** reports (R/Python plugins) come back as readable text plus their plots as images;
+**Results** start with the values the tool ran with. Reports (R/Python plugins) come back as markdown
+(headings, tables, lists) plus their plots as images;
 statistical results (comparison, summary) as one line per finding with the protocol's own
 descriptor sentences; entity results as JSON.
 
@@ -59,6 +61,8 @@ The tool a model sees is only as good as what you wrote:
 - **`"visible": false`** protocols are not tools. Hide helper and callback protocols; keep the
   ones a person (or model) should run visible.
 - **Fixed choices as `static-*` with `options`** give the model an exact enum instead of guessing.
+- **`default_value` on an argument** becomes the input's `default`, so the model knows what leaving it
+  out means without reading prose.
 - **Filters with an `argument_protocol`** let the model look up valid values instead of inventing them.
 - **Add `prompts` to `data_product_definition`** (in `main.json`/the manifest): the questions this
   data product answers well. Clients offer them as starters. A string is the question; an object

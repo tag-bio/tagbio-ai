@@ -64,7 +64,7 @@ The tool a model sees is only as good as what you wrote:
 - **`default_value` on an argument** becomes the input's `default`, so the model knows what leaving it
   out means without reading prose.
 - **Filters with an `argument_protocol`** let the model look up valid values instead of inventing them.
-- **Add `prompts` to `data_product_definition`** (in `main.json`/the manifest): the questions this
+- **Add `prompts` to `data_product_definition`** (in the manifest): the questions this
   data product answers well. Clients offer them as starters. A string is the question; an object
   can add `name`, `title` and `description` (`text` is required):
 

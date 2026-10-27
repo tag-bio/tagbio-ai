@@ -4,6 +4,7 @@
   "data_product_definition": {
     "name": "fc-clinic",
     "title": "Clinic FC (example)",
+    "description": "A tiny fictional clinic data product used to teach FC authoring.",
     "entity_name_singular": "encounter",
     "entity_name_plural": "encounters",
     // The terms the data is used under; served by /s.

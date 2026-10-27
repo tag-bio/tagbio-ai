@@ -2,16 +2,21 @@
 # INSTANCE (see references/manifest.md → "One repo, many instances"). Everything here is generic
 # and illustrative — replace names, sizes, and coordinates for a real deploy.
 
-# Instance 1: build + serve the CSV variant in-cluster from the repo config.
+# Instance 1: serve the archive built and QC'd beforehand (see references/preprocessing-and-rebuilds.md).
+# The manifest carries the product definition and license; command run_server keeps the engine from
+# trying to build from its data_model, and archive overrides the manifest's build-time path with the
+# copy the deploy pipeline fetched into the image.
 fc-clinic:
   fcCommand:
     fcArgs:
-      config: config/config.json      # build the data model from source in-cluster
-      main: main.json                 # protocols + tests to serve
+      command: run_server
+      manifest: manifest.json
+      archive: ./archive.ser
+      run_tests: "true"
       r_sdk: "$TAGBIO_R_UTILS"
       python_sdk: "$TAGBIO_PY"
       groups: "lax"                   # in-FC group filtering; NOT the access boundary (SSO/gateway is — governance.md)
-    jar: fc_csv_server.jar            # CSV/TSV source → the CSV server jar
+    jar: fc_csv_server.jar
     javaArgs:
       Xss: 5M
       Xmx: 1G                         # tune to the data (governance.md)
@@ -24,14 +29,15 @@ fc-clinic:
     cpu: 100m
     memory: 1G
 
-# Instance 2 (illustrative): the SAME main + config, served from the SQL build instead — a second
-# instance differing only here. Uncomment and point at a real connection to use it.
+# Instance 2 (illustrative): the same main and config built from SQL instead. It differs only in its
+# manifest (manifest_sql.json) and archive. Uncomment to use it.
 # fc-clinic-sql:
 #   fcCommand:
 #     fcArgs:
-#       config: config/config_sql.json
-#       sql_connection: config/connection_sql.json
-#       main: main.json
+#       command: run_server
+#       manifest: manifest_sql.json
+#       archive: ./archive_sql.ser
+#       run_tests: "true"
 #       r_sdk: "$TAGBIO_R_UTILS"
 #       python_sdk: "$TAGBIO_PY"
 #     jar: fc_sql_server.jar

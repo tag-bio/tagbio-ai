@@ -83,6 +83,7 @@ The archive is the contract between the two planes: build writes it, serve reads
 | 13 | `references/python.md` | Python: the same, in Python. |
 | 14 | `references/transformers.md` | Post-load computation and cross-product enrichment. |
 | 15 | `references/manifest.md` | The manifest — ties build + serve, where the archive lives, versioning. |
+| 16 | `references/preprocessing-and-rebuilds.md` | **Put the mess in preprocessing**: static config, stable file and archive names, provenance as data. |
 | — | `references/dev-loop.md` | **Practical, read early.** The edit→compile→build→serve→test loop. |
 | — | `references/testing.md` | The test JSON, when tests run, how failures surface. |
 | — | `references/governance.md` | Deployment, `run_server` auth, `auth_groups`, versioned deploys. |
@@ -119,6 +120,15 @@ It is deliberately generic. When you build a real FC, copy its shape, not its do
    and a fresh `compile` disagree, **the compile wins**. Run the loop, read the output, and treat a
    passing test as "didn't crash," not "correct." See `dev-loop.md`. After each build, QC the
    whole data model from `data_dictionary.tsv` (`dev-loop.md`): tests don't catch a wrong data model.
+
+8. **Put the mess in preprocessing.** The config, parsers, protocols, manifest and `deployments.yml`
+   are static. A data refresh changes data, never JSON, and a build never touches git. File
+   selection, renaming to stable names and provenance belong in `_preprocess/`
+   (`preprocessing-and-rebuilds.md`).
+9. **The manifest is the standard; bring what you touch up to it.** Identity and license go in
+   `manifest.json`, and `deployments.yml` serves with `command: run_server` + `manifest` +
+   `archive`. A `main.json`-only FC is legacy: leave untouched FCs alone (the engine stays backward
+   compatible), but when you work on one, convert it (`manifest.md`).
 
 ## Guardrails
 

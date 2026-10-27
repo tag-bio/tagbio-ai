@@ -253,6 +253,10 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
   describe what a section shows and how to read it. Leave out change history, dates of decisions,
   ticket references and the names of other internal products — those belong in code comments or
   commit messages.
+- **Styling a `gt` table with CSS.** The app viewer drops a report's `<style>` blocks, so
+  `opt_css()`, column classes and the theme's alignment rules don't survive. Set styling inline
+  instead, e.g. `tab_style(cell_text(align = "center"), cells_body(...))` and the same for
+  `cells_column_labels(...)`. Check the rendered report in the app, not just the knitted HTML.
 - **Debugging a plugin with `print()` or `message()`.** Neither one reliably shows you anything.
   `print()` output goes into the document being knitted, and that document is thrown away if a
   later chunk fails. `message()` and `warning()` are swallowed when the Rmd sets

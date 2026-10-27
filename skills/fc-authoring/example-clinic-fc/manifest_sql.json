@@ -6,6 +6,7 @@
   "data_product_definition": {
     "name": "fc-clinic",
     "title": "Clinic FC (example, SQL source)",
+    "description": "A tiny fictional clinic data product used to teach FC authoring, built from SQL.",
     "entity_name_singular": "encounter",
     "entity_name_plural": "encounters"
   },

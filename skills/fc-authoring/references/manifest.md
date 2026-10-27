@@ -4,18 +4,37 @@ The **manifest** (`manifest.json`) ties a data product together: what to **build
 model) and what to **serve** (the protocols), plus where the **archive** lives. A build
 (`build_archive`), a serve (`run_server`), or a `compile` is pointed at a manifest.
 
-> **manifest.json vs `deploy/deployments.yml`.** The manifest is what you use **locally** — it
-> drives `compile` / `build_archive` / `run_server` on your machine. **`deployments.yml`** is the
-> **cluster** deployment descriptor (`governance.md`): one entry per served instance, carrying the
-> archive location, the cloud jar, JVM sizing, and secrets. They overlap in spirit (both point at a
-> config/main and an archive) but serve different stages — think "manifest = dev, deployments.yml =
-> production." You author and test with the manifest; you deploy with `deployments.yml`.
+> **The manifest is the current standard.** Every FC has a `manifest.json`, and it carries the
+> product's identity (`data_product_definition`) and its build, serve and archive settings. An FC
+> that is only a `main.json` (identity in `main.json`, deployed with `config:` + `main:`) is the
+> **legacy** form. The engine still supports it for backward compatibility, so don't refactor an
+> FC nobody is working on. But **when you work on an FC, bring it to the current standard**: add a
+> manifest, move the identity into it, and switch `deployments.yml` to the manifest form below.
+>
+> **manifest.json and `deploy/deployments.yml`.** The manifest drives `compile` / `build_archive` /
+> `run_server`, locally and in the cluster. **`deployments.yml`** is the **cluster** deployment
+> descriptor (`governance.md`): one entry per served instance, adding the jar, JVM sizing, secrets
+> and probes. It points at the manifest rather than repeating it:
+>
+> ```yaml
+> fc-clinic:
+>   fcCommand:
+>     fcArgs:
+>       command: run_server       # serve only; never try to build from the manifest's data_model
+>       manifest: manifest.json   # identity, license, serve.main
+>       archive: ./archive.ser    # overrides the manifest's build-time archive path
+>       run_tests: "true"
+> ```
+>
+> `archive` is overridden because the manifest's path is where the **build** writes, while the
+> deployed container reads the archive its pipeline fetched (e.g. from the FC's bucket into
+> `./archive.ser`).
 
 ## Shape
 
 ```jsonc
 {
-  // Identity (may also live in main.json; the manifest wins when both are present).
+  // Identity. Lives here; main.json carries only protocols, tests and presentation.
   "data_product_definition": {
     "name": "fc-clinic",
     "title": "Clinic FC (example)",
@@ -68,11 +87,11 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
 - **`prompts`** (optional): starter questions the product answers well, offered by AI clients over
   the FC's MCP endpoint (`mcp.md`). A list of strings, or objects with `text` plus optional `name`,
   `title`, `description`.
-- **Why identity can live in both `main.json` and the manifest:** `main.json` carries the product's
-  *own* identity (used when you serve it directly), while the manifest can **override** it
-  **per deployed instance** — so two instances built from the same `main` can present different
-  names/titles. When both set it, **the manifest wins**. Put it in `main.json` for the single-instance
-  case; override in the manifest only when an instance needs to differ.
+- **Identity lives in the manifest, not `main.json`.** A legacy FC may still carry
+  `data_product_definition` in `main.json`. The engine accepts it there, and when both are set the
+  **manifest wins**. Don't keep two copies: when you bring an FC to the standard, move the block
+  into the manifest and delete it from `main.json`. A second instance that needs a different title
+  gets its own manifest (below).
 - **`run_tests` and `hide_failed_arguments` live only in the manifest's `serve` block** —
   unlike identity, `main.json` does not carry either (a leftover key there is ignored, with a
   one-time startup warning). `hide_failed_arguments` marks any argument whose auto-test fails as
@@ -115,10 +134,12 @@ protocols reference must exist in **every** instance's build.)
 
 ## Versioning
 
-The archive is **immutable once written**, so a version is simply a distinct archive file. The
-example hardcodes `archive.ser`, which a rebuild overwrites — for real versioning, give each build
-a distinct archive path (e.g. a dated name), keep the old files, and point `run_server` at whichever
-version you want to serve or roll back to.
+The archive is **immutable once written**. Deployments read a **stable** archive name
+(`archive.ser`), so a new build is served without editing any config. History is kept beside it:
+`legacy_archive=true` on the production build also writes a permanent `archive.ser.<uuid>.<version>`
+copy, and the transfer script uploads both. To serve or roll back to a specific past build, point an
+instance's `archive` at that UUID copy. See `preprocessing-and-rebuilds.md` for the full pattern
+and why archive names, like file names, stay stable.
 
 ## Where it's used
 
@@ -126,4 +147,4 @@ version you want to serve or roll back to.
 - `_shell_scripts/run_server.sh` → `run_server manifest=manifest.json`
 - `_shell_scripts/compile_local.sh` → `compile manifest=manifest.json` (fast, no data load)
 
-That completes the build path. Return to `SKILL.md` for the reading order and golden rules.
+Next: `preprocessing-and-rebuilds.md` — keeping the definition static while the data changes.

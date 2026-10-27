@@ -131,18 +131,21 @@ answer — bake it in.)
 
 ## From localhost to the cluster
 
-A deployed product is served by a **cloud jar** (`fc_s3_server` / `fc_gcp_server` /
-`fc_azure_server`, `configuration-and-sources.md`) reading the archive from object storage — or, as
-in the example's `deploy/deployments.yml`, built in-cluster from the config with the CSV/SQL jar. A
-deployment is described by **`deploy/deployments.yml`**, one top-level key per deployed instance
-(the example ships one; see `manifest.md` → "One repo, many instances"). Each entry carries:
+A deployment is described by **`deploy/deployments.yml`**, one top-level key per deployed instance
+(the example ships one; see `manifest.md` → "One repo, many instances"). The current standard is the
+**manifest form**: the entry runs `command: run_server` against the FC's `manifest.json` (identity,
+license, `serve.main`) and overrides `archive` with the path the container reads. The archive is
+built and QC'd beforehand, then fetched by the deploy pipeline (e.g. copied from the FC's bucket into
+`./archive.ser`) or read straight from object storage by a **cloud jar** (`fc_s3_server` /
+`fc_gcp_server` / `fc_azure_server`, `configuration-and-sources.md`). The legacy form, `config:` +
+`main:` with identity in `main.json`, still works but isn't used for new or updated FCs. Each entry
+carries:
 
-- the source (an **archive** path + storage coordinates like `s3_bucket` / `aws_region`, **or** a
-  `config` to build in-cluster) and the **`main`** file + R/Python SDK paths;
-- the **jar** (e.g. `fc_s3_server.jar` for a bucket archive, `fc_csv_server.jar` to build from CSV)
-  and JVM sizing (`Xmx`, `Xss`) — **tune `Xmx` to the data**, enough to run analyses, not more than
-  the node has;
-- **secrets by reference** (e.g. a `secretRef` to cloud credentials) — credentials live **outside
+- **`command: run_server`, `manifest`, `archive`** (and `run_tests: "true"`), plus the R/Python SDK
+  paths when plugins need them;
+- the **jar** and JVM sizing (`Xmx`, `Xss`). **Tune `Xmx` to the data**: start from the heap the
+  local `run_server` needed, enough to run analyses, but not more than the node has;
+- **secrets by reference** (e.g. a `secretRef` to cloud credentials). Credentials live **outside
   the repo**, never in it;
 - health/liveness (`livenessProbe`) and resource `reservation`s for the orchestrator.
 
@@ -165,15 +168,19 @@ build/serve, pass **`commit=<repo commit>`** in production: it **pins the FC's r
 parsers, protocols, main — to a specific git commit (SHA)**, so the build (and the served product)
 is tied to one known, immutable source revision rather than "whatever the branch is right now." It
 pins the **code/definition** side; the **data** side is pinned by the immutable archive. Together
-they make a deployment fully reproducible: same commit + same archive = same product. Keep distinct
-versions as distinct archives (and distinct `deployments.yml` instances); don't overwrite an archive
-that something is already citing.
+they make a deployment fully reproducible: same commit + same archive = same product. The served
+`archive.ser` is replaced by each transfer, so the **citable** versions are the
+`archive.ser.<uuid>.<version>` copies that `legacy_archive=true` keeps beside it
+(`preprocessing-and-rebuilds.md`). To keep serving a past version, give it its own instance pointing
+at its UUID copy.
 
 ## Recipe: prepare an FC for deployment
 
 1. Decide **collection** visibility: add `groups` to any table producing sensitive collections.
 2. Decide **protocol** visibility: add a `groups` map (and `download_groups`) in `main.json`.
 3. Choose the enforcement mode (`groups=true` for script-restricted serving).
-4. Build the archive; place it in the bucket; add/point a `deploy/deployments.yml` instance at it
-   with the right cloud jar, `Xmx`, and secret references.
+4. Build the archive and QC it (`run_server` + tests), then transfer it to the bucket under its
+   stable name (`preprocessing-and-rebuilds.md`). Point a `deploy/deployments.yml` instance at the
+   manifest (`command: run_server`, `manifest`, `archive`) with the right jar, `Xmx` and secret
+   references.
 5. Serve over HTTPS; pin the build with `commit` for reproducibility.

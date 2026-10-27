@@ -106,12 +106,11 @@ most important protocol to get right.
 ## Registering protocols: main.json
 
 A **top-level** protocol — an app the user launches directly — must be listed in the FC's **main
-file** (`main.json`), which also carries the product's identity and its tests:
+file** (`main.json`), along with its tests. (The product's identity lives in the manifest,
+`manifest.md`.)
 
 ```jsonc
 {
-  "data_product_definition": { "name": "fc-clinic", "title": "…",
-                               "entity_name_singular": "encounter", "entity_name_plural": "encounters" },
   "protocols": [ "protocols/protocol_bp_by_department.json" ],
   "tests":     [ "tests/test_bp_by_department.json" ]
 }

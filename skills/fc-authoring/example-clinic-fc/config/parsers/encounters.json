@@ -65,5 +65,14 @@
     "column": "diastolic_bp",
     "collection": "Blood Pressure",
     "variable": "Diastolic"
+  },
+  // A boolean parser with no true_value/false_value/null_value writes true/false, so the collection is logical
+  // automatically: R logical / pandas boolean on a pull (references/parsers.md -> Logical collections).
+  {
+    "parser_type": "numeric-slice",
+    "column": "systolic_bp",
+    "operator": ">=",
+    "value": 140,
+    "collection": "Hypertensive Reading"
   }
 ]

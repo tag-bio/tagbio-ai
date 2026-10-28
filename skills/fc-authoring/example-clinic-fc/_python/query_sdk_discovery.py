@@ -42,6 +42,11 @@ assert pd.api.types.is_numeric_dtype(dated[[c for c in dated.columns if "Systoli
 days = fc.df.select("Encounter Day", "Encounter Days Since 1970").run()
 assert pd.api.types.is_datetime64_any_dtype(days["Encounter Day"]), "day-level dates arrive as datetimes"
 assert (days["Encounter Day"] == days["Encounter Days Since 1970"]).all(), "day label and number agree"
+# Logical collections (here a default-valued numeric-slice) arrive with pandas' nullable boolean dtype.
+flags = fc.df.select("Hypertensive Reading", Numeric("Blood Pressure", "Systolic")).run()
+assert flags["Hypertensive Reading"].dtype == "boolean", flags["Hypertensive Reading"].dtype
+systolic = flags[[c for c in flags.columns if "Systolic" in c][0]]
+assert (flags["Hypertensive Reading"].dropna() == (systolic >= 140)[flags["Hypertensive Reading"].notna()]).all()
 # (collection, variable) tuples select a numeric variable
 pair = fc.df.select(("Blood Pressure", "Systolic")).run()
 assert any("Systolic" in c for c in pair.columns), pair.columns

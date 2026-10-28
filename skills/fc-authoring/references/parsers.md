@@ -94,6 +94,28 @@ the source stores codes or abbreviations. No `variable` (it is categorical).
 
 Values not present in `map` pass through unchanged unless you map them explicitly.
 
+## Logical collections
+
+A **logical** collection holds true/false facts and is downloaded as a native boolean: R `logical`, pandas
+`boolean`, with missing values as `NA`/`<NA>`. The web app, filters and data_functions still see the stored values.
+
+- **Opt in with `"logical": true`** on any parser that writes a categorical (`categorical`, `categorical-map`,
+  boolean parsers with custom values...). Every value must be `TRUE`/`FALSE`, `YES`/`NO` or `1`/`0` in any case,
+  and each entity may hold one value; anything else fails the build, naming the collection and the value. Values
+  are not rewritten: a `Yes`/`No` collection still shows `Yes` in the web app and arrives as `TRUE` in R. Use a
+  `categorical-map` if the displayed values should change.
+- **Automatic for plain boolean parsers.** A boolean-family parser (`numeric-slice`, `numeric-compare`,
+  `categorical-match`, `categorical-compare`, `boolean`, `boolean-compound`) with **no** `true_value`,
+  `false_value` or `null_value` writes `true`/`false`, so its collection is logical without the flag, provided no
+  entity ends up with both values. `"logical": false` opts out.
+- Parsers that set custom values (`"true_value": "< 18"` age bands, `Yes`/`No` labels, `TRUE`-only presence
+  flags) stay text unless they opt in.
+
+```json
+{ "parser_type": "numeric-slice", "column": "systolic_bp", "operator": ">=", "value": 140,
+  "collection": "Hypertensive Reading" }
+```
+
 ## Attribute reference
 
 | Attribute | Used by | Meaning |
@@ -107,6 +129,7 @@ Values not present in `map` pass through unchanged unless you map them explicitl
 | `collection_set` | any | a tag grouping this collection with others (`data-model.md`) |
 | `groups` | any | restrict this collection to those auth groups; cascades from parser → table → config (`governance.md`) |
 | `where` | any | a **row predicate** — the parser only fires on matching rows; lets you split one source into differently-filtered parsers (`catalog-table-types.md`) |
+| `logical` | categorical-producing parsers | `true` marks the collection as a logical (see **Logical collections**); `false` opts a default boolean parser out |
 | `null_value` | any | the value to **emit** when the cell is empty or matches a null indicator — e.g. `"Missing"` to make missingness an explicit level instead of dropping the entity |
 | `null_indicators` | any | per-parser list of tokens that count as missing (overrides the table/config-level list for this parser) |
 | `single_valued` | any | (engine 2.99.34+; older engines ignore it; table / config defaults need a newer engine, see below) `true` = each entity may hold **at most one value** in this collection; the build fails with an error naming the collection and example values otherwise. Declaring it on any one parser applies it to the whole collection, across every table that writes it. An identical repeated value is allowed. On a numeric it forbids merging while loading (so it can't be combined with `merge`); only categorical collections report `single_valued` afterwards. (A repeated `0` in `sparse-zero` storage can't be detected.) |

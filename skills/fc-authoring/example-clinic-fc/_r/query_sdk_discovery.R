@@ -41,6 +41,10 @@ dated <- fc %>% select(`Encounter Date`, `Blood Pressure = Systolic`) %>% collec
 stopifnot("timestamps arrive as POSIXct" = inherits(dated$`Encounter Date`, "POSIXct"),
           "other numerics stay numeric" = is.numeric(dated$`Blood Pressure = Systolic`))
 days <- fc %>% select(`Encounter Day`, `Encounter Days Since 1970`) %>% collect()
+# Logical collections (here a default-valued numeric-slice) arrive as logical.
+flags <- fc %>% select(`Hypertensive Reading`, `Blood Pressure = Systolic`) %>% collect()
+stopifnot("logical collections arrive as logical" = is.logical(flags$`Hypertensive Reading`),
+          "the flag matches its rule" = all(flags$`Hypertensive Reading` == (flags$`Blood Pressure = Systolic` >= 140), na.rm = TRUE))
 stopifnot("day-level dates arrive as Date" = inherits(days$`Encounter Day`, "Date"),
           "day label and day number agree" = all(days$`Encounter Day` == days$`Encounter Days Since 1970`))
 

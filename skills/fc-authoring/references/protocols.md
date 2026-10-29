@@ -116,6 +116,12 @@ file** (`main.json`), along with its tests. (The product's identity lives in the
 }
 ```
 
+**Generic apps are a fallback, not a supplement.** When `main.json` registers no protocols (`"protocols": []`),
+the engine serves fc-default's generic apps (download, categorical comparison, variable summary...) so the product
+has something to show. Once the FC has its own apps, register only those: don't add the generic
+`/tagbio/fluxcapacitor/protocols/*` apps alongside them. They are not designed for any one domain and crowd out
+the FC's real apps.
+
 **Helper protocols don't go here.** A protocol referenced by **file path** from another protocol —
 an **`argument_protocol`** (a cohort builder, a filter's value-fetcher), a handler protocol, etc. —
 is **discovered and registered automatically** as the compiler traverses the protocols that

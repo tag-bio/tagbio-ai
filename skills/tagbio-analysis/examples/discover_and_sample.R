@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
-# List data products and collection sets, then look at a product through a small sample (R).
-# Needs tagbio >= 1.1.91.
+# List data products, describe the data model and collection sets, then look at a product through a small sample (R).
+# Needs tagbio >= 1.1.104.
 #
 # The listing calls move no data. head(n) and collect() EXECUTE A REAL PULL (of n entities): under
 # the guardrails in ../SKILL.md, don't run them against a proprietary/regulated product without the
@@ -27,6 +27,12 @@ if (FC_NAME == "localhost") {
 # --- Discover (metadata only) -----------------------------------------------------------------
 products <- tagListDataProducts(con)          # name, title, description, url
 cat("data products on this cluster:", nrow(products), "\n")
+
+# One row per collection: pull column names, type, kind, entity counts, small categoricals' values, sets.
+dd <- tagDataDictionary(fc)
+cat(sprintf("%s: %d collections on %s %s\n", attr(dd, "data_product")$title, nrow(dd),
+            format(attr(dd, "data_product")$entity_count, big.mark = ","), attr(dd, "data_product")$entity_name_plural))
+print(dd %>% count(data_type, kind))
 
 sets <- tagListCollectionSets(fc)             # e.g. "Labs"
 cat("collection sets:", if (length(sets)) paste(sets, collapse = ", ") else "(none)", "\n")

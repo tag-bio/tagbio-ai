@@ -25,7 +25,7 @@ claude mcp add --transport http fc-clinic http://localhost:8000/m
 | `tools/call` | runs the protocol as a protocol instance (exactly as the UI would) |
 | `resources/read fc://about` | the data product's details (`/s`) |
 | `resources/read fc://protocols` | every protocol with its full argument definitions (`/p`) |
-| `resources/read fc://data-model`, tool `data_model` | the data model: what one entity is, every collection (type, values, entities with a value), and any collection's values with counts |
+| `resources/read fc://data-model`, tool `data_model` | the data model: what one entity is; every collection with its type, date or logical kind, single- or multi-valued, values, entities with a value and collection sets; any collection's values with counts. The SDKs' `tagDataDictionary()` / `data_dictionary()` return the same model as a data frame |
 | `prompts/list`, `prompts/get` | the starter questions in your data product definition's `prompts` |
 
 **Tool schemas come from your argument sets.** Each argument becomes a typed input:

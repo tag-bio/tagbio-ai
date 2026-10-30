@@ -91,6 +91,7 @@ Same platform, two SDKs, four gratuitous differences. Check this table when port
 
 | Concern | R (`tagbio`) | Python (`tagbiopy`) |
 |---|---|---|
+| Data dictionary | `tagDataDictionary(fc)`, `attr(dd, "data_product")` | `fc.data_dictionary()`, `dd.attrs["data_product"]` |
 | Describe collections | `summary(fc)` — a **method** | `fc.summary` — a **property** |
 | `summary` column names | **snake_case**: `collection`, `collection_type`, `collection_size`, `collection_entity_count` | **Title Case**: `Collection`, `Collection Type`, `Size`, `Entities without data` |
 | `summary` missingness column | entities **WITH** data (populated) | entities **WITHOUT** data (missing) — ⚠️ **inverted** (`discover.md`) |

@@ -174,7 +174,10 @@ df_local <- tbl(local) %>% select(`Encounter ID`, `Blood Pressure = Systolic`) %
   dev serve *and* the build-in-progress self-query — **`colnames(fc)` comes back empty**, so
   `all_of(colnames(fc))`, tidy-eval injection (`!!sym(x)`), and broader verbs are **not** reliable.
   **Select columns by literal name** (backticks for spaces/pipes, e.g.
-  `` select(`Encounter ID`) ``) or `everything()`. **On a deployed product, discover names first:**
+  `` select(`Encounter ID`) ``) or `everything()`. **Discover names first:** `tagDataDictionary(fc)` (tagbio >= 1.1.104)
+  lists every collection with the column names it arrives as, its type and kind, entity counts, small
+  categoricals' values and its collection sets, on localhost too (`tagbio-analysis` → `discover.md`). On a
+  deployed product,
   `summary(fc)` returns a table describing every collection (name, type, size — a method in R, vs the
   `fc.summary` *property* in Python); `colnames(fc)` returns just the names. (Both come back empty on
   localhost — enumerate there via the front-end or the config.) Keep to `tbl()` →

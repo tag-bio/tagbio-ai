@@ -1,5 +1,5 @@
-"""List data products and collection sets, then look at a product through a small sample (Python).
-Needs tagbiopy >= 1.1.1.
+"""List data products, describe the data model and collection sets, then look at a product through a small sample (Python).
+Needs tagbiopy >= 1.1.13.
 
 The listing calls move no data. head(n) and run() EXECUTE A REAL PULL (of n entities): under the
 guardrails in ../SKILL.md, don't run them against a proprietary/regulated product without the
@@ -29,6 +29,12 @@ else:
 # --- Discover (metadata only) -----------------------------------------------------------------
 products = tagbiopy.list_data_products(host=host)  # Name, Title, Description, url, ...
 print("data products on this cluster:", len(products))
+
+# One row per collection: pull column names, type, kind, entity counts, small categoricals' values, sets.
+dd = fc.data_dictionary()
+product = dd.attrs["data_product"]
+print(f"{product['title']}: {len(dd)} collections on {product['entity_count']:,.0f} {product['entity_name_plural']}")
+print(dd.groupby(["data_type", "kind"]).size().to_string())
 
 sets = fc.list_collection_sets()                   # e.g. ['Labs']
 print("collection sets:", ", ".join(sets) or "(none)")

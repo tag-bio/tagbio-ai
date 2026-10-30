@@ -4,9 +4,50 @@
 and sometimes pipes (a compound key like `Subject ID | Laterality`), and they are
 **case-sensitive**. A wrong name
 either errors or quietly returns nothing. Discovery takes under a second and costs no data
-transfer.
+transfer: start with `tagDataDictionary(fc)` / `fc.data_dictionary()` (below).
 
-## The two calls
+## Start with the data dictionary
+
+Requires R SDK 1.1.104+ / tagbiopy 1.1.13+. One call describes every collection: one row each, metadata
+only, no entity rows.
+
+```r
+# R
+dd <- tagDataDictionary(fc)
+attr(dd, "data_product")                               # name, title, entity names, entity_count
+tagDataDictionary(fc, collection_set = "Labs")         # just one set's collections
+tagDataDictionary(fc, collections = "Blood Pressure", variables = TRUE)   # one row per variable
+```
+
+```python
+# Python
+dd = fc.data_dictionary()
+dd.attrs["data_product"]
+fc.data_dictionary(collection_set="Labs")
+fc.data_dictionary(collections=["Blood Pressure"], variables=True)
+```
+
+| Column | Meaning |
+|---|---|
+| `collection` | the name you select by |
+| `column` | the column name(s) it arrives as in a pull, `; `-joined for a numeric with several variables (`Blood Pressure = Diastolic; Blood Pressure = Systolic` in R, `: ` in Python). A numeric with more than `max_levels` (20) variables shows the pattern instead: `Copy Number = <variable> (24,813 variables)` |
+| `data_type` | `categorical` or `numeric` |
+| `kind` | what the column holds: `text`, `number`, `date` or `logical` (TRUE/FALSE, a native boolean in a pull) |
+| `single_valued` | categoricals: `TRUE` = one value per entity; `FALSE` = may hold several, `"; "`-joined |
+| `n_values` | categoricals: distinct values; numerics: variables, i.e. how many columns one selection adds |
+| `n_entities`, `pct_entities` | entities **with** a value, for categoricals and numerics alike |
+| `levels` | the values of a categorical with at most `max_levels` (20) of them, `; `-joined |
+| `collection_sets` | the sets the collection belongs to, `; `-joined |
+
+- **It answers what `summary` gets wrong** (below): counts mean the same thing in both SDKs, numerics get a
+  populated count, and `n_values` is labelled for what it is.
+- **`variables = TRUE`** lists one row per variable (numeric variable or categorical value) with its
+  entity count. It needs `collections` or `collection_set`: genomics products have millions of variables.
+- **Read `n_values` before selecting a numeric.** A collection with thousands of variables adds thousands of
+  columns (see the `Size` warning below).
+- The FC's MCP server (`fc://data-model`) describes the same model to an AI client.
+
+## Names only, or older SDKs
 
 ```python
 # Python
@@ -177,7 +218,7 @@ Real products are consistent in ways that let you predict the shape once you've 
 Intersect what you want with what exists, rather than letting a bad name fail the whole query:
 
 ```python
-available = set(fc.summary["Collection"])
+available = set(fc.data_dictionary()["collection"])   # or fc.summary["Collection"] on older SDKs
 wanted    = ["Department", "Blood Pressure", "Nonexistent Thing"]
 use       = [c for c in wanted if c in available]
 missing   = [c for c in wanted if c not in available]
@@ -186,7 +227,7 @@ if missing:
 ```
 
 ```r
-available <- colnames(fc)
+available <- unlist(strsplit(tagDataDictionary(fc)$column, "; ", fixed = TRUE))   # or colnames(fc), deployed only
 wanted    <- c("Department", "Blood Pressure = Systolic")
 use       <- intersect(wanted, available)
 setdiff(wanted, available)                      # report what's missing

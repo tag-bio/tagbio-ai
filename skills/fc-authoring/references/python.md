@@ -157,7 +157,10 @@ df = fc.df.select(
   pull in `try` / `except` and write a note or a partial report when it fails. Startup tests have no
   user: inside the cluster the SDK (tagbiopy >= 1.1.6) reaches the FC directly, elsewhere it raises
   `tagbiopy.request.RemoteFCUnavailable` (or a connection error if the FC is down).
-- **Discover before you select:** `fc.summary` (a **property** — no parentheses) returns a DataFrame
+- **Discover before you select:** `fc.data_dictionary()` (tagbiopy >= 1.1.13) lists every collection with
+  the column names it arrives as, its type and kind (text, number, date, logical), entity counts, small
+  categoricals' values and its collection sets (`tagbio-analysis` → `discover.md`). `fc.summary` (a
+  **property** — no parentheses) returns a DataFrame
   describing every collection (name, type, size); `fc.list_collections("categorical")` / `("numeric")`
   list names by type. Use them to choose columns instead of guessing. (R spells the describe call
   `summary(fc)` — a method; another small cross-SDK asymmetry.)

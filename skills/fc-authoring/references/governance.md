@@ -143,11 +143,26 @@ carries:
 
 - **`command: run_server`, `manifest`, `archive`** (and `run_tests: "true"`), plus the R/Python SDK
   paths when plugins need them;
-- the **jar** and JVM sizing (`Xmx`, `Xss`). **Tune `Xmx` to the data**: start from the heap the
-  local `run_server` needed, enough to run analyses, but not more than the node has;
+- the **jar** and JVM sizing (`Xmx`, `Xss`). **Tune `Xmx` to the data** (see "Sizing `Xmx` and the memory
+  reservation" below), but not more than the node has;
 - **secrets by reference** (e.g. a `secretRef` to cloud credentials). Credentials live **outside
   the repo**, never in it;
 - health/liveness (`livenessProbe`) and resource `reservation`s for the orchestrator.
+
+### Sizing `Xmx` and the memory reservation
+
+1. **Measure the loaded heap (L).** Serve the archive once and read the startup line
+   `Data un-archived: Heap used=<bytes>`. Use this, not the build's peak heap, which includes parsing buffers
+   that are gone once the archive is served.
+2. **Set `Xmx` to about 2 x L.** Adjust at the extremes: a floor of about 2G for small FCs (JVM overhead and
+   caches dominate), and about 1.5 x L for very large ones (a query's working set grows with the size of the
+   result, not the archive). Go higher for download-heavy apps or many concurrent users.
+3. **Set the reservation above `Xmx`.** Add about 1G (or 10-15%) for JVM non-heap memory, plus 1-2G if the FC
+   runs R or Python plugins, which run outside the JVM. A reservation equal to `Xmx` risks the pod being killed
+   while the heap still has room.
+4. **Check, then tune.** The startup tests exercise every app, so the heap peak during the test run is a
+   realistic floor, but many tests use small cohorts and real use can go higher. After real use, check the pod's
+   peak memory and adjust.
 
 One FC often runs **multiple instances** — each its own key here; the shared `main` must resolve
 for every instance.

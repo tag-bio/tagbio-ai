@@ -21,6 +21,7 @@ data model or the argument layer (`data-functions.md`). They live under
 | `categorical-enum` | an explicit enumerated set of levels from a collection | `collection`, the levels |
 | `constant` | a fixed literal value (number/string) passed to a protocol | the value |
 | `flux-name` | a literal collection/variable **name** (not its data) | the name |
+| `numeric-matrix` / `categorical-matrix` | a matrix collection, or one of its variables | `collection`, optional `variable`; slicing, relative windows, collapsing and gsea are in `data-functions.md` (Matrix data functions) |
 
 ## The argument bridge (resolve at run time, `protocols.md` / `cohort-builder.md`)
 

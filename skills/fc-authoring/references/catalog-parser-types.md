@@ -15,6 +15,7 @@ working FC** — these appear less often and their options vary.
 | `numeric-bins` | a numeric column should become **labeled ranges** (age → `0–17`, `18–64`, `65+`) | a categorical collection of bins |
 | `numeric-transform` | a numeric value needs an **operator applied** (scale/offset/log via an `operator` + a `constant`, optional normalize) — not a free-form expression | a numeric collection/variable |
 | `numeric-compound` | one value must be **combined from multiple numeric columns** via an `operator`/merge (sum, ratio, score) | a numeric collection/variable |
+| `numeric-matrix` / `categorical-matrix` | an entity has a **block** of values: repeated timestamped measurements, events, or an expression matrix | a matrix collection, variables × headers (`parsers.md`, Matrix parsers) |
 
 Notes:
 

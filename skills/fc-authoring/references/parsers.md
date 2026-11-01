@@ -223,6 +223,68 @@ matrix where entities are *columns* (e.g. a gene x sample expression matrix, one
 Confusing the two costs a real detour — a long key-value table has no `start` index to give a
 `-row` parser, because it was never transposed in the first place.
 
+## Matrix parsers
+
+A **matrix** collection holds a 2-D block per entity: **variables × headers**. The headers are
+the matrix's columns: timestamps for repeated measurements and events, gene names for expression.
+There are two types, `numeric-matrix` and `categorical-matrix`. Each wraps an **inner parser**
+(`parser`) that reads the cells; the matrix's own `collection` names the result.
+
+**Repeated measurements from a long table.** The inner `numeric` parser's `collection` names the
+matrix **variables**; its `variable` names the **headers**:
+
+```jsonc
+{ "parser_type": "numeric-matrix",
+  "collection": "Labs",
+  "pattern": "yyyy-MM-dd HH:mm:ss",                                   // headers are datetimes (read as UTC)
+  "sort_headers": true,
+  "compress": "sparse",                                               // most cells are empty
+  "parser": { "parser_type": "numeric", "column": "value",
+              "collection": { "parser_type": "categorical", "column": "lab_name" },        // -> CRP, WBC
+              "variable":   { "parser_type": "categorical", "column": "lab_datetime" } } } // -> one header per time
+```
+
+**Events from a long table.** In a `categorical-matrix`, the inner parser's `column` gives the
+header, usually the event time. Its nested `collection` gives the variable, usually the event
+name:
+
+```jsonc
+{ "parser_type": "categorical-matrix",
+  "collection": "Procedures",
+  "pattern": "yyyy-MM-dd HH:mm:ss", "sort_headers": true, "compress": "sparse",
+  "parser": { "parser_type": "categorical", "column": "procedure_datetime",
+              "collection": { "parser_type": "categorical", "column": "procedure_name" } } }   // -> Surgery, ...
+```
+
+A categorical matrix is **one-hot**: each cell is 1 (the event happened at that time) or 0.
+Event matrices hold every entity, so an entity with no events has all zeros.
+
+**A transposed table** (entities are columns, such as a gene × sample expression file) uses a
+`-row` inner parser. The matrix gets both `collection` and `variable`, and the headers are the
+row features (genes):
+
+```jsonc
+{ "parser_type": "numeric-matrix",
+  "collection": "Expression Matrix", "variable": "Expression Matrix",
+  "use_float": true,
+  "null_value": 0,
+  "parser": { "parser_type": "numeric-row", "start": 1,
+              "variable": { "parser_type": "categorical", "column": "gene_symbol" } } }
+```
+
+| Attribute | Meaning |
+|---|---|
+| `compress` | `"sparse"` stores only the cells that hold a value. Use it when most cells are empty (timestamped labs, events); leave it out for dense matrices such as expression. |
+| `use_float` | 32-bit cells: half the memory, about 7 significant digits. |
+| `null_value` | every entity gets this value where it has no data, including entities missing from the file entirely. Pair it with a "has data" flag (below). |
+| `pattern` | the datetime format of the headers. Headers are read as **UTC** and print as `2024-01-09 07:00:00 UTC`. |
+| `sort_headers` | orders the headers (chronologically, for datetime headers). |
+
+**Mark which entities really have data.** With `null_value`, an entity with no expression file
+gets a full row of zeros, which looks like real data. On a transposed table, add a
+`categorical-row` parser with the same `start` and `static_value: "Yes"` (collection `Has Expression Data`). Use it as
+the denominator, and as the `background` of signature scores (`data-functions.md`).
+
 ## The extended set
 
 The four above cover most columns. For splitting delimited cells, binning numerics, deriving
@@ -250,6 +312,9 @@ values from multiple columns, constant flags, and operator-based matching, see
   their values, so a `variable` here is **rejected at build** with a clear error. (This is a *known*
   attribute placed where it's invalid — different from an unknown/misspelled attribute, which is
   silently ignored, `files-and-value-resolution.md`.)
+- **Writing `"sparse": true` on a matrix parser.** It is not an attribute, and like any unknown
+  attribute it is silently ignored, so the matrix is stored dense. The switch is
+  `"compress": "sparse"`.
 - **Naming a collection after the database column** (`sys_bp` instead of `Blood Pressure`).
 - **Wrong collection type** — a code stored as digits that you will *group by*, not average, is
   `categorical`, not `numeric`.

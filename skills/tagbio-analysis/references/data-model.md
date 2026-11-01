@@ -61,6 +61,26 @@ Why it matters to you:
   factor / `category` when you ask (`collect(factors = TRUE)`, `run(categories=True)`;
   `discover.md`). The API's collection list marks them `"single_valued": true`.
 
+## Matrix collections arrive wide
+
+A **matrix** collection holds a block per entity: variables × headers. Examples are timestamped
+labs (`CRP` at each draw time), events (`Surgery` at each date), and gene expression (one column
+per gene). A pull spreads it out to **one column per variable × header**:
+
+- **Column names:** `CRP = 2024-01-09 07:00:00 UTC` in R and `CRP: 2024-01-09 07:00:00 UTC` in
+  Python. Expression arrives as `Expression Matrix = G1`. Datetime headers are UTC.
+- **They can be very wide:** a whole expression matrix is tens of thousands of columns, and
+  timestamped labs give one column per lab per draw. Check `data_dictionary()` first: it lists
+  matrix variables as `Variable = <column>` (Python `Variable: <column>`) with `kind = "number"`.
+- **Categorical matrices are one-hot 1/0** (1 = the event happened at that time). An empty
+  numeric cell means no value.
+- **Prefer the product's protocols** for matrix work: signature scores, differential expression,
+  relative time windows. They compute inside the product over the full data. Don't pull a whole
+  expression matrix to recompute them.
+- **Beware zero-filled rows.** Some expression matrices give entities without data a row of
+  zeros. If the product has a "has data" flag (e.g. `Has Expression Data`), filter on it before
+  summarizing.
+
 ## 4. Missing means absent, not a level
 
 An entity with no value for a collection is **not in** that collection at all — it is not a

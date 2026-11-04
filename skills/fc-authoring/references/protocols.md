@@ -116,6 +116,23 @@ file** (`main.json`), along with its tests. (The product's identity lives in the
 }
 ```
 
+**Categories and tags.** `categories` groups the app tiles into sections; `tags` adds labels users
+can filter by. Both map a name to a list of protocol paths:
+
+```jsonc
+"categories": {
+  "Instant Reports":      [ "protocols/protocol_instant_assay_summary.json" ],
+  "Customizable Reports": [ "protocols/protocol_assay_summary.json" ]
+},
+"tags": {
+  "Adverse Events": [ "protocols/protocol_adverse_events_tables.json", "protocols/protocol_adverse_events_scatterplot.json" ]
+}
+```
+
+Put each app in **exactly one category**: the UI shows an app in only one section, so a second listing
+can hide it from the one you meant. Use tags for anything cross-cutting (a topic, a data source, "awaiting
+QC"); an app can carry any number of tags.
+
 **Generic apps are a fallback, not a supplement.** When `main.json` registers no protocols (`"protocols": []`),
 the engine serves fc-default's generic apps (download, categorical comparison, variable summary...) so the product
 has something to show. Once the FC has its own apps, register only those: don't add the generic
@@ -136,6 +153,34 @@ landing protocol shown when the product opens, declared separately from `protoco
 example omits it; when present, a good overview summarizes the entities and headline variables at
 a glance.
 
+An overview is a `batch` protocol: each entry in `queries` is a **data function**, and each one renders
+as its own panel (one collection per panel, labeled by the collection). `protocol_output.visualization`
+only tells the front end which panel types it may draw; keep `collection`, `tag-summary` and
+`numeric-summary` there. What is shown comes from the data functions.
+
+```jsonc
+{
+  "protocol_definition": { "name": "overview", "overview": true },
+  "protocol_output": { "visualization": [ "collection", "tag-summary", "numeric-summary" ], "visualization_type": "slim" },
+  "script": {
+    "method": "batch",
+    "queries": [
+      "protocols/data_functions/categorical_treatment_arm.json",
+      "protocols/data_functions/categorical_objective_response.json",
+      "protocols/data_functions/numeric_overall_survival.json"
+    ]
+  }
+}
+```
+
+Pick a handful of entity-level collections a newcomer should see first (arm, response, outcomes,
+demographics, which assays exist). Two patterns go wrong:
+- **One `summary` protocol as the only query** (for example one with empty `analysis_variables`):
+  every variable lands in a single panel with no collection names, and empty `analysis_variables`
+  means *every* variable, which on a large FC is slow and capped.
+- **Wide collections** (per-gene expression, per-cell features, thousands of variables): they make
+  long, slow panels that say little at a glance. Leave them to the apps.
+
 Every top-level protocol should have at least one test; the build auto-registers and auto-tests the
 file-referenced helper protocols too (`data-functions.md`, `testing.md`).
 
@@ -152,6 +197,8 @@ file-referenced helper protocols too (`data-functions.md`, `testing.md`).
 ## Common mistakes
 
 - **Forgetting to register** the protocol in `main.json` — it won't appear.
+- **Listing an app in two categories** — it shows up in only one, possibly not the one you meant.
+  Keep one category per app; use tags for the rest.
 - **No `background`** when you meant to run on a cohort — it silently runs on all entities.
 - **`analysis_variables` naming data the model doesn't have** — the referenced data_function
   fails to compile.

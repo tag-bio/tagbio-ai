@@ -76,6 +76,10 @@ fc-example/
 
 - Prepared data goes **outside the repo** (or into a gitignored folder), at the paths the manifest's
   `data_dir` and the config already name (`SKILL.md` → Guardrails: data is never committed).
+- Code preprocesses **data**, never collateral. Don't write scripts that generate `config/`,
+  protocol, `main.json` or manifest JSON: author that JSON directly so it's visible and
+  versioned. A generator is a second copy of the same decisions, and re-running it
+  overwrites later hand edits.
 - Keep a heavy step in the language it's written in. A Python or R prep script is fine; give it a
   thin bash wrapper so the whole chain still has one shell entry point. Don't port it to bash.
 - Preprocessing runs **once per data refresh**, not on every build. It is not part of the
@@ -96,6 +100,37 @@ History is kept **next to** the stable archive, not by renaming it:
 - Keep the **build → QC → transfer** split. Running `transfer_archive.sh` is the developer's
   explicit "this archive is good enough to serve". Don't fold it into the build script. A test
   build must never overwrite what production serves.
+
+### Engine upgrades and archive compatibility
+
+- A newer engine reads archives built by older engines. Upgrading the jar never requires a rebuild.
+- An older engine can't always read an archive built by a newer one: a release can add storage
+  classes the older jar doesn't have (2.103.0 does). To serve an FC on an older jar, serve an archive
+  built by that jar: rebuild with it, or point at a UUID copy built under that version (the
+  `<server-version>` in the copy's name says which).
+- Upgrade in this order: deploy the new jar to every instance that serves the FC, then build and
+  transfer archives with it. An archive built by the new jar and transferred first breaks instances
+  still on the old jar.
+
+## Archive formats: `.ser` and Parquet
+
+Every FC is built and served as `archive.ser` (Java serialization), and the scripts and deployments
+above expect it. Engine 2.103.0 adds a second format, the **Parquet archive**, which is expected to
+replace `.ser` once FCs are switched over. Until then, production stays on `.ser`.
+
+A Parquet archive is one zip: the data model as plain Parquet tables, plus a `manifest.json` that
+describes them. It holds the same data model as the `.ser`, lossless.
+
+- **Build one** by naming the archive with a `.zip` extension: `build_archive archive=<path>.zip`
+  writes a Parquet archive, and any other name writes `.ser`. Moving an FC to Parquet is just a change
+  of extension in its scripts and deployment (`archive.ser` → `archive.zip`). `legacy_archive=true`
+  keeps its UUID copies the same way (`archive.zip.<uuid>.<server-version>`).
+- **Serve or load one** with `archive=<path>.zip`. The engine recognizes a Parquet archive (a zip
+  with `manifest.json` at its root) and otherwise reads `.ser`. `entity_archives` and
+  `collection_archives` accept either format.
+- **Read it outside the engine.** The tables are ordinary Parquet, so pyarrow, R `arrow` or DuckDB
+  open them directly. No Flux engine is needed.
+- Engines before 2.103.0 can't load a Parquet archive (see "Engine upgrades" above).
 
 ## Anti-patterns
 

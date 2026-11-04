@@ -187,7 +187,9 @@ they make a deployment fully reproducible: same commit + same archive = same pro
 `archive.ser` is replaced by each transfer, so the **citable** versions are the
 `archive.ser.<uuid>.<version>` copies that `legacy_archive=true` keeps beside it
 (`preprocessing-and-rebuilds.md`). To keep serving a past version, give it its own instance pointing
-at its UUID copy.
+at its UUID copy. An archive built by a newer engine may not load in an older one, so a rolled-back
+jar needs an archive built by that jar (`preprocessing-and-rebuilds.md` → "Engine upgrades and
+archive compatibility").
 
 ## Recipe: prepare an FC for deployment
 

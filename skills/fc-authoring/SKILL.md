@@ -163,3 +163,11 @@ hard constraint, not a suggestion.
    script, or otherwise committed to the repo (`governance.md`). A connection file that carries real
    credentials stays out of git; the toy's `connection_sql.json` is committable only because it
    points at a local SQLite path with no secret.
+
+6. **Don't write code that writes code.** Author `config/`, protocol, `main.json` and manifest
+   JSON directly; never write a script (a `gen_*.py`, a template expander) that generates it.
+   Use R, Python or shell only to preprocess **data** (`preprocessing-and-rebuilds.md`). A
+   generator adds nothing: whoever writes it makes the same decisions they would make in the
+   JSON, just one step removed and harder to read. And it is harmful: re-running it silently
+   overwrites later hand edits. If a repo already has one, raise it with the user rather than
+   running it.

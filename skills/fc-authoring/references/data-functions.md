@@ -60,6 +60,19 @@ together.
 `background` (run the protocol on everything) or to satisfy a mandatory cohort in a test
 (`cohort-builder.md`).
 
+**Data that may not exist yet: `allow_null: true`.** A `categorical`, `numeric` or matrix reference
+to a collection or variable that isn't in the data throws ("Variable was not found within the
+collection") and fails the protocol. With `"allow_null": true` it resolves to nothing instead, and
+the protocol runs without it. Use it where the data arrives later, such as a measurement no
+entity has yet, and have the app say what's missing; it picks the data up on the next build with no
+change. The clinic example has no `Mean Arterial` blood pressure: without `allow_null` a download
+asking for it fails, and with it the download returns the other columns:
+
+```json
+{ "data_function_type": "numeric", "collection": "Blood Pressure",
+  "variable": "Mean Arterial", "allow_null": true }
+```
+
 The clinic example includes `numeric_collection_blood_pressure_systolic.json`, `categorical_collection_department.json`, and
 `collection_set_labs.json` under `protocols/data_functions/` (the last references the
 `Labs` collection_set the lab parsers tag). `protocol_lab_results.json` + `plugin_lab_results.R` are

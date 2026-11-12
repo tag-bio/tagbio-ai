@@ -88,8 +88,47 @@ A Python plugin can also **papermill-run a notebook**: a small `.py` plugin
 `ipynb_to_html`. Example: `protocols/plugins/plugin_bp_ipynb.py` + `bp_report.ipynb` (protocol
 `ipynb_bp`). The `.py` plugin passes the packet-file **path** into the notebook as the `fc_packet`
 parameter; the notebook loads its frame with `TagbioData(fc_packet).df` (pass the path directly —
-`TagbioData` builds the packet internally). This flavor needs **`papermill`** and **`nbconvert`**
-in `build-container.sh` (beyond `tagbiopy`), and the SDK's console scripts on `PATH`.
+`TagbioData` builds the packet internally). This flavor needs **`papermill`** and **`nbconvert`**,
+both declared by tagbiopy (its `environment.yml`, which the Tag.bio images and `update-sdks.sh` install;
+an older SDK needs them in `build-container.sh`), and the SDK's console scripts on `PATH`.
+
+`ipynb_to_html` (tagbiopy 1.1.15+) writes the same report page as an `.Rmd` with `tagbio::tag_report`:
+a header with the title, user, date, data date and app link, a numbered table of contents, and the
+Tag.bio fonts and styling, in one self-contained HTML file. Code cells are hidden. Author the notebook
+for that page:
+
+- **Title:** the notebook's first heading (`# Blood Pressure Report`) moves into the header; or pass
+  `ipynb_to_html(executed, tag_result.path, title="...")`.
+- **Sections:** the remaining headings become the numbered sections and the table of contents. The
+  top level used (`##` or `###`) is the section level, the next one down the sub-section level.
+- **Outputs:** plotly figures stay interactive (plotly.js is embedded once), matplotlib figures are
+  images, and DataFrames are tables.
+- **Header details** come from the running plugin's request; a local test run has no user or app
+  link, so only the title and date appear.
+- **Notices:** to add a warning at the top of a finished report, use
+  `tagbiopy.report.insert_banner(tag_result.path, "<div>...</div>")`. Inserting after `<body>` would
+  put it above the header.
+
+`ipynb_to_html(..., plain=True)` keeps the plain nbconvert page. A `.py` plugin that builds its own HTML
+(no notebook) gets the same page with
+`tagbiopy.report.tag_report(body_html, "Title", output_file=tag_result.path)`; `<h2>`/`<h3>` headings in
+`body_html` become the table of contents.
+
+## Sharing code between plugins
+
+Keep shared helpers next to the plugins (e.g. `protocols/plugins/lib_<topic>.py`). The SDK loads a
+`.py` plugin by file path, so its folder is **not** on `sys.path` and the working directory is the
+folder the server was started from, the FC root. A plain `import lib_<topic>` fails with
+`ModuleNotFoundError`; add the plugin's folder first:
+
+```python
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lib_<topic>
+```
+
+A papermill-run notebook also starts in the FC root, so it imports the same way, with the folder
+given as a path from the FC root (`sys.path.insert(0, "protocols/plugins")`).
 
 ## Querying a product ad-hoc
 

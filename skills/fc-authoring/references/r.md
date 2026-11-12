@@ -99,6 +99,19 @@ An R plugin can also be an **`.Rmd`** file with a `tagbio::tag_report` output bl
 knits it to HTML. Same `sdk: "R"` and `output_type: "html"`; `tag_data` is available to a chunk
 via `tagbio::get_results()`. Example: `protocols/plugins/plugin_bp.Rmd` (protocol `rmd_bp`).
 
+## Sharing code between plugins
+
+Keep shared helpers next to the plugins (e.g. `protocols/plugins/lib_<topic>.R`) and `source()`
+them. The working directory differs by flavor, so the path does too:
+
+- **`.Rmd`:** the plugin's own folder (`protocols/plugins/`); the SDK knits a temporary copy
+  saved beside the original. `source("lib_<topic>.R")` works.
+- **`.R`:** the folder the server was started from, the FC root; the SDK loads the function with
+  `dget()` and does not change directory. Use `source("protocols/plugins/lib_<topic>.R")`.
+
+A wrong path fails with "cannot open file 'lib_<topic>.R': No such file or directory". Paths to
+anything else the plugin reads (data files, images) follow the same rule.
+
 ## Querying a product ad-hoc
 
 (For analysis work, including listing data products and collection sets, `head(n)` samples and

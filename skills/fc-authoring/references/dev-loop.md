@@ -34,6 +34,15 @@ just for running the loop on your own machine:
   `connect_tagbio_py` console script must still be installed and on `PATH` (`setup.sh --python`, i.e.
   `pip install …/tagbiopy`) — it is the launcher the engine invokes; a Python plugin fails with
   `Cannot run program "connect_tagbio_py"` otherwise.
+- **Plugins run in warm workers (`plugin_workers=`, default `true`).** On an SDK's first plugin run the
+  engine starts one long-lived worker for it (`connect_tagbio_worker.R` from `r_sdk`, or
+  `connect_tagbio_py --worker`), a child process of the server that loads the SDK and its common libraries
+  once. Each later run is a fresh forked child of that worker, so runs stay isolated from each other: their
+  own process, working directory, R `tempdir()`, random state and output. Runs fall back to a separate
+  process, as before, while the worker starts, after it dies (it is restarted after a pause), and for SDK
+  versions without a worker mode. Workers exit with the server. A plugin sees the same attached packages
+  and imports as in a separate process; the one difference is that an SDK updated on disk while the server
+  runs is picked up when the server restarts. `plugin_workers=false` runs every plugin as a separate process.
 
 `setup.sh` provisions the jars and SDKs (see above and `r.md` / `python.md`). `compile` and
 `build_archive` need only the jar; `run_server` with plugin tests also needs the R/Python SDK paths

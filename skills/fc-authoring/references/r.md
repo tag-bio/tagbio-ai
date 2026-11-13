@@ -99,6 +99,23 @@ An R plugin can also be an **`.Rmd`** file with a `tagbio::tag_report` output bl
 knits it to HTML. Same `sdk: "R"` and `output_type: "html"`; `tag_data` is available to a chunk
 via `tagbio::get_results()`. Example: `protocols/plugins/plugin_bp.Rmd` (protocol `rmd_bp`).
 
+### Choosing a flavor: what each run spends time on
+
+Both flavors run in the engine's warm R worker (`dev-loop.md`), which keeps R and the SDK's libraries
+(the tidyverse, `tagbio`, `rmarkdown`, `knitr`) loaded, so a run starts without loading them. What a run
+still spends time on:
+
+- **Plain `.R` function:** fetching the data, then your code, including writing the HTML (e.g. an
+  `htmlwidgets::saveWidget`). Nothing else.
+- **`.Rmd`:** the same, plus knitting the document and a pandoc conversion to one self-contained HTML
+  page. Pandoc's time grows with the size of the raw HTML it is given: a large table rendered with many
+  per-cell styles (`gt` does this) can dominate a report, while `knitr::kable(format = "html")` emits
+  plain markup.
+
+Use `.Rmd` for a narrative report (headed sections, text around the figures, the report page); use a
+plain function when the app is one figure or table, or when it must respond quickly. Packages a plugin
+loads itself (`require('plotly')`) are loaded on every run.
+
 ## Sharing code between plugins
 
 Keep shared helpers next to the plugins (e.g. `protocols/plugins/lib_<topic>.R`) and `source()`

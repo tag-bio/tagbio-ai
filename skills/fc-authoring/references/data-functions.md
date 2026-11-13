@@ -135,7 +135,8 @@ zeros:
   `key-value collection`, `key-value variable`, `key` (the header) and `value` (numeric; 1 for
   categorical events). Use it for sparse or very wide matrices.
 - **Parquet versus CSV:** Parquet types matrix cells as `double`. CSV rounds to display digits;
-  Parquet doesn't, so `use_float` values show float precision (`3.0999999` where CSV shows `3.1`).
+  Parquet doesn't, so 32-bit matrix cells (the default; `use_float`) show float precision (`3.0999999` where
+  CSV shows `3.1`).
 
 ## The argument family (bridge to the interactive layer)
 

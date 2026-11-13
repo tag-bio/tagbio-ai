@@ -114,6 +114,23 @@ for that page:
 `tagbiopy.report.tag_report(body_html, "Title", output_file=tag_result.path)`; `<h2>`/`<h3>` headings in
 `body_html` become the table of contents.
 
+### Choosing a flavor: what each run spends time on
+
+Both flavors run in the engine's warm Python worker (`dev-loop.md`), which keeps Python, the SDK and its
+common libraries (pandas, numpy, pyarrow, plotly) imported, so a run starts without importing them. What a
+run still spends time on:
+
+- **Plain `.py` function:** fetching the data, then your code, including writing the HTML (e.g.
+  `tag_report`). Other libraries it imports are imported on every run.
+- **Notebook:** papermill starts a **separate Jupyter kernel** for every run, a new Python process that
+  imports the notebook's libraries again before the first cell; then `ipynb_to_html` converts the executed
+  notebook. The worker cannot preload that kernel, so a notebook carries this startup on every run.
+
+Use a notebook when the analysis is easiest to author and review as a notebook; use a plain function
+(with `tag_report` for the report page) when the app should respond quickly or runs often. Write the
+executed notebook to a temp file per run (as `plugin_bp_ipynb.py` does), not a fixed path: runs for
+different users can execute at the same time.
+
 ## Sharing code between plugins
 
 Keep shared helpers next to the plugins (e.g. `protocols/plugins/lib_<topic>.py`). The SDK loads a

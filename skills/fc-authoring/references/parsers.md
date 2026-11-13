@@ -275,7 +275,7 @@ row features (genes):
 | Attribute | Meaning |
 |---|---|
 | `compress` | `"sparse"` stores only the cells that hold a value. Use it when most cells are empty (timestamped labs, events); leave it out for dense matrices such as expression. |
-| `use_float` | 32-bit cells: half the memory, about 7 significant digits. |
+| `use_float` | 32-bit cells (about 7 significant digits, half the memory) are the **default** for numeric matrices. Set `"use_float": false` for 64-bit cells when the values need full double precision. |
 | `null_value` | every entity gets this value where it has no data, including entities missing from the file entirely. Pair it with a "has data" flag (below). |
 | `pattern` | the datetime format of the headers. Headers are read as **UTC** and print as `2024-01-09 07:00:00 UTC`. |
 | `sort_headers` | orders the headers (chronologically, for datetime headers). |

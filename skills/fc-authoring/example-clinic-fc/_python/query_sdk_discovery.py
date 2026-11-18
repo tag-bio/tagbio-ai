@@ -1,7 +1,6 @@
 # Ad-hoc check (Python): data product and collection set discovery, head(n), collection-set selection,
 # timestamp columns, and opt-in categories for single_valued categoricals.
 #
-# Requires tagbiopy >= 1.1.1 and an engine with single_valued (2.99.34+).
 # Run after `bash _shell_scripts/run_server.sh` is up.
 
 import pandas as pd

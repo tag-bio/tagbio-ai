@@ -1,7 +1,6 @@
 # Ad-hoc check (R): data product and collection set discovery, head(n), collection-set selection,
 # timestamp columns, and opt-in factors for single_valued categoricals.
 #
-# Requires tagbio R SDK >= 1.1.91 and an engine with single_valued (2.99.34+).
 # Run after `bash _shell_scripts/run_server.sh` is up.
 
 library(tagbio)

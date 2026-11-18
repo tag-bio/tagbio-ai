@@ -6,8 +6,6 @@ read about the data product, and run analyses, with nothing else to deploy. The 
 **only itself**: one FC, its own protocols. Cross-product catalogs, user sign-in and billing belong
 to the platform's MCP gateway, which can combine many FCs' tools.
 
-Needs an engine with the MCP endpoint (it arrives with the release after 2.100.6).
-
 ## Connect
 
 Point an MCP client at the FC's `/m`. For a local dev FC (any port, including `port=auto`):

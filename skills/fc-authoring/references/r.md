@@ -175,8 +175,7 @@ df_local <- tbl(local) %>% select(`Encounter ID`, `Blood Pressure = Systolic`) %
 
   then a bare `con <- tagConnect()` resolves both, and `tbl(con, "fc-name")` selects a deployed product.
   **In the Tag.bio notebook** the host is preset as the `TAGBIO_BASE_URL` env var (an internal cluster
-  host), so you only need the **key** in the file (needs **tagbio ≥ 1.1.69 / tagbiopy ≥ 1.0.3**, which
-  read `TAGBIO_BASE_URL`). **On your own machine** put the external HTTPS host in the file (the internal
+  host), so you only need the **key** in the file. **On your own machine** put the external HTTPS host in the file (the internal
   `*.svc.cluster.local` host won't resolve off-cluster). Give the **host no trailing slash**; **`chmod
   600 ~/.tagbio.json`** (it holds a live key), keep it **out of the repo**, rotate/revoke if it leaks;
   never commit or hardcode the key; localhost needs none.
@@ -189,7 +188,7 @@ df_local <- tbl(local) %>% select(`Encounter ID`, `Blood Pressure = Systolic`) %
 - **A call to another FC must handle "unreachable", and the plugin decides what that means.** Wrap the
   pull (`tbl(tagConnect(token = parameters$token, host_url = parameters$host_url), "fc-x") %>%
   select(...) %>% collect()`) in `tryCatch` and show a note or a partial report when it fails. Startup
-  tests have no user: inside the cluster the SDK (tagbio >= 1.1.96) reaches the FC directly, elsewhere
+  tests have no user: inside the cluster the SDK reaches the FC directly, elsewhere
   the call fails with a `tagbio_remote_unavailable` error. In an Rmd, **end the chunk right after
   `knitr::knit_exit()`** -- it stops only after the current chunk, so code after it in the same chunk
   still runs.
@@ -204,7 +203,7 @@ df_local <- tbl(local) %>% select(`Encounter ID`, `Blood Pressure = Systolic`) %
   dev serve *and* the build-in-progress self-query — **`colnames(fc)` comes back empty**, so
   `all_of(colnames(fc))`, tidy-eval injection (`!!sym(x)`), and broader verbs are **not** reliable.
   **Select columns by literal name** (backticks for spaces/pipes, e.g.
-  `` select(`Encounter ID`) ``) or `everything()`. **Discover names first:** `tagDataDictionary(fc)` (tagbio >= 1.1.104)
+  `` select(`Encounter ID`) ``) or `everything()`. **Discover names first:** `tagDataDictionary(fc)`
   lists every collection with the column names it arrives as, its type and kind, entity counts, small
   categoricals' values and its collection sets, on localhost too (`tagbio-analysis` → `discover.md`). On a
   deployed product,
@@ -224,7 +223,7 @@ df_local <- tbl(local) %>% select(`Encounter ID`, `Blood Pressure = Systolic`) %
   - **Not-null:** `` filter(!is.na(`Metabolic = HbA1c`)) `` — keeps entities that *have* a value
     (drops nulls). A bare `` is.na(`col`) `` (is-**null**) isn't supported by the engine yet and
     errors clearly; use `` !is.na() `` for not-null.
-  Multiple `filter()`s are AND-combined. Needs `tagbio >= 1.1.74`. (Python writes the same as
+  Multiple `filter()`s are AND-combined. (Python writes the same as
   `` .where((collection, variable, "not null")) `` tuples — dplyr NSE vs a tuple DSL; see `python.md`.)
 
 **Three connection targets:** a **localhost** FC you started with `run_server` —

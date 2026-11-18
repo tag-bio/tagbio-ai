@@ -13,16 +13,8 @@ import os
 import sys
 
 # --- Connect -----------------------------------------------------------------------------------
-# Current SDK (tagbiopy >= 1.0.3) in the notebook: bare FC(fc_name=...) resolves host + key.
-# Older SDK (0.9.x): the scheme patch must precede the FC import, and host/key are passed
-# explicitly. Doing it this way works on both.
-import tagbiopy.request as req
-
-HOST = os.environ.get("TAGBIO_BASE_URL")
-if HOST and HOST.startswith("http://"):
-    req.SCHEME = "http"          # defeat the http->https coercion for an internal http-only host
-
-from tagbiopy.fc import FC       # noqa: E402  (import must follow the SCHEME patch)
+# Host from TAGBIO_BASE_URL or ~/.tagbio.json, key from ~/.tagbio.json (connect.md).
+import tagbiopy.fc
 
 CFG = os.path.expanduser("~/.tagbio.json")
 if not os.path.exists(CFG):
@@ -33,14 +25,12 @@ if not os.path.exists(CFG):
     )
 with open(CFG) as fh:
     cfg = json.load(fh)
-HOST = HOST or cfg.get("TAGBIO_HOST_URL") or cfg.get("TAGBIO_BASE_URL")
-API_KEY = cfg["TAGBIO_API_KEY"]          # never hardcode this
+HOST = os.environ.get("TAGBIO_BASE_URL") or cfg.get("TAGBIO_HOST_URL") or cfg.get("TAGBIO_BASE_URL")
 if not HOST:
     raise SystemExit("No host: set TAGBIO_BASE_URL, or put TAGBIO_HOST_URL in ~/.tagbio.json.")
 
 fc_name = sys.argv[1] if len(sys.argv) > 1 else "fc-clinic"
-fc = FC(fc_name=fc_name, host=HOST, api_key=API_KEY)
-fc.analysis_variables = []               # 0.9.x quirk: defaults to None, breaks .select()
+fc = tagbiopy.fc.FC(fc_name=fc_name)
 
 # --- Describe ----------------------------------------------------------------------------------
 print(f"product: {fc_name}   host: {HOST}")

@@ -89,10 +89,9 @@ A Python plugin can also **papermill-run a notebook**: a small `.py` plugin
 `ipynb_bp`). The `.py` plugin passes the packet-file **path** into the notebook as the `fc_packet`
 parameter; the notebook loads its frame with `TagbioData(fc_packet).df` (pass the path directly —
 `TagbioData` builds the packet internally). This flavor needs **`papermill`** and **`nbconvert`**,
-both declared by tagbiopy (its `environment.yml`, which the Tag.bio images and `update-sdks.sh` install;
-an older SDK needs them in `build-container.sh`), and the SDK's console scripts on `PATH`.
+both declared by tagbiopy (its `environment.yml`), and the SDK's console scripts on `PATH`.
 
-`ipynb_to_html` (tagbiopy 1.1.15+) writes the same report page as an `.Rmd` with `tagbio::tag_report`:
+`ipynb_to_html` writes the same report page as an `.Rmd` with `tagbio::tag_report`:
 a header with the title, user, date, data date and app link, a numbered table of contents, and the
 Tag.bio fonts and styling, in one self-contained HTML file. Code cells are hidden. Author the notebook
 for that page:
@@ -184,20 +183,18 @@ df = fc.df.select(
   **R's `tbl(con, "name")` errors on localhost** — it takes no name there. Don't carry the R rule
   over to Python (or vice versa); it's the same class of asymmetry as `: ` vs `= ` and
   `.path` vs `$output_path`.
-- **Localhost port (harmonized as of tagbiopy 1.0.1):** Python's `FC()` now treats **any** localhost
-  host as no-auth http, matching R — `http://localhost:7999` works, not only `:8000`. (Earlier SDKs
-  force-rewrote a non-8000 localhost to `https://` and demanded a key.)
+- **Localhost port:** Python's `FC()` treats **any** localhost host as no-auth http, matching R —
+  `http://localhost:7999` works, not only `:8000`.
 - **Deployed credentials** come from a **`~/.tagbio.json`** (host + key), the same file R uses:
   ```json
   { "TAGBIO_HOST_URL": "https://your-host", "TAGBIO_API_KEY": "<your-key>" }
   ```
-  On **tagbiopy >= 1.0.1** a bare **`FC(fc_name="fc-x")`** resolves host + key from this file correctly
+  A bare **`FC(fc_name="fc-x")`** resolves host + key from this file correctly
   (appends the `/fc-svc/<name>/` path and tolerates a trailing slash on the host):
   ```python
   fc = tagbiopy.fc.FC(fc_name="fc-x")     # host + key from ~/.tagbio.json
   ```
-  (On older SDKs bare `FC` misrouted the URL and 405'd; if you're stuck on one, read the file and pass
-  `host=cfg["TAGBIO_HOST_URL"], api_key=cfg["TAGBIO_API_KEY"]` yourself.) Still keep the **host without a
+  Keep the **host without a
   trailing slash** as hygiene, and **never hardcode the key.** Prefer the **file over environment
   variables**: it's per-machine and unambiguous, and the two SDKs currently read env-vs-file in
   **opposite order** (R env-first, Python file-first), so a stray env var can send R and Python to
@@ -208,12 +205,12 @@ df = fc.df.select(
   privilege escalation). A plugin's own-FC callback uses localhost (no auth); a call to **another**
   deployed FC carries the **invoking user's token** (`parameters$token` in R). To locally test a plugin
   that pulls from a remote FC, set **`TAGBIO_PLUGIN_ALLOW_CONFIG=1`** to opt back into your
-  `~/.tagbio.json` for that run (both SDKs). Introduced tagbiopy 1.0.1 / tagbio 1.1.67.
+  `~/.tagbio.json` for that run (both SDKs).
 - **A call to another FC must handle "unreachable", and the plugin decides what that means.** Wrap the
   pull in `try` / `except` and write a note or a partial report when it fails. Startup tests have no
-  user: inside the cluster the SDK (tagbiopy >= 1.1.6) reaches the FC directly, elsewhere it raises
+  user: inside the cluster the SDK reaches the FC directly, elsewhere it raises
   `tagbiopy.request.RemoteFCUnavailable` (or a connection error if the FC is down).
-- **Discover before you select:** `fc.data_dictionary()` (tagbiopy >= 1.1.13) lists every collection with
+- **Discover before you select:** `fc.data_dictionary()` lists every collection with
   the column names it arrives as, its type and kind (text, number, date, logical), entity counts, small
   categoricals' values and its collection sets (`tagbio-analysis` → `discover.md`). `fc.summary` (a
   **property** — no parentheses) returns a DataFrame
@@ -232,7 +229,7 @@ df = fc.df.select(
     `(collection, variable, operator, value)`; operators `= != < <= > >=`.
   - **Not-null:** `.where(("Metabolic", "HbA1c", "not null"))` — a 3-tuple; keeps entities that
     *have* a value. `'is null'` is **not** offered (the engine can't do a numeric null match yet).
-  Needs `tagbiopy >= 1.0.6`. (R writes these as dplyr `filter(!is.na(...))`, etc. — see `r.md`.)
+  (R writes these as dplyr `filter(!is.na(...))`, etc. — see `r.md`.)
 
 > **Guardrail:** before running an ad-hoc query against any product or source, obtain the user's
 > **informed consent** — they must know Claude is about to access potentially sensitive or

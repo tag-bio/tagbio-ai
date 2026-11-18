@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 # List data products, describe the data model and collection sets, then look at a product through a small sample (R).
-# Needs tagbio >= 1.1.104.
 #
 # The listing calls move no data. head(n) and collect() EXECUTE A REAL PULL (of n entities): under
 # the guardrails in ../SKILL.md, don't run them against a proprietary/regulated product without the

@@ -38,12 +38,10 @@ products are reached through the platform's MCP gateway. Details: `fc-authoring`
   key alone authenticates, no browser session needed.
 - The key's format is `email:uuid` and it is used as HTTP basic auth `username:password`.
 
-> **Older SDKs read env-vs-file in opposite orders** (R env-first, Python file-first). If R and
-> Python disagree about which server they reached, that's why — pass the host explicitly to settle it.
 
 ## Python
 
-**Current SDK (tagbiopy ≥ 1.0.3), in the notebook** — everything resolves itself:
+**In the notebook** everything resolves itself:
 
 ```python
 import tagbiopy.fc
@@ -51,26 +49,6 @@ import tagbiopy.fc
 fc = tagbiopy.fc.FC(fc_name="fc-<name>")   # host from TAGBIO_BASE_URL, key from ~/.tagbio.json
 fc.summary                                  # a PROPERTY — no parentheses
 ```
-
-**Older SDK (0.9.x)** — bare `FC()` misroutes, and the SDK force-upgrades `http://` to `https://`,
-which breaks against an http-only internal host (`SSL: WRONG_VERSION_NUMBER`). Patch the scheme
-**before importing `FC`**, and pass host and key explicitly:
-
-```python
-import json, os
-import tagbiopy.request as req
-req.SCHEME = "http"                 # defeat the http->https coercion; MUST precede the FC import
-from tagbiopy.fc import FC
-
-HOST = os.environ["TAGBIO_BASE_URL"]
-API_KEY = json.load(open(os.path.expanduser("~/.tagbio.json")))["TAGBIO_API_KEY"]
-
-fc = FC(fc_name="fc-<name>", host=HOST, api_key=API_KEY)
-fc.analysis_variables = []          # 0.9.x quirk: defaults to None; .select() raises AttributeError
-```
-
-Only patch `SCHEME` for an **http-only internal** host. Never do it for an external endpoint —
-you'd be sending a live API key in cleartext.
 
 ## R
 

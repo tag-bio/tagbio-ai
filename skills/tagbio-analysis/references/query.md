@@ -29,7 +29,7 @@ df <- fc %>%
 ```
 
 **Always `select()` before `collect()`.** ⚠️ **A bare `collect()` with no `select()` pulls
-EVERYTHING** — verified on tagbio 1.1.77: `fc %>% collect()` on a 48-collection product returned all
+EVERYTHING** — `fc %>% collect()` on a 48-collection product returned all
 48 columns, silently. That is the single easiest way to trigger the ~2-minute gateway timeout on a
 large product (the masked-504 below), and on a wide genomics product it is catastrophic — see the
 fan-out warning in `discover.md`. It is not an error and gives you no warning, so make `select()`
@@ -91,14 +91,14 @@ Pushing the filter to the engine means you transfer only matching entities — a
 product.
 
 ```python
-# Python — needs tagbiopy >= 1.0.6. Each condition is a tuple, chained before .run()
+# Python. Each condition is a tuple, chained before .run()
 fc.df.select(...).where(("Department", "Cardiology")).run()                 # categorical
 fc.df.select(...).where(("Blood Pressure", "Systolic", ">", 120)).run()     # (coll, var, op, value)
 fc.df.select(...).where(("Metabolic", "HbA1c", "not null")).run()           # keep entities that HAVE a value
 ```
 
 ```r
-# R — needs tagbio >= 1.1.74. Multiple filter()s are AND-combined
+# R. Multiple filter()s are AND-combined
 fc %>% filter(Department == "Cardiology") %>% select(...) %>% collect()
 fc %>% filter(`Blood Pressure = Systolic` > 120) %>% select(...) %>% collect()
 fc %>% filter(!is.na(`Metabolic = HbA1c`)) %>% select(...) %>% collect()
@@ -108,13 +108,9 @@ Operators: `= != < <= > >=`. Three limits to know:
 
 - **There is no server-side "is null" test** — only **not-null**. The engine can't match a numeric
   null yet, and asking for it errors.
-- ⚠️ **On tagbiopy 0.9.x, `.where()` exists and silently no-ops** — verified: it raises nothing and
-  returns every row. **Always confirm a filter took effect by row count**, never by `hasattr`
-  (`environment.md`). R's `filter()` pushdown on tagbio ≥ 1.1.74 was verified to genuinely filter
-  server-side (65 → 7 rows), so the two SDKs are not equally trustworthy here.
-- **On older SDKs there is no working pushdown at all.** Pull, then filter the frame client-side:
-  `df[df["HbA1c"].notna()]` / `filter(!is.na(...))`. Client-side is always the reliable
-  fallback; it just costs transfer.
+- **Confirm a filter took effect by row count** when it matters. Client-side filtering
+  (`df[df["HbA1c"].notna()]` / `filter(!is.na(...))`) is always available as a fallback; it just
+  costs transfer.
 
 ## Size, timeouts, and what will actually kill your query
 
@@ -158,7 +154,7 @@ Get the logic right cheaply before paying for the full pull:
 
 - Select **two or three columns** and check the shape, dtypes, and null counts.
 - Use a **server-side filter** to bound the rows while developing, or **`head(n)`** to pull just `n`
-  entities (a reproducible sample, the same ones for the same `seed`; SDK 1.1.1 / 1.1.91+):
+  entities (a reproducible sample, the same ones for the same `seed`):
 
   ```r
   fc |> filter(Department == "Cardiology") |> select(`Encounter ID`, Department) |> head(20) |> collect()

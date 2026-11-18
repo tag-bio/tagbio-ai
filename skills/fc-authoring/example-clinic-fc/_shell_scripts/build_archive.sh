@@ -9,4 +9,4 @@ java -Xmx4g \
     -jar ${JARS}/fc_csv_server.jar \
     build_archive \
     manifest=manifest.json \
-    verbosity=4
+    verbosity=3

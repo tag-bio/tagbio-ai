@@ -8,7 +8,7 @@ transfer: start with `tagDataDictionary(fc)` / `fc.data_dictionary()` (below).
 
 ## Start with the data dictionary
 
-Requires R SDK 1.1.104+ / tagbiopy 1.1.13+. One call describes every collection: one row each, metadata
+One call describes every collection: one row each, metadata
 only, no entity rows.
 
 ```r
@@ -47,7 +47,7 @@ fc.data_dictionary(collections=["Blood Pressure"], variables=True)
   columns (see the `Size` warning below).
 - The FC's MCP server (`fc://data-model`) describes the same model to an AI client.
 
-## Names only, or older SDKs
+## Names only
 
 ```python
 # Python
@@ -218,7 +218,7 @@ Real products are consistent in ways that let you predict the shape once you've 
 Intersect what you want with what exists, rather than letting a bad name fail the whole query:
 
 ```python
-available = set(fc.data_dictionary()["collection"])   # or fc.summary["Collection"] on older SDKs
+available = set(fc.data_dictionary()["collection"])
 wanted    = ["Department", "Blood Pressure", "Nonexistent Thing"]
 use       = [c for c in wanted if c in available]
 missing   = [c for c in wanted if c not in available]
@@ -233,12 +233,10 @@ use       <- intersect(wanted, available)
 setdiff(wanted, available)                      # report what's missing
 ```
 
-On some SDK versions a bad name raises an unhelpful `TypeError` from deep inside the query builder;
-this guard turns that into a clear message.
+A bad name can raise an unhelpful `TypeError` from deep inside the query builder; this guard turns
+that into a clear message.
 
 ## Data products, collection sets and quick looks
-
-Requires R SDK 1.1.91+ / tagbiopy 1.1.1+.
 
 ```r
 # R

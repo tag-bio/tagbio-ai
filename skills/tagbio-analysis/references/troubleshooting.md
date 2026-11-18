@@ -4,7 +4,6 @@
 
 | Symptom | Cause and fix |
 |---|---|
-| `SSL: WRONG_VERSION_NUMBER` | An old `tagbiopy` force-upgraded `http://` → `https://` against an http-only internal host. Set `tagbiopy.request.SCHEME = "http"` **before importing `FC`** (`connect.md`). Internal hosts only — never for an external endpoint. |
 | HTTP **405** on a bare connection | Older SDK misrouting the URL, or an ambient host hijacking resolution. Pass `host=` and `api_key=` explicitly. |
 | **401 / 403** | Missing or stale API key, or no access to that product. Check `~/.tagbio.json` holds `TAGBIO_API_KEY` as `email:uuid`; regenerate in the front-end. |
 | Host won't resolve off-cluster | `*.svc.cluster.local` is internal-only. Use the external HTTPS host in `~/.tagbio.json`. |
@@ -21,9 +20,7 @@
 | Columns are `"X: X"` in a plugin but `"X"` in an ad-hoc pull | Not a bug: the plugin frame always applies `"<Collection>: <Variable>"`, and a single-variable numeric often names its variable after the collection. Normalize both cases (`query.md`). |
 | `TypeError` from inside `select()` | A name that isn't a collection in **this** product. Intersect against `fc.summary` / `colnames(fc)` first (`discover.md`). |
 | A sibling product 403s or 502s while others work | The registry lists products your key can't reach (**403**) and ones registered but not currently serving (**502**). Neither is an SDK fault — report and move on. |
-| `AttributeError` on `.select()` (tagbiopy 0.9.x) | `fc.analysis_variables` defaults to `None`. Set `fc.analysis_variables = []` before selecting. |
-| A bare `collect()` returned **every column** | Verified on tagbio 1.1.77: no `select()` means **pull everything**, silently. Always `select()` first (`query.md`). |
-| `.where(...)` ran fine but nothing was filtered | **tagbiopy 0.9.x: `.where()` exists and silently no-ops.** Check by row count, never by `hasattr`. Filter client-side (`environment.md`). |
+| A bare `collect()` returned **every column** | No `select()` means **pull everything**, silently. Always `select()` first (`query.md`). |
 | R: `Column 'Collection' doesn't exist` reading `summary()` | R uses **snake_case** (`collection`, `collection_type`, `collection_size`, `collection_entity_count`). Python-shaped code fails here (`discover.md`). |
 | Missingness looks inverted between R and Python | It is. Python's `Entities without data` counts entities **without** a value; R's `collection_entity_count` counts those **with** one. They're complements (`discover.md`). |
 | `KeyError: 'Unique ID'` | The auto-added key column is **product-dependent** — some products add `Unique ID`, others their own key (e.g. `Sample ID`). Resolve it, don't hardcode (`data-model.md`). |

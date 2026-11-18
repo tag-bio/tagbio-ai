@@ -10,4 +10,4 @@ java -Xmx4g \
     -jar ${JARS}/fc_sql_server.jar \
     build_archive \
     manifest=manifest_sql.json \
-    verbosity=4
+    verbosity=3

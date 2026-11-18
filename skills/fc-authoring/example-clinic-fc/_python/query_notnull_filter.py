@@ -5,7 +5,7 @@
 # no fixture edits. We assert the baseline has BOTH nulls and non-nulls (so the filter is meaningful,
 # never a silent no-op) and that the 'not null' filter returns exactly the non-null entities.
 #
-# Requires tagbiopy >= 1.0.6 (3-tuple 'not null' filter). Run after run_server.sh is up.
+# Run after run_server.sh is up.
 
 import sys
 

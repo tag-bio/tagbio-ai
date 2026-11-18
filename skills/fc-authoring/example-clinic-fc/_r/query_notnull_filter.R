@@ -6,7 +6,6 @@
 # non-nulls (so the filter is meaningful, never a silent no-op — an adversarial reviewer's first
 # complaint) and that `!is.na()` returns exactly the non-null entities.
 #
-# Requires tagbio R SDK >= 1.1.73 (numeric `!=`/`is.na` filter + engine operator `=`).
 # Run after `bash _shell_scripts/run_server.sh` is up.
 
 library(tagbio)

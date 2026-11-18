@@ -73,8 +73,8 @@ df = fc.df.select("Department").run()
 ```
 
 Two localhost quirks: **`colnames(fc)`/`summary` come back empty** on a localhost serve, so select
-by literal name or enumerate from `data_dictionary.tsv` / the config; and on **older tagbiopy
-(< 1.0.1)** only port **8000** works — other ports get force-rewritten to `https` and demand a key.
+by literal name or enumerate from `data_dictionary.tsv` / the config; and any localhost port works
+with no key.
 
 ## Serving more than one at once
 

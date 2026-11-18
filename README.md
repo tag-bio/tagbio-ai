@@ -6,6 +6,8 @@ Each subdirectory of `skills/` is a self-contained Claude Code **skill** — a s
 Markdown files that teach a Claude how to do one job well, with a worked example it can
 read and copy.
 
+Current with the Flux engine 2.104.6, the R SDK `tagbio` 1.1.106 and the Python SDK `tagbiopy` 1.1.16.
+
 ## Skills
 
 - **`skills/fc-authoring/`** — how to author a Flux data product (an "FC") from scratch:

@@ -286,6 +286,15 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
   describe what a section shows and how to read it. Leave out change history, dates of decisions,
   ticket references and the names of other internal products — those belong in code comments or
   commit messages.
+- **A table made inside a loop never appears.** R Markdown only prints a chunk's last visible value, so
+  a `gt` table built in a `for` loop (one table per arm or dose, say) is created and dropped, and only
+  the loop's `cat()` headings show. In a `results='asis'` chunk, write each table out explicitly:
+  `cat("\n\n", gt::as_raw_html(tbl), "\n\n", sep = "")`.
+- **Shapes sized in data units change with the plot.** A `geom_tile` height is in y-axis units and its
+  width in x units, so a "square" annotation row comes out as tall or flat rectangles depending on the
+  figure size, the y range and the number of bars. To keep squares, put the row in its own panel with a
+  fixed height in inches (patchwork `plot_layout(heights = unit(c(1, h), c("null", "in")))`, with `h`
+  the width of one bar) or measure the drawn panel (`ggplotGrob`) and size the tile from it.
 - **Styling a `gt` table with CSS.** The app viewer drops a report's `<style>` blocks, so
   `opt_css()`, column classes and the theme's alignment rules don't survive. Set styling inline
   instead, e.g. `tab_style(cell_text(align = "center"), cells_body(...))` and the same for

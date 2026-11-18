@@ -83,7 +83,12 @@ plugin is `r.md` / `python.md`.
   builder** uses (`protocol_cohort.json` → `cohort-builder.md`). Reach for it whenever a protocol's
   job is to *define a subset* rather than analyze one.
 - **`download`** — a built-in utility that **exports** the cohort's data (the toy's `download`
-  protocol). A "download everything" app is always worth shipping.
+  protocol). A "download everything" app is always worth shipping. A large export can be fetched
+  in **batches** of entities with two script attributes: **`entity_offset`** (how many entities of
+  the cohort to skip) and **`entity_count`** (how many to return). Batches follow a fixed entity
+  order, so consecutive offsets never overlap or miss an entity; a batch past the end of the cohort
+  returns the headers only (same columns and types), and negative values are an error. To fetch
+  everything, request batches until one comes back with fewer than `entity_count` rows.
 - **`summary`** — a built-in visualization/summary; also the method many **argument_protocols** run
   under.
 - **`collection`** / **`variable`** — used almost exclusively by the **argument layer**: the

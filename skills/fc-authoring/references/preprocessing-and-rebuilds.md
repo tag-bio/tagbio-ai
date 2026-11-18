@@ -88,7 +88,8 @@ fc-example/
 ## Archives: a stable name, with history on the side
 
 The same rule applies to the archive. Deployments read a **stable** archive key
-(`<bucket>/<fc>-data/archive.ser`), so serving a new build never needs a config or deployment edit.
+(`<bucket>/<fc>-data/archive.zip`, or `archive.ser` before an FC moves to Parquet), so serving a new build
+never needs a config or deployment edit.
 History is kept **next to** the stable archive, not by renaming it:
 
 - `legacy_archive=true` on the **production** `build_archive.sh` makes the engine also write a
@@ -96,7 +97,8 @@ History is kept **next to** the stable archive, not by renaming it:
   written as usual.
 - `transfer_archive.sh` uploads both: the canonical `archive.ser`, which replaces the served one,
   and the UUID copy, which is retained. Any past build can then be retrieved by its UUID.
-- Leave `legacy_archive` off for dev and test builds, so disposable builds don't fill the bucket.
+- Every build that may be transferred writes the UUID copy. Leave `legacy_archive` off only for throwaway
+  local builds that are never transferred.
 - Keep the **build → QC → transfer** split. Running `transfer_archive.sh` is the developer's
   explicit "this archive is good enough to serve". Don't fold it into the build script. A test
   build must never overwrite what production serves.
@@ -105,7 +107,7 @@ History is kept **next to** the stable archive, not by renaming it:
 
 - A newer engine reads archives built by older engines. Upgrading the jar never requires a rebuild.
 - An older engine can't always read an archive built by a newer one: a release can add storage
-  classes the older jar doesn't have (2.103.0 does). To serve an FC on an older jar, serve an archive
+  classes the older jar doesn't have. To serve an FC on an older jar, serve an archive
   built by that jar: rebuild with it, or point at a UUID copy built under that version (the
   `<server-version>` in the copy's name says which).
 - Upgrade in this order: deploy the new jar to every instance that serves the FC, then build and
@@ -114,9 +116,9 @@ History is kept **next to** the stable archive, not by renaming it:
 
 ## Archive formats: `.ser` and Parquet
 
-Every FC is built and served as `archive.ser` (Java serialization), and the scripts and deployments
-above expect it. Engine 2.103.0 adds a second format, the **Parquet archive**, which is expected to
-replace `.ser` once FCs are switched over. Until then, production stays on `.ser`.
+The **Parquet archive** (`archive.zip`) is the format to use: build new FCs with it and convert existing
+ones (below). The engine also loads `archive.ser` (Java serialization), so an archive that isn't rebuilt
+keeps working.
 
 A Parquet archive is one zip: the data model as plain Parquet tables, plus a `manifest.json` that
 describes them. It holds the same data model as the `.ser`, lossless.
@@ -130,7 +132,20 @@ describes them. It holds the same data model as the `.ser`, lossless.
   `collection_archives` accept either format.
 - **Read it outside the engine.** The tables are ordinary Parquet, so pyarrow, R `arrow` or DuckDB
   open them directly. No Flux engine is needed.
-- Engines before 2.103.0 can't load a Parquet archive (see "Engine upgrades" above).
+
+### Converting an FC to Parquet
+
+- **Change every archive path, in every place it appears:** the production and dev build scripts, the
+  run scripts, `transfer_archive.sh` and `deploy/deployments.yml`. In `transfer_archive.sh` that
+  includes the glob that finds the UUID copy (`archive.ser.*` → `archive.zip.*`); a missed glob doesn't
+  fail, the UUID copies just stop being uploaded.
+- **Check every `archive:` line in `deployments.yml`.** One repo can deploy more than one archive (a
+  second product built from its own config, with its own build, run and transfer scripts). Convert
+  each live one. A deployment that serves a frozen archive, one that is never rebuilt, can stay on
+  `.ser`.
+- **Transfer before you deploy.** Build, QC and transfer the `.zip` first: a deployment pointed at
+  `archive.zip` before that key exists in the bucket has nothing to load. The old `archive.ser` stays
+  in the bucket, so rolling back is reverting the `deployments.yml` change.
 
 ## Anti-patterns
 
@@ -140,7 +155,7 @@ describes them. It holds the same data model as the `.ser`, lossless.
 | A new data delivery needs a commit to the config | Move the selection into `_preprocess/` |
 | The source file name or data date only exists in a commit message | Record it as a collection (a `.source.txt` sidecar → `Source File` column) |
 | One parser per delivery (`..._v1`, `..._v2`) | Normalize every delivery to one stable file; keep the history in preprocessing comments |
-| A dated archive file name in `deployments.yml` | Stable `archive.ser`; history through `legacy_archive` UUID copies |
+| A dated archive file name in `deployments.yml` | Stable `archive.zip`; history through `legacy_archive` UUID copies |
 | Build and upload to the served key in one step | Build, QC (`run_server` + tests), then `transfer_archive.sh` |
 
 That completes the build path. Return to `SKILL.md` for the reading order and golden rules.

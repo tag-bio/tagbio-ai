@@ -18,7 +18,7 @@ Run from an FC repo's root (paths in the manifest are relative to it):
 java -Xmx4g -jar $TAGBIO_JARS/fc_csv_server.jar compile manifest=manifest.json
 
 # 2. build_archive — read the sources, apply the model, write the immutable archive
-java -Xmx4g -jar $TAGBIO_JARS/fc_csv_server.jar build_archive manifest=manifest.json verbosity=4
+java -Xmx4g -jar $TAGBIO_JARS/fc_csv_server.jar build_archive manifest=manifest.json verbosity=3
 
 # 3. run_server — load the archive and serve the API + UI on localhost:8000
 java -Xmx4g -jar $TAGBIO_JARS/fc_csv_server.jar run_server manifest=manifest.json \

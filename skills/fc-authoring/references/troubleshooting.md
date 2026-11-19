@@ -8,8 +8,10 @@ silent-typo trap), so a misspelled key just vanishes.
 
 ## Reading `build.log`
 
-The build writes a log (path set by `data_model.log`, or `log=` on the CLI); raise `verbosity`
-(0–5) for more. Read it top-to-bottom and look for:
+The build writes a log (path set by `data_model.log`, or `log=` on the CLI). The default
+`verbosity=3` is what you want day to day; `verbosity=4` adds DEBUG lines — use it only while
+chasing a specific problem, then set it back, because it writes far more lines and slows builds
+and startup (especially on network filesystems). Read it top-to-bottom and look for:
 
 - **Per-table load lines** — how many rows each source contributed. A table that loaded **0 rows**
   (or far fewer than expected) is a bad path, delimiter, `where` filter, or join that dropped
@@ -96,4 +98,5 @@ per-table counts.
 2. Did the **table load rows**? (log)
 3. Is the collection in **`data_dictionary.tsv`**? (built or not)
 4. Does the downstream name **match exactly**? (data_function / protocol)
-5. Still stuck → raise `verbosity`, read `build.log` around the failure.
+5. Still stuck → rerun with `verbosity=4` (DEBUG), read `build.log` around the failure, then set
+   it back to 3.

@@ -129,6 +129,10 @@ It is deliberately generic. When you build a real FC, copy its shape, not its do
    `manifest.json`, and `deployments.yml` serves with `command: run_server` + `manifest` +
    `archive`. A `main.json`-only FC is legacy: leave untouched FCs alone (the engine stays backward
    compatible), but when you work on one, convert it (`manifest.md`).
+10. **Log at `verbosity=3`; DEBUG (4) is for chasing a known problem.** DEBUG writes far more lines
+   and slows builds and startup, so never commit it in a script. Scripts log to a file locally
+   (`data_model.log`, `log=`); deployed servers log to the console, where they're easy to read
+   (`dev-loop.md` → "Handy flags").
 
 ## Guardrails
 

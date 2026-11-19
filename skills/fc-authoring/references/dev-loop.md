@@ -134,7 +134,7 @@ data_function, or protocol edit.**
 ### 2. `build_archive` — load the data and write the archive
 
 ```bash
-java -Xmx4g -jar ${TAGBIO_JARS}/fc_csv_server.jar build_archive manifest=manifest.json verbosity=4
+java -Xmx4g -jar ${TAGBIO_JARS}/fc_csv_server.jar build_archive manifest=manifest.json verbosity=3
 ```
 
 Reads the sources, applies the parsers, runs transformers, and writes the immutable archive. This
@@ -142,7 +142,7 @@ is where **data-dependent** problems surface: a parser that produced nothing, a 
 didn't match, a transformer error, a duplicate unique key. Read `build.log` and the per-table
 report lines; confirm the collections you expect appear in the generated `data_dictionary.tsv`
 (`configuration-and-sources.md`), then QC the whole data model against it ("QC the data model with
-`data_dictionary.tsv`" below). Higher `verbosity` (0–5) means more detail.
+`data_dictionary.tsv`" below). Keep `verbosity=3` in committed scripts; see "Handy flags".
 
 ### 3. `run_server` — serve the protocols locally
 
@@ -223,10 +223,10 @@ over the listed rows rather than assuming they're the full set.
 
 | flag | does |
 |---|---|
-| `verbosity=0..5` | log detail (append `d` to see deprecation notices) |
+| `verbosity=0..4` | log detail: 0 ERROR, 1 +WARN, 2 +INFO, 3 +DETAIL (default), 4 +DEBUG. Use 4 only while debugging a known problem — it is slow — and never commit it. Append `d` to see deprecation notices |
 | `die=true` | run all processes, then stop the server (one-shot builds/tests) |
 | `run_tests=false` | opt out of the registered tests (on by default via the manifest) |
-| `log=build.log` | send output to a file instead of the console |
+| `log=build.log` | send output to a file; the console still shows a short startup/shutdown summary |
 
 ## Housekeeping: detecting cruft
 

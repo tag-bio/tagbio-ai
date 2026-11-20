@@ -156,6 +156,42 @@ build time, so design names with them in mind.
 - **Collection sets provide no namespace** (they are flat tags — see above), so they cannot be
   used to separate collections that would otherwise collide by name and type.
 
+## Column names in downloads
+
+A download (CSV or Parquet, including the data frames the R and Python SDKs return) has one column
+per categorical collection, numeric variable and matrix column. The names join parts with the
+request's `header_delimiter`: `" = "` by default, which the R SDK uses; the Python SDK and the MCP
+server send `": "`; `"none"` leaves the parts unjoined.
+
+| Source | Column name | Shortened to |
+|---|---|---|
+| Categorical collection (single- or multi-valued) | `<collection>` | — |
+| Numeric variable | `<collection> = <variable>` | `<variable>` when it equals the collection name |
+| Numeric matrix cell | `<variable> = <column>` | `<column>` when it equals the collection name |
+| Categorical matrix cell (1 / 0) | `<variable> = <column>` | `<column>` when it equals the variable name |
+
+With `"none"`, numeric columns are `<variable>` and matrix columns `<column>`. Requested
+`entity_annotation` collections come first, and `Unique ID` is always included. Tall downloads add
+fixed columns: `key-value collection`, `key-value variable`, `key` and `value`.
+
+**Repeated names.** Names can repeat: a numeric and a categorical collection may share a name (see
+above), two matrix collections may share variable and column names, and with `"none"` any two
+numeric variables of the same name collide. Every name that doesn't repeat stays exactly as above.
+For one that does:
+
+1. Its numeric and matrix columns get their full name: `<collection> = <variable>`, or
+   `<collection> = <variable> = <column>` for a matrix cell. A categorical keeps its name. For
+   example, a categorical `Patient Age` stays `Patient Age` and the numeric one becomes
+   `Patient Age = Patient Age`; matrices `Labs` and `Labs Dense` become `Labs = WBC = …` and
+   `Labs Dense = WBC = …`. With `"none"`, the full name uses `" = "`.
+2. If a name still repeats (only possible across types), each of those columns gets its source
+   type: `Patient Age [categorical]`, `X = V = c [numeric matrix]`.
+3. If names still repeat (collection or variable names that contain the delimiter), the download is
+   refused with a message naming them; request those collections separately.
+
+So every download's column names are unique, which tidyverse verbs, `pandas.read_parquet` and Arrow
+datasets require.
+
 ## Clinic recap
 
 | Source column | Collection | Variable(s) |

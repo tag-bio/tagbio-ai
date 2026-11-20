@@ -146,6 +146,19 @@ describes them. It holds the same data model as the `.ser`, lossless.
 - **Transfer before you deploy.** Build, QC and transfer the `.zip` first: a deployment pointed at
   `archive.zip` before that key exists in the bucket has nothing to load. The old `archive.ser` stays
   in the bucket, so rolling back is reverting the `deployments.yml` change.
+- **Converting without a rebuild.** Nothing has to be converted: old `.ser` archives keep loading, and
+  the next build writes `.zip`. When an FC can't be rebuilt soon (slow builds, source data not at
+  hand), convert its current archive instead. Load it with an empty transformer list and write the
+  result as `.zip`; the data and the archive's UUID are unchanged:
+
+  ```bash
+  echo '[]' > "$HOME/no_transformers.json"
+  java -Xmx<heap> -jar fc_csv_server.jar archive=<path>/archive.ser \
+       transformers="$HOME/no_transformers.json" transformed_archive=<path>/archive.zip die=true
+  ```
+
+  Pass no `manifest=` here: with one, the engine builds from the config instead of converting. QC the
+  `.zip` like any new build (`run_server` with its tests) before transferring it.
 
 ## Anti-patterns
 

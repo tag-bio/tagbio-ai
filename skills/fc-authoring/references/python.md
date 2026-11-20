@@ -62,7 +62,9 @@ Key points:
   protocol's `analysis_variables`. A **categorical** collection is its own name (`Department`); a
   **numeric variable** arrives as **`"<Collection>: <Variable>"`** — e.g. `"Blood Pressure:
   Systolic"`. (The Python SDK uses a `": "` separator here; the **R SDK uses `" = "`** for the same
-  thing — a known inconsistency between the two SDKs. Rename the columns if you want plain names.)
+  thing — a known inconsistency between the two SDKs. Rename the columns if you want plain names.
+  The full rules, including matrix columns and repeated names: `data-model.md` → "Column names in
+  downloads".)
 - **Dates:** every date column from a datetime parser arrives from `tag_data.get_df()` as a UTC
   datetime. Relative durations (e.g. days from start of treatment) stay numeric.
 - **`Unique ID` is always there.** The engine **automatically adds a `Unique ID` column** (the

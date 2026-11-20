@@ -40,6 +40,12 @@ The archive is the contract between the two planes: build writes it, serve reads
 > typo-tolerant, so mistakes surface late. The `compile → build → run_server → test` loop — the
 > fast `compile` check most of all — is how you catch them. Validate as you go.
 
+> **Finding your way around an existing FC: start from the manifests, not from grep.** Begin with
+> `deploy/deployments.yml` and the `manifest*.json` files, and follow their references to the config,
+> data, transformers, main and protocols (`references/manifest.md` → "Finding your way around an
+> FC"). That chain is exactly what gets built and served; a file it doesn't reach is not part of the
+> product. Search inside the files you reached that way.
+
 > **Where are the engine jars? Match the work to the environment — a missing *local* jar is not a
 > blocker.** The build/serve dev loop (`compile` / `compile_local`, `build_archive`, `run_server`,
 > tests) run the Flux **engine jars**. `tagbio-ai/setup.sh` fetches them into

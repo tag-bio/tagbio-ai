@@ -132,11 +132,37 @@ So "another FC" is really "another manifest/deployment"; whether it reuses the c
 swaps them is up to you. (When several instances share one `main`, every collection that `main`'s
 protocols reference must exist in **every** instance's build.)
 
+## Finding your way around an FC
+
+The manifests are the map of a repo. Every file that is built or served is reached by following
+references from them, the same way the engine does:
+
+```
+deploy/deployments.yml   which manifest each deployed instance runs (manifest:, archive:)
+manifest*.json           one per instance
+  data_model.config        config.json -> its tables -> their parsers (and SQL query files)
+  data_model.data_dir / sql_connection / transformers
+  archive                  where the build writes the archive
+  serve.main               main.json -> protocols/*.json
+                             -> argument sets, arguments, data functions, plugin scripts (R/Python)
+```
+
+- **Follow the references; don't grep for them.** A repo can hold old copies, diagnostics and files
+  for other instances. Searching the whole tree for a name finds those too, and can't tell which
+  instance a hit belongs to.
+- **Not reached means not live.** A config file, parser or protocol that no manifest reaches isn't
+  part of any build or app. That is how to tell a live file from a leftover.
+- **With several manifests,** answer every question per instance: which config, which main, which
+  archive.
+- **Search inside what you reached.** Once the chain gives you the live files, searching within them
+  is fine.
+
 ## Versioning
 
 The archive is **immutable once written**. Deployments read a **stable** archive name
-(`archive.ser`), so a new build is served without editing any config. History is kept beside it:
-`legacy_archive=true` on the production build also writes a permanent `archive.ser.<uuid>.<version>`
+(`archive.zip`, or `archive.ser` before an FC moves to Parquet), so a new build is served without
+editing any config. History is kept beside it:
+`legacy_archive=true` on the production build also writes a permanent `archive.zip.<uuid>.<version>`
 copy, and the transfer script uploads both. To serve or roll back to a specific past build, point an
 instance's `archive` at that UUID copy. See `preprocessing-and-rebuilds.md` for the full pattern
 and why archive names, like file names, stay stable.

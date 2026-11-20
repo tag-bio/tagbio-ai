@@ -153,7 +153,10 @@ carries:
 
 1. **Measure the loaded heap (L).** Serve the archive once and read the startup line
    `Data un-archived: Heap used=<bytes>`. Use this, not the build's peak heap, which includes parsing buffers
-   that are gone once the archive is served.
+   that are gone once the archive is served. From engine 2.104.10 the line is measured after a garbage
+   collection, so it is the heap the data model keeps. Older engines measure it before one, which overstates it
+   (most for Parquet archives); there, read the retained heap from a running server instead:
+   `jcmd <pid> GC.run`, then the `used` figure from `jcmd <pid> GC.heap_info`.
 2. **Set `Xmx` to about 2 x L.** Adjust at the extremes: a floor of about 2G for small FCs (JVM overhead and
    caches dominate), and about 1.5 x L for very large ones (a query's working set grows with the size of the
    result, not the archive). Go higher for download-heavy apps or many concurrent users.

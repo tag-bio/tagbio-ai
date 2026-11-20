@@ -77,7 +77,8 @@ Key points:
   is `"<Collection> = <Variable>"` — the R SDK's `" = "` separator (the **Python SDK uses `": "`**;
   `python.md`). Rename if you want plain columns. **Do not copy a Python plugin's `": "` column names
   into R** — R receives `" = "`; the columns will silently read as "missing." Remap once after load:
-  `colnames(df) <- gsub(" = ", ": ", colnames(df), fixed = TRUE)`.
+  `colnames(df) <- gsub(" = ", ": ", colnames(df), fixed = TRUE)`. The full rules, including matrix
+  columns and repeated names: `data-model.md` → "Column names in downloads".
 - **A categorical *variable* behaves differently from a numeric one.** It does **not** become a
   per-variable column. The packet delivers **one** column named for the collection, and each variable
   is a **tag among that column's `"; "`-joined values** (categorical = a tag set, not a vector). So

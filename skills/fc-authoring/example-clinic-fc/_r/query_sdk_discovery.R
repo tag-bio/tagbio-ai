@@ -52,6 +52,7 @@ plain   <- fc %>% select(Department, Conditions) %>% collect()
 factors <- fc %>% select(Department, Conditions) %>% collect(factors = TRUE)
 stopifnot("default keeps plain strings" = is.character(plain$Department),
           "factors = TRUE turns Department into a factor" = is.factor(factors$Department),
-          "multi-valued Conditions stays a string" = is.character(factors$Conditions))
+          "multi-valued Conditions stays a string" = is.character(factors$Conditions),
+          "multi-valued cells are \"; \"-joined text" = any(grepl("; ", plain$Conditions, fixed = TRUE)))
 
 cat("PASS: discovery, head(n), collection sets, timestamps, opt-in factors\n")

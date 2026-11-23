@@ -24,7 +24,7 @@ An FC has a **build plane** and a **serve plane**, connected by the archive.
 ```
  SOURCE DATA          BUILD PLANE                    SERVE PLANE
  (CSV / SQL)   ->  config -> data model  -> ARCHIVE -> protocols -> API / apps
-                   (entities, collections)  (.ser,     (cohort builder,
+                   (entities, collections)  (.zip,     (cohort builder,
                                              immutable)  R/Python plugins)
 ```
 
@@ -159,7 +159,7 @@ hard constraint, not a suggestion.
    (the built collections/variables) can all carry real data. Don't open and paste their contents;
    don't share them outside the environment.
 
-4. **Never commit data or its byproducts.** No source data files, archives (`*.ser`), logs
+4. **Never commit data or its byproducts.** No source data files, archives (`*.zip`, `*.ser`), logs
    (`build.log`), `data_dictionary.tsv`, or diagnostic output go into git — for a real FC these are
    PHI or leak it. Keep them gitignored, using `example-clinic-fc/.gitignore` as the literal template
    (copy it in the same first pass as the skeleton — `dev-loop.md` → Bootstrapping). The example FC's

@@ -264,8 +264,8 @@ development. **This is R-only: the Python SDK hardcodes `:8000` for the localhos
   `analysis_variables`, or it fails with "Can't find column". (The Python `.df` doesn't use a
   `row_name`, so the two languages' `analysis_variables` legitimately differ here.)
 - **Wrong `row_name`** — name an id collection that actually exists in the analysis frame.
-- **Assuming one shape for a multi-valued categorical.** It can be a `"; "`-joined string or a list
-  column (see Key points). Handle both, or the plugin quietly finds nothing.
+- **Testing a multi-valued categorical with `==`.** Its cells are `"; "`-joined strings (see Key
+  points); split them first, or the plugin quietly finds nothing.
 - **Small plot text.** First-pass plots almost always come out with small labels, ticks and
   legends, and long labels collide with axes and controls. Set one base size for every plot
   (`theme_minimal(base_size = 16)` or more, plotly `font = list(size = 14)`, and the equivalent for

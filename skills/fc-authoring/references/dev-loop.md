@@ -43,6 +43,9 @@ just for running the loop on your own machine:
   versions without a worker mode. Workers exit with the server. A plugin sees the same attached packages
   and imports as in a separate process; the one difference is that an SDK updated on disk while the server
   runs is picked up when the server restarts. `plugin_workers=false` runs every plugin as a separate process.
+- **Downloads are gzipped on several threads (`parallel_gzip=`, default `true`).** A download is compressed
+  once, as it streams, and that gzip is both sent and cached; the result is one standard gzip file that any gzip
+  reader opens. `parallel_gzip=false` compresses on a single thread instead, with the same uncompressed result.
 
 `setup.sh` provisions the jars and SDKs (see above and `r.md` / `python.md`). `compile` and
 `build_archive` need only the jar; `run_server` with plugin tests also needs the R/Python SDK paths

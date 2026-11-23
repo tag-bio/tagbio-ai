@@ -136,7 +136,7 @@ A deployment is described by **`deploy/deployments.yml`**, one top-level key per
 **manifest form**: the entry runs `command: run_server` against the FC's `manifest.json` (identity,
 license, `serve.main`) and overrides `archive` with the path the container reads. The archive is
 built and QC'd beforehand, then fetched by the deploy pipeline (e.g. copied from the FC's bucket into
-`./archive.ser`) or read straight from object storage by a **cloud jar** (`fc_s3_server` /
+`./archive.zip`) or read straight from object storage by a **cloud jar** (`fc_s3_server` /
 `fc_gcp_server` / `fc_azure_server`, `configuration-and-sources.md`). The legacy form, `config:` +
 `main:` with identity in `main.json`, still works but isn't used for new or updated FCs. Each entry
 carries:
@@ -187,8 +187,8 @@ parsers, protocols, main — to a specific git commit (SHA)**, so the build (and
 is tied to one known, immutable source revision rather than "whatever the branch is right now." It
 pins the **code/definition** side; the **data** side is pinned by the immutable archive. Together
 they make a deployment fully reproducible: same commit + same archive = same product. The served
-`archive.ser` is replaced by each transfer, so the **citable** versions are the
-`archive.ser.<uuid>.<version>` copies that `legacy_archive=true` keeps beside it
+`archive.zip` is replaced by each transfer, so the **citable** versions are the
+`archive.zip.<uuid>.<version>` copies that `legacy_archive=true` keeps beside it
 (`preprocessing-and-rebuilds.md`). To keep serving a past version, give it its own instance pointing
 at its UUID copy. An archive built by a newer engine may not load in an older one, so a rolled-back
 jar needs an archive built by that jar (`preprocessing-and-rebuilds.md` → "Engine upgrades and

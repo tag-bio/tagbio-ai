@@ -22,13 +22,13 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
 >     fcArgs:
 >       command: run_server       # serve only; never try to build from the manifest's data_model
 >       manifest: manifest.json   # identity, license, serve.main
->       archive: ./archive.ser    # overrides the manifest's build-time archive path
+>       archive: ./archive.zip    # overrides the manifest's build-time archive path
 >       run_tests: "true"
 > ```
 >
 > `archive` is overridden because the manifest's path is where the **build** writes, while the
 > deployed container reads the archive its pipeline fetched (e.g. from the FC's bucket into
-> `./archive.ser`).
+> `./archive.zip`).
 
 ## Shape
 
@@ -64,7 +64,7 @@ model) and what to **serve** (the protocols), plus where the **archive** lives. 
   },
 
   // The immutable artifact that connects the two planes: build writes it, serve reads it.
-  "archive": "archive.ser"
+  "archive": "archive.zip"
 }
 ```
 

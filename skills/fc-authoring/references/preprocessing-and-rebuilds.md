@@ -93,9 +93,9 @@ never needs a config or deployment edit.
 History is kept **next to** the stable archive, not by renaming it:
 
 - `legacy_archive=true` on the **production** `build_archive.sh` makes the engine also write a
-  permanent copy named `archive.ser.<uuid>.<server-version>`. The canonical `archive.ser` is still
+  permanent copy named `archive.zip.<uuid>.<server-version>`. The canonical `archive.zip` is still
   written as usual.
-- `transfer_archive.sh` uploads both: the canonical `archive.ser`, which replaces the served one,
+- `transfer_archive.sh` uploads both: the canonical `archive.zip`, which replaces the served one,
   and the UUID copy, which is retained. Any past build can then be retrieved by its UUID.
 - Every build that may be transferred writes the UUID copy. Leave `legacy_archive` off only for throwaway
   local builds that are never transferred.

@@ -26,15 +26,15 @@ Rscript -e 'cat("  tagbio (R):  ", as.character(packageVersion("tagbio")), "\n")
 "$PYBIN" -c "import tagbiopy; print('  tagbiopy:   ', tagbiopy.__version__)" 2>/dev/null || echo "  tagbiopy: NOT INSTALLED"
 
 echo "== archive (best-effort rebuild; fixture fallback) =="
-# The harness tests SDK query paths against a served FC, not the build. Rebuild if we can, but the
-# committed archive.ser is a valid fixture, so a build hiccup must not block the SDK checks.
-if bash _shell_scripts/build_archive.sh > "$LOG" 2>&1 && [ -f archive.ser ]; then
+# The harness tests SDK query paths against a served FC, not the build. Rebuild if we can, but an
+# archive.zip from an earlier build still serves, so a build hiccup must not block the SDK checks.
+if bash _shell_scripts/build_archive.sh > "$LOG" 2>&1 && [ -f archive.zip ]; then
   echo "  archive rebuilt"
-elif [ -f archive.ser ]; then
-  echo "  build did not complete — using the committed archive.ser (fixture). Build tail:"
+elif [ -f archive.zip ]; then
+  echo "  build did not complete — using the existing archive.zip. Build tail:"
   tail -4 "$LOG" | sed 's/^/      /'
 else
-  echo "  build failed AND no archive.ser present — cannot test:"; tail -20 "$LOG" | sed 's/^/      /'; exit 1
+  echo "  build failed AND no archive.zip present — cannot test:"; tail -20 "$LOG" | sed 's/^/      /'; exit 1
 fi
 
 echo "== serve + run protocol tests =="

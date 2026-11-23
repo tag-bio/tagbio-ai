@@ -56,5 +56,8 @@ typed = fc.df.select("Department", "Conditions").run(categories=True)
 assert plain["Department"].dtype == object, "default keeps plain strings"
 assert isinstance(typed["Department"].dtype, pd.CategoricalDtype), "categories=True gives 'category'"
 assert typed["Conditions"].dtype == object, "multi-valued Conditions stays a string"
+conditions = plain["Conditions"].dropna()
+assert conditions.map(lambda v: isinstance(v, str)).all(), "multi-valued cells arrive as text, not lists"
+assert conditions.str.contains("; ", regex=False).any(), 'multi-valued cells are "; "-joined'
 
 print("PASS: discovery, head(n), collection sets, timestamps, opt-in categories")

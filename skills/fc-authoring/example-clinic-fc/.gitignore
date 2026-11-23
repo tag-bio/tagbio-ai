@@ -1,4 +1,6 @@
 # Build + test artifacts — generated, not source. Keep the example source-only.
+archive.zip
+archive_sql.zip
 archive.ser
 archive_sql.ser
 data_dictionary.tsv

@@ -67,6 +67,10 @@ Key points:
   downloads".)
 - **Dates:** every date column from a datetime parser arrives from `tag_data.get_df()` as a UTC
   datetime. Relative durations (e.g. days from start of treatment) stay numeric.
+- **A multi-valued categorical arrives as one `"; "`-joined string per cell**, as in the R SDK and
+  whichever download format the SDK used: the parquet path carries it as a list, and the SDK joins it
+  into the same string as CSV. Split on `"; "` (`df[col].str.split("; ")`) to get the values; an exact
+  match like `df[col] == "LDL"` misses cells that hold several.
 - **`Unique ID` is always there.** The engine **automatically adds a `Unique ID` column** (the
   entity's unique-key combination) to every extract — ad-hoc queries and plugin frames alike — even
   when it isn't in `analysis_variables`. It's the **one guaranteed-unique value per entity**, so

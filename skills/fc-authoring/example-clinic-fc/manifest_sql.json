@@ -25,5 +25,5 @@
     "run_tests": "true"
   },
 
-  "archive": "archive_sql.ser"
+  "archive": "archive_sql.zip"
 }
